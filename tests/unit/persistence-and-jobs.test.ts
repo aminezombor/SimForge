@@ -50,6 +50,26 @@ describe('portable project persistence', () => {
       createdAt: now,
       updatedAt: now,
     });
+    const durableArtifactKinds = ['blender-source', 'script', 'action', 'validation'] as const;
+    for (const kind of durableArtifactKinds) {
+      project.repository.saveProjectRecord({
+        id: `${kind}-1`,
+        projectId: project.manifest.projectId,
+        kind,
+        body: { fixture: kind },
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+    project.repository.saveSceneSnapshot({
+      protocolVersion: 1,
+      projectId: project.manifest.projectId,
+      sceneRevision: 7,
+      sceneName: 'Persisted scene',
+      blenderFile: 'scene/main.blend',
+      capturedAt: now,
+      objects: [],
+    }, 'bridge');
     project.repository.saveConversation({
       id: 'conversation-1',
       projectId: project.manifest.projectId,
@@ -67,8 +87,14 @@ describe('portable project persistence', () => {
     project.repository.close();
     await rename(original, moved);
     const reopened = await manager.open(moved);
-    expect(reopened.repository.listProjectRecords(reopened.manifest.projectId)[0]?.body)
+    const records = reopened.repository.listProjectRecords(reopened.manifest.projectId);
+    expect(records.find((record) => record.kind === 'brief')?.body)
       .toEqual({ goal: 'robot', providerNeutral: true });
+    expect(records.map((record) => record.kind)).toEqual(expect.arrayContaining([...durableArtifactKinds]));
+    expect(reopened.repository.latestSceneSnapshot(reopened.manifest.projectId)).toMatchObject({
+      sceneRevision: 7,
+      sceneName: 'Persisted scene',
+    });
     expect(reopened.repository.listMessages('conversation-1')[0]?.parts)
       .toEqual([{ type: 'text', text: 'Create a safe plan' }]);
     expect(await readFile(path.join(moved, 'simforge.project.json'), 'utf8')).not.toContain('api-key');

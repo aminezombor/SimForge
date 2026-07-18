@@ -73,6 +73,6 @@
 - [ ] Submission links tested after publication
 - [ ] Final submission saved/confirmed
 
-Current status: MS1/MS2 foundation is implemented and packaged locally. This is not a
+Current status: MS1/MS2 foundation is complete and packaged locally. This is not a
 submission build: validators, robot workflows, verified product export, installer,
 clean-machine evidence, sample project, final notices, and demo assets remain open.

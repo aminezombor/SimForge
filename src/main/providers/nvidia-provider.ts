@@ -82,24 +82,65 @@ export class NvidiaProviderAdapter implements ProviderAdapter {
       ],
       tools: [],
     };
-    let streamed = false;
+    let streamedText = false;
     for await (const event of this.stream(key, request, signal)) {
-      if (event.type === 'text-delta' || event.type === 'completed') streamed = true;
+      if (event.type === 'text-delta') streamedText = true;
     }
-    if (!streamed) {
+    if (!streamedText) {
       throw new ProviderError('CAPABILITY_PROBE_FAILED', 'NVIDIA model produced no usable stream');
     }
+
+    let tools: ModelDescriptor['capabilities']['tools'] = 'unknown';
+    const toolProbe: ProviderRequest = {
+      requestId: randomUUID(),
+      modelId,
+      purpose: 'Non-mutating provider tool capability probe',
+      messages: [{
+        role: 'user',
+        parts: [{
+          type: 'text',
+          text: 'Call simforge_capability_probe exactly once with {"status":"ready"}. Do not answer with text. The tool is a no-op and will not be executed.',
+        }],
+      }],
+      tools: [{
+        name: 'simforge_capability_probe',
+        description: 'A non-mutating no-op used only to observe provider tool-call support.',
+        inputSchema: {
+          type: 'object',
+          properties: { status: { type: 'string', const: 'ready' } },
+          required: ['status'],
+          additionalProperties: false,
+        },
+      }],
+    };
+    try {
+      let observedToolCall = false;
+      for await (const event of this.stream(key, toolProbe, signal)) {
+        if (event.type === 'tool-call' && event.name === 'simforge_capability_probe') {
+          observedToolCall = true;
+        }
+      }
+      tools = observedToolCall;
+    } catch (error) {
+      if (error instanceof ProviderError && /HTTP_(400|404|405|422)/.test(error.code)) {
+        tools = false;
+      }
+    }
+
     const lower = modelId.toLowerCase();
     const textOnlyNemotron = lower.includes('nemotron-3-ultra');
+    const reasoningControls = textOnlyNemotron
+      ? await this.probeReasoningControls(key, modelId, signal)
+      : 'unknown';
     return {
       ...this.unprobedDescriptor(modelId, modelId),
       capabilities: {
         text: true,
         vision: textOnlyNemotron ? false : 'unknown',
-        tools: 'unknown',
+        tools,
         streaming: true,
         structuredOutput: 'unknown',
-        reasoningControls: lower.includes('nemotron') ? true : 'unknown',
+        reasoningControls,
       },
       probedAt: new Date().toISOString(),
     };
@@ -133,6 +174,10 @@ export class NvidiaProviderAdapter implements ProviderAdapter {
             parameters: tool.inputSchema,
           },
         })),
+        ...(request.tools.length > 0 ? { tool_choice: 'auto' } : {}),
+        ...(request.tools.length > 0 && request.modelId.toLowerCase().includes('nemotron-3-ultra')
+          ? { chat_template_kwargs: { enable_thinking: true, force_nonempty_content: true } }
+          : {}),
         stream: true,
         stream_options: { include_usage: true },
       }),
@@ -213,5 +258,38 @@ export class NvidiaProviderAdapter implements ProviderAdapter {
       maxOutputTokens: null,
       probedAt: null,
     };
+  }
+
+  private async probeReasoningControls(
+    apiKey: string,
+    modelId: string,
+    signal?: AbortSignal,
+  ): Promise<ModelDescriptor['capabilities']['reasoningControls']> {
+    try {
+      const response = await this.fetcher(`${this.endpoint}/chat/completions`, {
+        method: 'POST',
+        headers: providerHeaders(apiKey),
+        body: JSON.stringify({
+          model: modelId,
+          messages: [{ role: 'user', content: 'Reply with the single word ready.' }],
+          chat_template_kwargs: { enable_thinking: false },
+          max_tokens: 16,
+          stream: true,
+          stream_options: { include_usage: true },
+        }),
+        ...(signal ? { signal } : {}),
+      });
+      let observedResponse = false;
+      for await (const raw of parseServerSentEvents(response)) {
+        const chunk = raw as NvidiaStreamChunk;
+        if (chunk.choices?.length || chunk.usage) observedResponse = true;
+      }
+      return observedResponse ? true : 'unknown';
+    } catch (error) {
+      if (error instanceof ProviderError && /HTTP_(400|404|405|422)/.test(error.code)) {
+        return false;
+      }
+      return 'unknown';
+    }
   }
 }

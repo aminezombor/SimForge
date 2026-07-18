@@ -3,7 +3,7 @@
 ## Status and Method
 
 - Research date: 2026-07-18
-- Status: MS1/MS2 bounded proofs complete except the owner-keyed live NVIDIA probe
+- Status: MS1/MS2 bounded proofs complete, including the owner-keyed live NVIDIA probe
 - Method: Prefer current official documentation and upstream source repositories. Popularity alone is not adoption evidence.
 
 Every adopted dependency must be pinned, inventoried, security-reviewed, and verified in a packaged Windows path. MS1 installed only its reviewed application/runtime dependencies; Blender and OpenUSD were exercised from ignored local verification environments.
@@ -76,6 +76,8 @@ Sources: [OpenUSD 26.05](https://openusd.org/release/), [OpenUSD asset structure
 
 The hardened Electron package, SQLite migrations/backup/recovery, deterministic provider
 normalization, real Blender connect/snapshot/mutation/manual revision/checkpoint/reconnect,
-and OpenUSD author/reopen checks pass. The architecture fallbacks were not invoked. Live
-NVIDIA discovery remains intentionally open until the owner configures a credential in
-protected app storage; no secret is accepted through chat, source, or test fixtures.
+and OpenUSD author/reopen checks pass. The architecture fallbacks were not invoked. The
+packaged NVIDIA probe discovered 119 models, found the intended Nemotron identifier,
+streamed text, observed a harmless tool call without execution, and accepted an explicit
+reasoning-control request. The credential and raw model output are absent from committed
+evidence.

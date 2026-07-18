@@ -34,6 +34,14 @@ pnpm package:extension
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-usd.ps1
 .\.venv-usd\Scripts\python.exe sidecars\usd_worker.py spike --output <new-scene.usda>
 # authored and reopened /World; Z-up; metersPerUnit 1.0
+
+# After configuring the NVIDIA key only through packaged Provider Settings:
+$env:SIMFORGE_SMOKE_RESULT = Join-Path (Get-Location) 'reports\evidence\runtime\nvidia-live.json'
+$probe = Start-Process .\out\SimForge-win32-x64\SimForge.exe `
+  -ArgumentList '--provider-acceptance-test' -WindowStyle Hidden -PassThru -Wait
+if ($probe.ExitCode -ne 0) { throw 'Provider acceptance process failed' }
+Get-Content $env:SIMFORGE_SMOKE_RESULT
+# 119 models; intended Nemotron discovered; streamed text/no-op tool call pass
 ```
 
 The real-Blender fixture proves authenticated connect, fresh non-mutating snapshot,
@@ -49,17 +57,25 @@ CLI inspection, and legacy file privileges are disabled while ASAR integrity and
 encryption are enabled. Packaged credential smoke proves Windows-protected storage,
 user-only ACL application, removal, and no plaintext credential bytes under app data.
 
+The final packaged NVIDIA probe used the protected credential without exposing it.
+Runtime discovery returned 119 models and included
+`nvidia/nemotron-3-ultra-550b-a55b`. A streamed text response and valid call to the
+offered `simforge_capability_probe` no-op were observed; the call was discarded and no
+tool executed. The endpoint accepted a separate explicit `enable_thinking: false`
+request. The sanitized record reports text, streaming, tools, and reasoning controls
+true; vision false; structured output unknown; no attachments. Raw provider output and
+the credential are not committed.
+
 ## Acceptance Mapping
 
-- Passing: AT-003, AT-005, AT-006, AT-008 through AT-015.
+- Passing: AT-003 through AT-006 and AT-008 through AT-015.
 - Passing for the MS2 attack surface: AT-031; import/export and release-package cases
   remain in their planned milestones.
-- Blocked only on owner credential: AT-004 live NVIDIA discovery/capability evidence.
+- Governance/evidence gate AT-039 passes for MS1/MS2.
 
 ## Honest Limitations
 
-No live NVIDIA credential was available during this evidence run. The adapters,
-discovery gate, text-only Nemotron classification, unavailability behavior, disclosure,
-and normalized tool fixtures are tested deterministically, but AT-004 cannot pass until
-the protected live probe runs. Validation, robot construction, and product USD export
-are not claimed; they remain MS3-MS5.
+Structured-output support and numeric context/output limits remain `unknown` because the
+probe does not manufacture capabilities it did not observe. The Python/OpenUSD runtime
+is locally proven but not embedded. Validation, robot construction, and product USD
+export are not claimed; they remain MS3-MS5.

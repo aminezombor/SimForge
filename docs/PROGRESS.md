@@ -2,11 +2,10 @@
 
 ## Current State
 
-- Phase: MS1 live-provider gate; MS2 implementation/evidence complete
-- Overall status: Working packaged foundation with real Blender 4.5 LTS evidence
+- Phase: MS1 and MS2 complete; stopped before MS3
+- Overall status: Verified packaged foundation with real Blender and live NVIDIA evidence
 - Architecture: Approved; no architecture changes were required
-- Current gate: owner configures an NVIDIA key, then Codex runs the sanitized live
-  discovery/Nemotron capability acceptance probe
+- Current gate: owner review/instruction before starting MS3 deterministic validation
 - Last updated: 2026-07-18
 
 ## Completed Work
@@ -20,6 +19,7 @@
 | 2026-07-18 | MS2 mode and scene-truth enforcement | Added Chat/Plan/Build/Goal policy, exact approvals, persistent jobs, manual-edit diffs, stale rejection, crash/reconnect recovery, and approved Python archive/fallback. | Policy/job/live Blender tests; AT-008 through AT-015 |
 | 2026-07-18 | OpenUSD compatibility spike | Pinned `usd-core` 26.5 in Python 3.13; authored/reopened Z-up, meter-scale USDA. | `sidecars/usd_worker.py`; SHA-256 evidence |
 | 2026-07-18 | Security/package hardening | Proved no renderer Node globals, narrow preload API, explicit Electron 43 fuse policy, CSP/navigation denial, forged/oversized bridge rejection, path containment, user-only ACLs, secret scanning, and DPAPI lifecycle. | Fuse inspection; security/credential smoke; AT-003/AT-031 |
+| 2026-07-18 | Live NVIDIA acceptance | Protected owner key drove packaged runtime discovery and non-mutating capability probes; 119 models returned, intended Nemotron found, streamed text and no-op tool call observed, explicit reasoning control accepted, vision false. | `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`; AT-004 |
 
 ## Verification Summary
 
@@ -32,16 +32,16 @@
 | Credential smoke | Protected store works; plaintext scan false before/after removal |
 | Portable SQLite | Move/reopen plus backup/recovery passing |
 | OpenUSD | Python 3.13.14, usd-core 26.5, author/reopen passing |
+| Live NVIDIA | 119 models discovered; intended Nemotron found; text/stream/tools/reasoning controls true; vision false; no-op tool not executed |
 | Repository secret scan | Passing |
 | Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
-## Remaining Gate and Risks
+## Remaining Risks
 
-- **Owner input required:** configure an NVIDIA API key in the packaged app. The key
-  must not be pasted into chat, terminal, or source. Runtime discovery must confirm
-  whether `nvidia/nemotron-3-ultra-550b-a55b` is available and the text probe works.
+- Live structured-output support and numeric context/output limits remain honestly
+  `unknown`; later routing must require an observed capability rather than assume one.
 - The Python/OpenUSD runtime is proven locally but is not embedded in the MS1 package;
   full fixed-runtime packaging remains part of the MS5/MS9 export/release work.
 - The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
@@ -50,6 +50,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-After the owner confirms the NVIDIA key is configured, run the packaged
-`--provider-acceptance-test`, sanitize its capability record, update AT-004 and
-traceability, commit the milestone evidence, and only then mark MS1/MS2 complete.
+Stop. Do not start MS3 until the owner explicitly approves the next milestone. MS3 must
+begin by rereading persistent memory and naming its deterministic validation rules and
+acceptance evidence.

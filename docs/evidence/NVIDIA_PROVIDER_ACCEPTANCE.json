@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "runDate": "2026-07-18",
+  "appVersion": "0.1.0",
+  "packaged": true,
+  "probeSucceeded": true,
+  "providerId": "nvidia",
+  "discoveredModelCount": 119,
+  "intendedModelDiscovered": true,
+  "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+  "capabilities": {
+    "text": true,
+    "vision": false,
+    "tools": true,
+    "streaming": true,
+    "structuredOutput": "unknown",
+    "reasoningControls": true
+  },
+  "disclosure": {
+    "purpose": "Non-mutating text, no-op tool, and reasoning-control capability probes",
+    "dataClasses": [
+      "probe prompt"
+    ],
+    "attachments": []
+  },
+  "credentialIncluded": false,
+  "rawModelOutputIncluded": false
+}

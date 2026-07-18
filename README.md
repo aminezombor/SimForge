@@ -6,10 +6,10 @@ chat or an approved goal produces a structured Blender operation, the app captur
 fresh scene truth, checkpoints before mutation, rejects stale work, and records an
 auditable activity trail.
 
-Current milestone state: MS2 implementation and deterministic/live Blender tests
-pass. MS1 is awaiting one owner-supplied NVIDIA credential to complete the live
-runtime discovery/capability probe. Deterministic NVIDIA/OpenAI adapter tests pass.
-Validation, robot generation, and verified USD export begin in MS3-MS5.
+Current milestone state: MS1 and MS2 are complete with deterministic, packaged,
+real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nemotron
+3 Ultra model and proved streamed text plus a non-executed no-op tool call. Validation,
+robot generation, and verified USD export begin in MS3-MS5.
 
 ## Repository Map
 

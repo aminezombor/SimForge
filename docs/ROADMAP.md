@@ -33,10 +33,10 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
 ## Current Milestone Status
 
 - MS0: accepted and committed.
-- MS1: implementation and all local/packaged/real-Blender evidence complete; AT-004
-  awaits a protected owner NVIDIA credential and live runtime probe.
-- MS2: implementation and evidence complete; final milestone checkpoint is held with
-  MS1 so traceability and the approved gate remain coherent.
+- MS1: complete; packaged runtime discovery found the intended Nemotron model and the
+  complete thin AI-to-Blender, storage, security, and OpenUSD compatibility evidence passes.
+- MS2: complete; modes, exact approvals, jobs, live revisions, manual-edit diffs,
+  stale rejection, checkpoint recovery, and controlled Python evidence pass.
 - MS3: not started. No deterministic validation capability is claimed yet.
 
 ## Post-Hackathon V1 (MS10)
@@ -59,7 +59,7 @@ Add an optional Isaac adapter that imports canonical packages, applies simulator
 
 1. MS0 documentation complete - stop and report.
 2. Owner starts MS1/MS2 - complete on 2026-07-18.
-3. Risk spikes pass before broad feature work.
+3. MS1/MS2 risk spikes and acceptance pass - complete on 2026-07-18.
 4. First-cycle vertical slice accepted before P1 viewport/polish.
 5. Generated manipulator path stable before imported robot work.
 6. Clean-machine acceptance and demo rehearsal before submission.

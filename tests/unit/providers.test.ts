@@ -79,10 +79,25 @@ describe('provider-neutral adapters', () => {
   });
 
   it('discovers and probes NVIDIA at runtime while keeping Nemotron Ultra text-only', async () => {
-    const fetcher: FetchLike = (input) => {
+    const requestBodies: Array<{
+      tools?: Array<{ function?: { name?: string } }>;
+      chat_template_kwargs?: { enable_thinking?: boolean };
+    }> = [];
+    const fetcher: FetchLike = (input, init) => {
       const url = requestUrl(input);
       if (url.endsWith('/models')) {
         return Promise.resolve(Response.json({ data: [{ id: 'nvidia/nemotron-3-ultra-550b-a55b' }] }));
+      }
+      const requestBody = init?.body;
+      const body = JSON.parse(typeof requestBody === 'string' ? requestBody : '{}') as {
+        tools?: Array<{ function?: { name?: string } }>;
+        chat_template_kwargs?: { enable_thinking?: boolean };
+      };
+      requestBodies.push(body);
+      if (body.tools?.[0]?.function?.name === 'simforge_capability_probe') {
+        return Promise.resolve(sse([
+          { choices: [{ delta: { tool_calls: [{ index: 0, id: 'probe-call', function: { name: 'simforge_capability_probe', arguments: '{"status":"ready"}' } }] }, finish_reason: 'tool_calls' }] },
+        ]));
       }
       return Promise.resolve(sse([
         { choices: [{ delta: { content: 'ready' } }] },
@@ -95,6 +110,9 @@ describe('provider-neutral adapters', () => {
     const probed = await adapter.probeCapabilities('test-secret', models[0]!.modelId);
     expect(probed.capabilities.streaming).toBe(true);
     expect(probed.capabilities.vision).toBe(false);
+    expect(probed.capabilities.tools).toBe(true);
+    expect(probed.capabilities.reasoningControls).toBe(true);
+    expect(requestBodies.some((body) => body.chat_template_kwargs?.enable_thinking === false)).toBe(true);
   });
 
   it('normalizes OpenAI Responses streaming to the common event contract', async () => {
@@ -164,7 +182,7 @@ describe('provider-neutral adapters', () => {
       const result = await service.probe('nvidia', models[0]!.modelId);
       expect(result.disclosure).toMatchObject({
         providerId: 'nvidia',
-        purpose: 'Non-mutating text capability probe',
+        purpose: 'Non-mutating provider capability probes',
         attachments: [],
       });
       expect(JSON.stringify(fixture.project.repository.listActivities(fixture.project.manifest.projectId)))

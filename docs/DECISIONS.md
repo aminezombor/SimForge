@@ -45,6 +45,15 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 
 **Consequences.** The protocol remains auditable and purpose-built. Generic MCP servers may inform research but will not be embedded. Python fallback remains explicitly privileged rather than falsely sandboxed.
 
+### DEC-007: Runtime provider evidence
+
+**Evidence.** The packaged NVIDIA path discovered 119 models and selected the intended
+Nemotron identifier only after membership validation. Separate non-mutating probes
+observed streamed text and a returned no-op tool call without executing it. Vision is
+false; the endpoint accepted an explicit reasoning-control request; structured output
+and numeric limits remain `unknown`, so routing cannot assume them. The provider-neutral
+fallback and error paths continue to be deterministic tests.
+
 ### DEC-009: Neutral OpenUSD sidecar
 
 **Decision.** Blender exports visual layers. A fixed, non-shell Python sidecar authors root/physics/sensor composition and reopens the package through `pxr`. Package convention is Z-up and meters-per-unit `1.0`, with relative references and a machine manifest.

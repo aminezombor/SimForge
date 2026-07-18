@@ -46,8 +46,8 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   packaged executable exited cleanly with the reviewed narrow API and fuse policy.
 - Acceleration: bounded the highest-risk native/process/protocol seams before robot or
   validation work and converted each into a repeatable automated fixture.
-- Human review: owner approved the architecture and instructed Codex to continue through
-  MS1/MS2; live NVIDIA access remains owner-controlled.
+- Human review: owner approved the architecture, instructed Codex to continue through
+  MS1/MS2, and configured the NVIDIA key only through protected app settings.
 - Evidence: `docs/evidence/MS1_MS2_VERIFICATION.md`, `tests/`, packaged smoke results.
 
 ### 2026-07-18 - MS2 policy, recovery, and adversarial verification
@@ -66,6 +66,23 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   `bpy` assumptions into a 2-3 second real integration test instead of manual anecdotes.
 - Evidence: `tests/live/blender-live.test.ts`, policy/security tests, packaged renderer and
   credential smoke evidence.
+
+### 2026-07-18 - Live NVIDIA capability closure
+
+- Phase/milestone: MS1/MS2 closure
+- Requirement/test IDs: REQ-AI-001 through REQ-AI-005; AT-003, AT-004, AT-039
+- Contribution: Codex ran packaged runtime discovery and noticed the first live record
+  left tool support `unknown`. It strengthened the probe to offer a non-mutating no-op,
+  observe and discard the call without executing it, replaced model-name reasoning
+  inference with an explicit control request, and distinguished observed support from
+  unknown capabilities.
+- Result: 119 models discovered; intended Nemotron 3 Ultra found; streamed text and tool
+  call passed; text-only classification retained; structured output stayed honestly
+  unknown. No credential or raw model output entered evidence.
+- Acceleration: converted a documentation-level capability assumption into direct,
+  reproducible endpoint evidence before allowing the milestone to close.
+- Evidence: `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`, provider unit tests, packaged
+  `--provider-acceptance-test` result.
 
 ## Future Entry Template
 

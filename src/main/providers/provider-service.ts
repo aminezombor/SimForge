@@ -99,7 +99,7 @@ export class ProviderService {
     if (!discovered.some((model) => model.modelId === modelId)) {
       throw new Error(`${modelId} was not returned by runtime ${providerId} discovery`);
     }
-    const purpose = 'Non-mutating text capability probe';
+    const purpose = 'Non-mutating provider capability probes';
     const model = await this.adapters[providerId].probeCapabilities(
       await this.secret(providerId),
       modelId,
@@ -108,7 +108,7 @@ export class ProviderService {
     this.repository.setState(`provider:${providerId}:models`, models);
     const result: ProviderProbeResult = {
       model,
-      selectionReason: `${providerId}/${modelId} was discovered at runtime and passed a text streaming probe`,
+      selectionReason: `${providerId}/${modelId} was discovered at runtime and passed its non-mutating capability probes`,
       disclosure: {
         providerId,
         modelId,

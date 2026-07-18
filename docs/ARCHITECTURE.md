@@ -3,7 +3,7 @@
 ## Status and Quality Attributes
 
 - Status: Approved baseline (DEC-004 through DEC-011)
-- Implementation: MS1/MS2 foundation implemented and packaged; live NVIDIA gate pending
+- Implementation: MS1/MS2 foundation implemented, packaged, and verified
 - Target: Windows 11 x64, separately installed Blender 4.5 LTS
 - Priorities: scene truth, safety, recovery, testability, judge reproducibility, delivery speed, future Linux/Isaac extension
 
@@ -108,7 +108,11 @@ NVIDIA hosted NIM is primary. Nemotron 3 Ultra is selected only after discovery/
 and is treated as text-only. OpenAI Responses is optional. Capability records are
 cached in global SQLite and can be re-probed. Before cloud dispatch, the renderer shows
 provider, model, purpose, and included text/image/file classes. Deterministic adapter
-tests pass; live NVIDIA evidence awaits the owner credential (OQ-003).
+tests pass. The packaged live probe discovered 119 NVIDIA models, found the intended
+Nemotron identifier, streamed text, and observed a valid no-op tool call without
+executing it; the endpoint also accepted an explicit `enable_thinking: false` probe.
+Vision remains false and unsupported/unprobed capabilities remain explicitly `unknown`;
+see `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`.
 
 ### Tool and approval model
 

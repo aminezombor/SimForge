@@ -26,11 +26,11 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-MODE-008 | Jobs persist across restart while chat remains usable | HACKATHON-P0 | MS2 | AT-011 | Tested | SQLite reopen plus concurrent assistant-ui message path |
 | REQ-MODE-009 | Goal Mode never performs restricted actions silently | HACKATHON-P0 | MS2 | AT-009, AT-010, AT-011 | Tested | Mode/allowlist/exact-approval enforcement |
 | REQ-MODE-010 | Approval gates occur only at material decision points | HACKATHON-P0 | MS2 | AT-010, AT-025, AT-029 | Tested | Safe-local auto path; destructive/privileged exact approval; later operation gates retained |
-| REQ-AI-001 | NVIDIA-first provider with user key | HACKATHON-P0 | MS1 | AT-003, AT-004 | Implemented | NVIDIA-first settings/adapter/protected key; live key evidence pending OQ-003 |
-| REQ-AI-002 | Runtime NVIDIA model discovery/validation | HACKATHON-P0 | MS1 | AT-004 | Implemented | Runtime `/models` adapter and discovery gate; live key pending |
-| REQ-AI-003 | Runtime capability probes and records | HACKATHON-P0 | MS1 | AT-004 | Implemented | Non-mutating stream probe and global capability records; live key pending |
+| REQ-AI-001 | NVIDIA-first provider with user key | HACKATHON-P0 | MS1 | AT-003, AT-004 | Tested | Protected owner key used by packaged live NVIDIA probe; no key in evidence/log/source |
+| REQ-AI-002 | Runtime NVIDIA model discovery/validation | HACKATHON-P0 | MS1 | AT-004 | Tested | Live `/models` returned 119 entries and intended Nemotron identifier |
+| REQ-AI-003 | Runtime capability probes and records | HACKATHON-P0 | MS1 | AT-004 | Tested | Live streamed-text, non-executed no-op tool, and explicit reasoning-control probes; sanitized record retained |
 | REQ-AI-004 | Clear unavailability and fallback behavior | HACKATHON-P0 | MS1 | AT-004, AT-005 | Tested | Missing/undiscovered/failing provider tests and visible status |
-| REQ-AI-005 | Nemotron selected only when discovered and suitable | HACKATHON-P0 | MS1 | AT-004 | Tested | Discovery membership gate and forced text-only classification; live availability pending |
+| REQ-AI-005 | Nemotron selected only when discovered and suitable | HACKATHON-P0 | MS1 | AT-004 | Tested | Packaged discovery found intended model before probe; text/stream/tools true and vision false |
 | REQ-AI-006 | Optional OpenAI provider proves independence | HACKATHON-P0 | MS1 | AT-005 | Tested | Direct Responses adapter normalized against NVIDIA fixtures |
 | REQ-AI-007 | Capability-based model routing | HACKATHON-P1 | MS6 | AT-005 | Planned | - |
 | REQ-AI-008 | Manual/automatic provider and model controls | HACKATHON-P1 | MS6 | AT-005, AT-032 | Planned | - |
@@ -50,7 +50,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-UX-010 | No secrets in conversation history | HACKATHON-P0 | MS1 | AT-003, AT-007 | Tested | Secret-like chat rejected; protected configuration path and secret scan |
 | REQ-DATA-001 | Multiple locally owned portable projects | HACKATHON-P0 | MS1 | AT-006 | Tested | Global index plus distinct move/reopen project fixtures |
 | REQ-DATA-002 | Store brief/chat/memory/references/docs/plans/decisions | HACKATHON-P0 | MS1 | AT-006, AT-007 | Tested | Generic typed records and provider-neutral message persistence; advanced controls remain MS6 |
-| REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Implemented | Scene revisions, activities, checkpoint DB, archived scripts, typed validation record slot; full restore/validation MS3 |
+| REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Portable reopen test covers Blender source, script, action, validation records and scene snapshot; semantic validation begins MS3 |
 | REQ-DATA-004 | Store dependencies/assets/attribution/physics/sensors/exports/reports/previews | HACKATHON-P0 | MS5 | AT-006, AT-029, AT-030, AT-036 | Planned | - |
 | REQ-DATA-005 | Store named versions/branches/checkpoints/job state | HACKATHON-P1 | MS6 | AT-011, AT-026, AT-027 | Planned | - |
 | REQ-DATA-006 | Reusable libraries for robotics authoring resources | POST-HACKATHON-V1 | MS10 | AT-037 | Planned | - |
