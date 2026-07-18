@@ -4,6 +4,18 @@
 
 Protect provider credentials and private project data, prevent models/renderers/imports from gaining ambient authority, prevent unintended Blender or filesystem mutation, keep recovery possible, and make cloud and privileged actions understandable to the user.
 
+## MS1/MS2 Implemented Baseline
+
+Packaged evidence confirms renderer sandbox/context isolation, no renderer Node globals,
+restrictive CSP, denied remote windows/navigation/permissions, a typed narrow preload
+API, and hardened Electron fuses. The main process owns SQLite, provider HTTPS,
+DPAPI-backed credentials, policy, files, jobs, and the authenticated bridge. Runtime
+descriptors and credential blobs receive current-user-only Windows ACLs. Tests cover
+forged/oversized bridge frames, stale/forged approvals, prompt-injected unavailable
+tools, project-path traversal, secret-like chat/script content, privileged script
+failure, and crash recovery. Import/export-specific controls remain gated in their
+later milestones because those surfaces do not yet exist.
+
 ## Trust Boundaries
 
 - **Trusted policy boundary:** signed/pinned Electron main-process code and fixed sidecars.

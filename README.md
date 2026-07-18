@@ -1,53 +1,68 @@
 # SimForge
 
-SimForge is a planned Windows-first, local-first desktop developer tool for creating and preparing robotics assets through conversational AI and a real Blender scene. Its target loop is:
+SimForge is a Windows-first, local-first desktop tool for conversational robotics
+authoring in a real Blender scene. MS1 and MS2 establish the safe vertical slice:
+chat or an approved goal produces a structured Blender operation, the app captures
+fresh scene truth, checkpoints before mutation, rejects stale work, and records an
+auditable activity trail.
 
-> Idea -> approved plan -> Blender creation or modification -> live scene inspection -> deterministic validation -> safe correction -> verified robotics-ready USD package.
-
-The hackathon demonstration will build a warehouse mobile manipulator, catch a real geometry or robotics-readiness defect, apply a reversible correction, and export a reopened, verified USD package with a readiness report.
-
-## Current Status
-
-**MS0: documentation and architecture baseline.** No application code or UI implementation exists yet. The architecture is approved, but work must stop after MS0 until the owner explicitly starts MS1.
-
-## Planned Architecture
-
-- Electron, React, and TypeScript desktop application
-- Thin GPL-3.0-or-later Blender 4.5 LTS extension
-- NVIDIA-first, provider-neutral AI layer with optional OpenAI support
-- Local SQLite project storage and Windows DPAPI-backed secret storage
-- Bundled Python/OpenUSD sidecar for USD composition and verification
-- Blender-authoritative scene state with structured operations, revisions, checkpoints, and approvals
-
-See [Architecture](docs/ARCHITECTURE.md), [Security](docs/SECURITY.md), and [Roadmap](docs/ROADMAP.md) for the approved design.
+Current milestone state: MS2 implementation and deterministic/live Blender tests
+pass. MS1 is awaiting one owner-supplied NVIDIA credential to complete the live
+runtime discovery/capability probe. Deterministic NVIDIA/OpenAI adapter tests pass.
+Validation, robot generation, and verified USD export begin in MS3-MS5.
 
 ## Repository Map
 
-- `AGENTS.md` - permanent contributor and Codex operating rules
-- `docs/PRODUCT_VISION.md` - users, problem, experience, and product principles
-- `docs/PRODUCT_REQUIREMENTS.md` - confirmed, stable product requirements
-- `docs/REQUIREMENTS_TRACEABILITY.md` - requirement-to-milestone/test/evidence mapping
-- `docs/ACCEPTANCE_TESTS.md` - deterministic acceptance procedures
-- `docs/ARCHITECTURE.md` - approved system design and interfaces
-- `docs/DECISIONS.md` - consequential product and technical decisions
-- `docs/RESEARCH.md` - primary-source ecosystem research
-- `docs/HACKATHON_SCOPE.md` and `docs/ROADMAP.md` - priority tiers and two-cycle delivery plan
-- `docs/SECURITY.md` and `docs/PRIVACY.md` - threat model and data-handling policy
-- `docs/PROGRESS.md` - current state, verification, and next gate
-- `docs/HACKATHON_SUBMISSION_CHECKLIST.md` and `docs/DEMO_SCRIPT.md` - submission readiness
+- `src/` - sandboxed React renderer, narrow preload bridge, Electron main services,
+  provider adapters, policy, persistence, jobs, and Blender protocol
+- `blender-extension/` - GPL-3.0-or-later Blender 4.5 LTS extension
+- `sidecars/` - Apache-2.0 OpenUSD compatibility worker
+- `tests/` - unit, contract, bridge, security, and opt-in real-Blender tests
+- `docs/` - persistent requirements, decisions, traceability, evidence, and progress
 
-## Build and Test Commands
+Project data is portable (`simforge.project.json`, `.simforge/project.sqlite`,
+`scene/`, `scripts/`, `checkpoints/`, `exports/`, and `reports/`). Credentials stay
+outside projects under Windows-protected `%LOCALAPPDATA%\SimForge` storage.
 
-Commands will be added in MS1 after the package manifests exist. Planned commands are `pnpm dev`, `pnpm test`, `pnpm test:integration`, `pnpm lint`, and `pnpm package`. Do not present them as working before MS1 evidence exists.
+## Development
 
-## Supported Platform
+Prerequisites: Windows 11 x64, Node.js 24+, pnpm 11+, Python 3.13, and Blender
+4.5 LTS for live integration.
 
-The hackathon baseline is Windows 11 x64 with a separately installed Blender 4.5 LTS. Isaac Sim is not required for V1. Future Linux and Isaac Sim work is preserved in the roadmap.
+```powershell
+pnpm install
+pnpm verify
+pnpm start
+pnpm package
+pnpm package:extension
+```
 
-## Licensing
+`pnpm verify` runs strict TypeScript, ESLint, Vitest, and the repository secret
+scan. `pnpm package` creates `out/SimForge-win32-x64/SimForge.exe`.
 
-The standalone desktop application will use Apache-2.0. The Blender extension will use GPL-3.0-or-later. Third-party assets retain their own licenses and must be recorded in project metadata and notices. License files will be added with the first distributable source packages.
+Bootstrap and prove the pinned OpenUSD seam:
 
-## Secrets
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-usd.ps1
+.\.venv-usd\Scripts\python.exe sidecars\usd_worker.py spike --output .\reports\usd-spike\scene.usda
+```
 
-Never place API keys in source, project databases, logs, screenshots, commands, sample files, or submission materials. The implemented app will store provider credentials through Windows-protected local storage.
+Run the opt-in real Blender acceptance fixture:
+
+```powershell
+$env:SIMFORGE_BLENDER_PATH = 'C:\path\to\Blender 4.5\blender.exe'
+pnpm exec vitest run tests/live/blender-live.test.ts --reporter=verbose
+```
+
+Install `out/simforge_bridge-0.1.0.zip` in Blender, enable the extension, launch
+SimForge, then choose **View3D > Sidebar > SimForge > Connect SimForge**.
+
+## Security and Licensing
+
+The renderer has no Node/process/filesystem authority. The main process validates
+narrow IPC, exact approvals, project paths, provider payloads, and the authenticated
+loopback Blender protocol. Never paste keys into chat or commit them; use Provider
+Settings. See [Security](docs/SECURITY.md) and [Privacy](docs/PRIVACY.md).
+
+Desktop code is Apache-2.0. Blender-loaded code is GPL-3.0-or-later. See
+[LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md).

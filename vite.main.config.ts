@@ -1,0 +1,13 @@
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      external: ['electron', 'node:sqlite'],
+      output: {
+        entryFileNames: 'main.js',
+      },
+    },
+  },
+});

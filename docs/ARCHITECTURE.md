@@ -3,7 +3,7 @@
 ## Status and Quality Attributes
 
 - Status: Approved baseline (DEC-004 through DEC-011)
-- Implementation: Not started
+- Implementation: MS1/MS2 foundation implemented and packaged; live NVIDIA gate pending
 - Target: Windows 11 x64, separately installed Blender 4.5 LTS
 - Priorities: scene truth, safety, recovery, testability, judge reproducibility, delivery speed, future Linux/Isaac extension
 
@@ -19,7 +19,7 @@ flowchart LR
     M --> D["Global and project SQLite"]
     M -->|"loopback token RPC"| B["Blender 4.5 LTS extension"]
     B --> S["Authoritative Blender scene"]
-    M -->|"fixed JSON over stdio"| X["Bundled OpenUSD sidecar"]
+    M -->|"fixed JSON over stdio"| X["Fixed OpenUSD sidecar (release target)"]
     X --> W["Verified USD package"]
 ```
 
@@ -29,7 +29,13 @@ There is no local HTTP server and no remote web UI. The main process is the trus
 
 ### Renderer
 
-React renders projects, chat, approvals, activity, validation, history, and export state. It has no Node integration, secret access, raw filesystem access, arbitrary process launch, provider credentials, or direct Blender connection. Context isolation, Chromium sandboxing, restrictive CSP, validated sender origins, permission denial, safe navigation, and Electron fuses are required.
+React and `@assistant-ui/react` 0.14.27 render local-runtime chat, projects,
+approvals, activity, provider disclosure, jobs, and honest validation state. No
+Assistant Cloud or provider-coupled renderer transport is used. The renderer has no
+Node integration, secret access, raw filesystem access, arbitrary process launch,
+provider credentials after configuration, or direct Blender connection. Packaged
+smoke evidence confirms context isolation, Chromium sandboxing, restrictive CSP,
+validated sender origins, permission denial, safe navigation, and the narrow preload API.
 
 ### Main process
 
@@ -92,9 +98,17 @@ stream(ProviderRequest, AbortSignal) -> AsyncIterable<ProviderEvent>
 cancel(requestId)
 ```
 
-Capabilities include text, vision, tool calling, streaming, structured output, reasoning controls, context/output limits, and usage reporting. Provider requests use normalized messages/parts, tools, response schema, attachments, and purpose. Events normalize text deltas, reasoning summaries if explicitly returned, tool calls, usage, warnings, errors, and completion.
+Capabilities include text, vision, tool calling, streaming, structured output,
+reasoning controls, context/output limits, and usage reporting. Implemented adapters
+provide discovery, real non-mutating probing, normalized streaming/tool/usage events,
+AbortController-backed cancellation, and clear errors. Provider requests use normalized
+messages/parts, tools, attachments, and purpose.
 
-NVIDIA hosted NIM is primary. Nemotron 3 Ultra is selected only after discovery/probe and is treated as text-only. OpenAI Responses is optional. Capability records are cached with endpoint/model/version and can be re-probed. Before cloud dispatch, the renderer shows provider, model, purpose, and included text/image/file classes.
+NVIDIA hosted NIM is primary. Nemotron 3 Ultra is selected only after discovery/probe
+and is treated as text-only. OpenAI Responses is optional. Capability records are
+cached in global SQLite and can be re-probed. Before cloud dispatch, the renderer shows
+provider, model, purpose, and included text/image/file classes. Deterministic adapter
+tests pass; live NVIDIA evidence awaits the owner credential (OQ-003).
 
 ### Tool and approval model
 
@@ -123,9 +137,20 @@ event:    eventId, projectId, sceneRevision, kind, changedEntityIds, summary
 
 The token is used during the authenticated handshake, not repeated in logs. Size limits, timeouts, rate limits, schema validation, and per-session project binding apply.
 
-A socket thread only parses and queues. `bpy.app.timers` executes scene access on Blender's main thread. Dependency-graph handlers track relevant manual changes. Stable `simforge.id` properties identify entities; `simforge.sceneRevision` advances monotonically. A mutating request with a mismatched expected revision returns `STALE_SCENE`, causing refresh and replanning rather than overwrite.
+A socket thread only parses and queues. `bpy.app.timers` executes scene access on
+Blender's main thread. Dependency-graph handlers track relevant manual changes.
+Structured-created entities receive stable `simforge.id` properties; read-only
+inspection uses session IDs without mutating manual objects. A process-local revision
+counter is seeded from the app-persisted monotonic revision floor on reconnect. A
+mutating request with a mismatched expected revision returns `STALE_SCENE`, causing
+refresh and replanning rather than overwrite.
 
-Structured operations cover scene snapshot, primitive/object/collection/material creation, transforms, hierarchy, metadata, import/export staging, renders, validation queries, saves, and checkpoint copies. Python fallback is disabled in Plan Mode and requires script/intent display, approval, pre-checkpoint, hash, constrained working paths, audit entry, timeout/cancel handling where feasible, and a post-execution snapshot/validation. It is privileged, not sandboxed.
+The MS1/MS2 operation set covers snapshot, checkpoint copy, primitive creation, object
+deletion, and controlled Python fallback. Later milestones add the remaining typed
+collection/material/transform/import/export/render/validation operations. Python
+fallback is disabled in Plan Mode and requires displayed intent, exact approval,
+pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
+audit entry, and post-execution snapshot. It is privileged, not sandboxed.
 
 ## Import Architecture
 
@@ -197,3 +222,7 @@ P0 checks stage open, default prim, units/up axis, relative reference resolution
 ## Deployment
 
 Electron Forge produces a Windows installer and portable ZIP. Blender remains a separate prerequisite. The release bundles the fixed OpenUSD sidecar and Blender extension installer files, but no API key, Blender binary, or Isaac Sim. Auto-update is outside P0. Unsigned-build limitations must be documented if no certificate is available.
+
+MS1 proves the portable Electron package, packaged extension ZIP, and local pinned
+Python/OpenUSD worker. Embedding the fixed Python/OpenUSD runtime is deliberately an
+MS5/MS9 release task; the current package must not claim standalone USD export.

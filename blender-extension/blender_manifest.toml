@@ -1,0 +1,15 @@
+schema_version = "1.0.0"
+id = "simforge_bridge"
+version = "0.1.0"
+name = "SimForge Bridge"
+tagline = "Secure local scene bridge for SimForge"
+maintainer = "SimForge Contributors"
+type = "add-on"
+website = "https://github.com/"
+tags = ["Development", "Pipeline"]
+blender_version_min = "4.5.0"
+license = ["SPDX:GPL-3.0-or-later"]
+
+[permissions]
+network = "Connects only to an authenticated SimForge listener on 127.0.0.1"
+files = "Reads the user-selected runtime descriptor and writes approved project checkpoints"

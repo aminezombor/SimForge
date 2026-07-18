@@ -1,0 +1,16 @@
+node_modules/
+.vite/
+out/
+coverage/
+dist/
+.venv/
+.venv-usd/
+.tools/
+__pycache__/
+*.py[cod]
+*.log
+*.sqlite-shm
+*.sqlite-wal
+reports/evidence/runtime/
+reports/evidence/ms1/
+reports/evidence/ms2/

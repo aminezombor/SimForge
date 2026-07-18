@@ -4,6 +4,16 @@
 
 SimForge is local-first, data-minimizing, transparent about cloud processing, and usable without a SimForge-hosted account or telemetry service. The user owns project files and controls provider, upload, memory, and logging behavior.
 
+## MS1/MS2 Implementation Status
+
+Portable project and global SQLite, local chat, provider capability records, protected
+credentials, per-dispatch probe disclosure, and no-telemetry behavior are implemented.
+The renderer never receives a stored credential. Packaged credential evidence found no
+plaintext test credential anywhere under app data while stored or after removal.
+Attachment/upload, diagnostics export, advanced memory controls, and project deletion
+are not exposed yet and therefore cannot send or delete data silently; their full
+control/evidence gate remains AT-032/MS6.
+
 ## Data Locations
 
 | Data | Default location | Cloud behavior |

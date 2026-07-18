@@ -28,6 +28,45 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Acceleration: Turned a large narrative brief into an auditable delivery ledger and judge-oriented evidence plan without silently dropping future scope.
 - Evidence: `docs/PRODUCT_REQUIREMENTS.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/ACCEPTANCE_TESTS.md`, `docs/ROADMAP.md`.
 
+### 2026-07-18 - MS1 risky-seam implementation and diagnosis
+
+- Phase/milestone: MS1
+- Requirement/test IDs: REQ-AI-001 through REQ-AI-006, REQ-DATA-001/002,
+  REQ-BLENDER-001/002/005/008, REQ-SECURITY-001 through REQ-SECURITY-006;
+  AT-003 through AT-006 and AT-012
+- Contribution: Codex implemented provider-neutral NVIDIA/OpenAI streaming contracts,
+  protected credentials, portable SQLite, the authenticated Blender bridge/extension,
+  the local AI-to-structured-tool slice, packaged Electron smoke tests, and the pinned
+  OpenUSD author/reopen worker.
+- Important corrections: diagnosed pnpm 11 configuration migration, Forge output-name
+  collision, CommonJS/package-type startup hang, a wrong preload output path, and the
+  Electron 43 ninth-fuse mismatch in Forge's older fuse peer range. Codex moved fuse
+  application to the current official utility, required all fuse values, and inspected
+  the produced binary. Each failing package/smoke result remained a defect until the
+  packaged executable exited cleanly with the reviewed narrow API and fuse policy.
+- Acceleration: bounded the highest-risk native/process/protocol seams before robot or
+  validation work and converted each into a repeatable automated fixture.
+- Human review: owner approved the architecture and instructed Codex to continue through
+  MS1/MS2; live NVIDIA access remains owner-controlled.
+- Evidence: `docs/evidence/MS1_MS2_VERIFICATION.md`, `tests/`, packaged smoke results.
+
+### 2026-07-18 - MS2 policy, recovery, and adversarial verification
+
+- Phase/milestone: MS2
+- Requirement/test IDs: REQ-MODE-001 through REQ-MODE-010,
+  REQ-BLENDER-003/004/006/007/009/010, REQ-SECURITY-007; AT-008 through AT-015, AT-031
+- Contribution: Codex implemented deterministic mode/tool policy, revision-bound exact
+  approvals, persistent goal lifecycles, concurrent local chat, manual-edit diffs,
+  stale-action denial, crash/reconnect recovery, generated-script archive, and controlled
+  Python fallback.
+- Adversarial work: forged/oversized bridge frames, prompt-injected unavailable tools,
+  stale approvals, project-path traversal, renderer privilege/navigation attempts,
+  secret-like chat/script content, and approved script failure all fail closed.
+- Acceleration: used a hash-verified portable Blender 4.5.11 instance to turn protocol and
+  `bpy` assumptions into a 2-3 second real integration test instead of manual anecdotes.
+- Evidence: `tests/live/blender-live.test.ts`, policy/security tests, packaged renderer and
+  credential smoke evidence.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

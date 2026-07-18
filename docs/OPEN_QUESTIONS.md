@@ -6,16 +6,16 @@ Only questions that can materially change product scope, architecture, security,
 
 ## Owner Decisions
 
-There are no blocking owner questions for MS0. The owner approved the architecture, roadmap, and split licensing model on 2026-07-18.
+The owner approved the architecture, roadmap, and split licensing model on
+2026-07-18. MS1 now needs the owner to configure an NVIDIA credential through the
+packaged app; the credential must never be sent through chat or committed.
 
 ## Validation Questions for MS1
 
 | ID | Question | Why it matters | Resolution method | Blocking point | Status |
 | -- | -------- | -------------- | ----------------- | -------------- | ------ |
-| OQ-001 | Does Electron 43.x package `node:sqlite` reliably with migrations, backup, and recovery on the judge baseline? | Selects the database driver without changing the repository interface. | Bounded packaged-app spike; use pinned `better-sqlite3` fallback only on objective failure. | Before persistent feature work | Open |
-| OQ-002 | Which exact Blender 4.5 LTS patch is installed and passes bridge, timer, save-copy, import, and USD tests? | Pins supported setup and extension compatibility. | Install latest 4.5 LTS patch, run Environment Doctor and integration fixture. | Before MS1 acceptance | Open |
 | OQ-003 | Does the user's NVIDIA endpoint expose the intended Nemotron identifier and required streaming/tool behavior? | Runtime availability cannot be inferred from documentation. | Authenticated model discovery and non-mutating capability probe with a user-supplied key. | Before live provider acceptance | Open |
-| OQ-004 | Can Python 3.13 plus `usd-core` 26.5 be bundled and invoked from the packaged Electron build without missing DLLs? | Determines the OpenUSD distribution mechanism. | Package fixed sidecar, author/reopen a fixture, and run on a clean Windows account. | Before USD implementation | Open |
+| OQ-004 | Can the proven Python 3.13 plus `usd-core` 26.5 environment be embedded and invoked on a clean account? | Determines the final OpenUSD distribution mechanism. | Package fixed sidecar/runtime and run author/reopen on a clean Windows account. | Before MS5 export acceptance | Local compatibility proven; packaging open |
 | OQ-005 | Does Urchin handle the selected P1 URDF asset and Python 3.13 packaging robustly? | Selects the parser for the imported robot path. | Parse fixture into `RobotGraph`; if incompatible, evaluate `yourdfpy` under the same contract. | Before MS8 | Open |
 | OQ-006 | Which external robot asset offers the best demo value with clear redistributable licensing and manageable geometry? | Affects P1 demo reliability and attribution. | Shortlist NVIDIA and open assets; evaluate license, complexity, materials, hierarchy, and import evidence. | Before MS8 selection | Open |
 | OQ-007 | Is a Windows code-signing certificate available? | Changes SmartScreen friction but not functionality. | Owner confirms before MS9; always provide documented portable fallback. | Before release packaging | Open |
@@ -29,3 +29,5 @@ There are no blocking owner questions for MS0. The owner approved the architectu
 | CQ-003 | Project licensing | Apache-2.0 desktop and GPL-3.0-or-later Blender extension; DEC-012. |
 | CQ-004 | Primary provider strategy | Hosted NVIDIA NIM with runtime capability probing; DEC-007. |
 | CQ-005 | Isaac Sim dependency | Not required for hackathon V1; retained as V2. |
+| CQ-006 | SQLite driver | Electron 43 packaged `node:sqlite` passes migrations, WAL, move/reopen, backup, and recovery; fallback not invoked. |
+| CQ-007 | Blender patch | Official Blender 4.5.11 LTS ZIP hash verified; live bridge/save-copy/mutation/crash-recovery tests pass. |

@@ -2,63 +2,54 @@
 
 ## Current State
 
-- Phase: MS0 - Documentation and architecture baseline complete
-- Overall status: Documentation implemented, verified, and checkpointed
-- Implementation status: Not started by design
-- Architecture approval: Approved by project owner on 2026-07-18
-- Milestone plan approval: Approved by project owner on 2026-07-18
-- Current gate: Stop after the MS0 documentation commit; await a separate instruction to start MS1
+- Phase: MS1 live-provider gate; MS2 implementation/evidence complete
+- Overall status: Working packaged foundation with real Blender 4.5 LTS evidence
+- Architecture: Approved; no architecture changes were required
+- Current gate: owner configures an NVIDIA key, then Codex runs the sanitized live
+  discovery/Nemotron capability acceptance probe
 - Last updated: 2026-07-18
 
 ## Completed Work
 
 | Date | Task | Outcome | Evidence |
 | ---- | ---- | ------- | -------- |
-| 2026-07-18 | Establish persistent project-management system | Created initial source-of-truth templates and operating rules. | Commit `7e1d35e`; `AGENTS.md`, initial `docs/` |
-| 2026-07-18 | Read and decompose complete master brief | Captured all 34 sections as confirmed product, delivery, security, and future requirements without prior implementation reuse. | `docs/PRODUCT_VISION.md`, `docs/PRODUCT_REQUIREMENTS.md`, `docs/HACKATHON_SCOPE.md` |
-| 2026-07-18 | Research current technical ecosystem | Evaluated current primary sources and major reuse candidates, licenses, compatibility, security, and proof requirements. | `docs/RESEARCH.md`, `docs/DEPENDENCIES_AND_LICENSES.md` |
-| 2026-07-18 | Approve architecture and two-cycle roadmap | Recorded Electron/Blender/OpenUSD/provider/security/data decisions and MS0-MS11 delivery gates. | Owner-approved plan; `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
-| 2026-07-18 | Build requirements and acceptance system | Created 123 stable requirements and mapped each to priority, milestone, acceptance test, status, and evidence placeholder. | `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/ACCEPTANCE_TESTS.md` |
-| 2026-07-18 | Define submission and demo baseline | Added required checklist placeholders, timed demo script, and Codex/GPT-5.6 evidence log. | `docs/HACKATHON_SUBMISSION_CHECKLIST.md`, `docs/DEMO_SCRIPT.md`, `docs/CODEX_USAGE_LOG.md` |
+| 2026-07-18 | MS0 documentation baseline | Captured 123 requirements, 39 tests, architecture, scope, and decisions. | Commits `7e1d35e`, `b0862cf` |
+| 2026-07-18 | Electron/storage/package spike | Built sandboxed Electron 43/React/TypeScript app; proved `node:sqlite` migrations, WAL, backup/recovery, portable moves, and packaged launch. | `pnpm verify`; packaged smoke; persistence tests |
+| 2026-07-18 | Provider-neutral AI seam | Added NVIDIA NIM, OpenAI Responses, and mock adapters; runtime discovery/probing; normalized streamed text/tools/usage; protected credentials; disclosure UI. | Provider tests; credential smoke; AT-003/AT-005 |
+| 2026-07-18 | Real AI-to-Blender slice | Added authenticated loopback RPC, Blender extension, fresh snapshots, checkpointed provider tool call, stable IDs, revisions, and activity. | Real Blender 4.5.11 live test; AT-012 |
+| 2026-07-18 | MS2 mode and scene-truth enforcement | Added Chat/Plan/Build/Goal policy, exact approvals, persistent jobs, manual-edit diffs, stale rejection, crash/reconnect recovery, and approved Python archive/fallback. | Policy/job/live Blender tests; AT-008 through AT-015 |
+| 2026-07-18 | OpenUSD compatibility spike | Pinned `usd-core` 26.5 in Python 3.13; authored/reopened Z-up, meter-scale USDA. | `sidecars/usd_worker.py`; SHA-256 evidence |
+| 2026-07-18 | Security/package hardening | Proved no renderer Node globals, narrow preload API, explicit Electron 43 fuse policy, CSP/navigation denial, forged/oversized bridge rejection, path containment, user-only ACLs, secret scanning, and DPAPI lifecycle. | Fuse inspection; security/credential smoke; AT-003/AT-031 |
 
 ## Verification Summary
 
-MS0 audit results:
-
 | Check | Result |
 | ----- | ------ |
-| Required persistent files | 19/19 present |
-| Product requirements | 123 rows, 123 unique IDs |
-| Traceability | 123 rows, exact ID equality with requirements |
-| Acceptance tests | 39 unique registered IDs |
-| Missing/extra/duplicate requirement rows | 0/0/0 |
-| Invalid priority/status/test/milestone references | 0 |
-| Requirements without milestone or acceptance test | 0 |
-| Master brief coverage | 34/34 numbered sections mapped |
-| Credential-like secret pattern hits | 0 |
-| Tracked non-Markdown implementation files | 0 |
-| Whitespace/error check | `git diff --check` passed; informational Windows line-ending warnings only |
+| TypeScript, ESLint, unit/contract/integration suite | 20 passing; live Blender test opt-in/skipped in default suite |
+| Real Blender 4.5.11 acceptance | 1 passing; snapshot, AI tool, checkpoint, manual edit, stale denial, crash/reconnect, Python fallback |
+| Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
+| Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
+| Credential smoke | Protected store works; plaintext scan false before/after removal |
+| Portable SQLite | Move/reopen plus backup/recovery passing |
+| OpenUSD | Python 3.13.14, usd-core 26.5, author/reopen passing |
+| Repository secret scan | Passing |
+| Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
 
-Evidence is the requirements/traceability comparison audit, master-brief coverage table, required-file check, secret-pattern scan, documentation-only Git diff, and the MS0 commit.
+See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
-## Risks and Blockers
+## Remaining Gate and Risks
 
-- Blender is not installed/detected on the current development machine; MS1 cannot pass Blender integration acceptance until Blender 4.5 LTS is installed.
-- NVIDIA model access/capabilities require a user-provided key and runtime probe.
-- Electron SQLite, OpenUSD sidecar, Blender bridge, and URDF packaging require bounded MS1/MS8 proofs listed in `OPEN_QUESTIONS.md`.
-- A Windows signing certificate is not yet confirmed; MS9 retains a portable ZIP fallback.
+- **Owner input required:** configure an NVIDIA API key in the packaged app. The key
+  must not be pasted into chat, terminal, or source. Runtime discovery must confirm
+  whether `nvidia/nemotron-3-ultra-550b-a55b` is available and the text probe works.
+- The Python/OpenUSD runtime is proven locally but is not embedded in the MS1 package;
+  full fixed-runtime packaging remains part of the MS5/MS9 export/release work.
+- The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
+- Deterministic validators and USD product export are intentionally MS3-MS5, not hidden
+  behind the current compatibility worker.
 
-## Next Approved Action
+## Next Action
 
-Stop and await a separate owner instruction to begin MS1. Do not install dependencies or begin application code before that instruction.
-
-## Update Template
-
-### YYYY-MM-DD - Task
-
-- Objective and requirement/test IDs:
-- Changes completed:
-- Verification/evidence:
-- Decisions/open questions:
-- Risks/blockers:
-- Next approved action/gate:
+After the owner confirms the NVIDIA key is configured, run the packaged
+`--provider-acceptance-test`, sanitize its capability record, update AT-004 and
+traceability, commit the milestone evidence, and only then mark MS1/MS2 complete.

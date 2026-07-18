@@ -2,7 +2,9 @@
 
 ## Delivery Policy
 
-Each milestone begins by rereading persistent memory and naming requirements/tests. It ends only after reproducible evidence, documentation/traceability/progress updates, a working commit, and a risk report. MS0 is approved; MS1 requires a separate start instruction.
+Each milestone begins by rereading persistent memory and naming requirements/tests. It
+ends only after reproducible evidence, documentation/traceability/progress updates, a
+working commit, and a risk report. The owner started MS1/MS2 on 2026-07-18.
 
 ## Two-Cycle Plan
 
@@ -28,6 +30,15 @@ Each milestone begins by rereading persistent memory and naming requirements/tes
 
 Freeze major architecture changes during cycle two unless a blocking defect is documented and the owner approves the change.
 
+## Current Milestone Status
+
+- MS0: accepted and committed.
+- MS1: implementation and all local/packaged/real-Blender evidence complete; AT-004
+  awaits a protected owner NVIDIA credential and live runtime probe.
+- MS2: implementation and evidence complete; final milestone checkpoint is held with
+  MS1 so traceability and the approved gate remain coherent.
+- MS3: not started. No deterministic validation capability is claimed yet.
+
 ## Post-Hackathon V1 (MS10)
 
 Complete the guaranteed import subset with format fixtures; broaden providers and reusable skills/assets; support advanced global memory, multiple long-running jobs, Linux, deeper CAD conversion, richer sensor/robotics validation, and comprehensive packaging. Reconsider Tauri only with measured Electron constraints and a migration plan.
@@ -47,7 +58,7 @@ Add an optional Isaac adapter that imports canonical packages, applies simulator
 ## Review Gates
 
 1. MS0 documentation complete - stop and report.
-2. Owner separately starts MS1.
+2. Owner starts MS1/MS2 - complete on 2026-07-18.
 3. Risk spikes pass before broad feature work.
 4. First-cycle vertical slice accepted before P1 viewport/polish.
 5. Generated manipulator path stable before imported robot work.

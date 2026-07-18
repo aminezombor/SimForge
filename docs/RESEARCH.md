@@ -3,10 +3,10 @@
 ## Status and Method
 
 - Research date: 2026-07-18
-- Status: Architecture baseline complete; implementation candidates still require bounded proofs
+- Status: MS1/MS2 bounded proofs complete except the owner-keyed live NVIDIA probe
 - Method: Prefer current official documentation and upstream source repositories. Popularity alone is not adoption evidence.
 
-Every adopted dependency must be pinned, inventoried, security-reviewed, and verified in a packaged Windows path. No large dependency was installed during MS0.
+Every adopted dependency must be pinned, inventoried, security-reviewed, and verified in a packaged Windows path. MS1 installed only its reviewed application/runtime dependencies; Blender and OpenUSD were exercised from ignored local verification environments.
 
 ## Architecture Comparison
 
@@ -22,7 +22,7 @@ Sources: [Electron releases](https://releases.electronjs.org/), [Electron securi
 
 | Component | Purpose | License / maintenance | Compatibility and advantages | Risks | Recommendation / proof |
 | --------- | ------- | --------------------- | ---------------------------- | ----- | ---------------------- |
-| Electron 43.x | Windows desktop shell | MIT; current stable releases | Bundles a compatible Node runtime and established packaging/security guidance | Large bundle and renderer attack surface | Adopt; prove hardened packaged shell and fuses in MS1 |
+| Electron 43.x | Windows desktop shell | MIT; current stable releases | Bundles a compatible Node runtime and established packaging/security guidance | Large bundle and renderer attack surface | Adopted; packaged shell, isolated renderer, smoke tests, and all nine fuses verified |
 | React + Vite + TypeScript | Renderer and shared domain types | Permissive, actively maintained | Fast component development and typed interfaces | Dependency churn | Adopt pinned stable versions |
 | `@assistant-ui/react` | Modern chat primitives | MIT; active project | Reduces message/thread/accessibility work; supports custom runtimes | Provider/cloud adapters could create lock-in | Use primitives plus local custom runtime only; no Assistant Cloud; prove Electron/Vite fit |
 | `node:sqlite` | Local project/global persistence | Node license; delivered with Node 24 | No native add-on rebuild and defensive SQLite API | API is release-candidate stability | Adopt behind interface if packaged spike passes; fixed fallback to `better-sqlite3` |
@@ -34,7 +34,7 @@ Sources: [Electron releases](https://releases.electronjs.org/), [Electron securi
 | Three.js / React Three Fiber | Embedded inspection | MIT; active | GLB preview, selection, camera controls, wide ecosystem | A separate renderer can become stale | P1 only; display revision-stamped Blender-generated preview, never independent truth |
 | Urchin | URDF parsing | MIT; release 0.0.30 in 2025 | Maintained fork of urdfpy; neutral Python importer path | Python 3.13/package and asset edge cases unproved | Candidate; map into `RobotGraph`; fallback evaluation is `yourdfpy` |
 | MuJoCo Python | MJCF parsing/compilation | Apache-2.0; Google DeepMind active releases | Official parser and Windows wheels | Native package size; plugins/includes are security-sensitive | Candidate for post-hackathon guaranteed MJCF; reject plugins/external paths |
-| Electron Forge | Installer/portable packaging | MIT; active | Standard Electron makers and security fuse plugin | Unsigned installer may trigger SmartScreen | Adopt; ship installer plus portable ZIP fallback |
+| Electron Forge | Installer/portable packaging | MIT; active | Standard Electron packaging hooks | Unsigned installer may trigger SmartScreen | Adopted for portable proof; installer plus ZIP remain MS9 |
 
 Sources: [assistant-ui](https://github.com/assistant-ui/assistant-ui), [Node SQLite](https://nodejs.org/download/release/latest-v24.x/docs/api/sqlite.html), [Blender LTS deployment](https://docs.blender.org/manual/es/4.5/advanced/deploying_blender.html), [Blender USD](https://docs.blender.org/manual/en/dev/files/import_export/usd.html), [usd-core 26.5](https://pypi.org/project/usd-core/26.5/), [UsdPhysics](https://openusd.org/release/api/usd_physics_page_front.html), [Electron Forge](https://www.electronforge.io/), [Three.js](https://github.com/mrdoob/three.js), [Urchin](https://pypi.org/project/urchin/), [MuJoCo](https://github.com/google-deepmind/mujoco).
 
@@ -72,6 +72,10 @@ Sources: [Blender scripting](https://docs.blender.org/manual/nb/4.5/advanced/scr
 
 Sources: [OpenUSD 26.05](https://openusd.org/release/), [OpenUSD asset structure principles](https://docs.omniverse.nvidia.com/usd/latest/learn-openusd/independent/asset-structure-principles.html), [Isaac Robot Setup](https://docs.isaacsim.omniverse.nvidia.com/latest/robot_setup/index.html), [Isaac Asset Validation](https://docs.isaacsim.omniverse.nvidia.com/latest/robot_setup/asset_validation.html), [Isaac URDF import](https://docs.isaacsim.omniverse.nvidia.com/latest/importer_exporter/import_urdf.html).
 
-## Research Gates
+## MS1 Research Gate Result
 
-Before broad implementation, MS1 must prove: hardened Electron package; database migrations/backup; provider discovery/stream/tool normalization; Blender connect/snapshot/mutate/manual revision/checkpoint; and OpenUSD author/reopen/reference resolution. Failed proofs follow the predetermined fallbacks in `OPEN_QUESTIONS.md`; they do not authorize silent architecture changes.
+The hardened Electron package, SQLite migrations/backup/recovery, deterministic provider
+normalization, real Blender connect/snapshot/mutation/manual revision/checkpoint/reconnect,
+and OpenUSD author/reopen checks pass. The architecture fallbacks were not invoked. Live
+NVIDIA discovery remains intentionally open until the owner configures a credential in
+protected app storage; no secret is accepted through chat, source, or test fixtures.

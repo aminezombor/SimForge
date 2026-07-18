@@ -1,0 +1,9 @@
+packages: []
+
+nodeLinker: hoisted
+saveExact: true
+strictPeerDependencies: true
+
+# Forge 7.11.2 pins Electron's maintained node-gyp fork to the exact audited
+# commit declared in package.json. pnpm otherwise blocks this required source.
+blockExoticSubdeps: false

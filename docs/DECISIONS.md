@@ -22,6 +22,10 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-012 | 2026-07-18 | Licensing | License the desktop application Apache-2.0 and the Blender extension GPL-3.0-or-later, with explicit package boundaries and third-party notices. | Approved | REQ-IMPORT-005, REQ-SUBMISSION-004 |
 | DEC-013 | 2026-07-18 | Scope | Make the generated robot path P0, the imported robot demonstration P1, full guaranteed import coverage post-hackathon V1, and the Isaac loop V2. | Approved | REQ-IMPORT-001 through REQ-IMPORT-004, REQ-V2-001 through REQ-V2-004 |
 | DEC-014 | 2026-07-18 | Delivery | Use MS0-MS5 for the first usage cycle and MS6-MS9 for the second; stop after MS0 until the owner explicitly starts MS1. | Approved | REQ-GOV-007 |
+| DEC-015 | 2026-07-18 | Storage | Retain `node:sqlite`; its packaged migration, WAL, backup/recovery, global-index, and portable-project spikes passed. | Approved | REQ-DATA-001 through REQ-DATA-005 |
+| DEC-016 | 2026-07-18 | Compatibility | Pin Electron 43.1.1, Blender 4.5.11 LTS, Python 3.13.14, `usd-core` 26.5, and assistant-ui 0.14.27 for the proven seams. | Approved | REQ-PLATFORM-001, REQ-BLENDER-001, REQ-USD-001 |
+| DEC-017 | 2026-07-18 | Scene truth | Persist a monotonic revision floor in the protected bridge descriptor so Blender reconnects cannot move project scene truth backward. | Approved | REQ-BLENDER-003, REQ-BLENDER-004, REQ-BLENDER-007 |
+| DEC-018 | 2026-07-18 | Security | Apply a strict complete Electron fuse policy with current `@electron/fuses`, then inspect the packaged binary. | Approved | REQ-SECURITY-001, REQ-SECURITY-002 |
 
 ## Architecture Decision Details
 
@@ -45,7 +49,7 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 
 **Decision.** Blender exports visual layers. A fixed, non-shell Python sidecar authors root/physics/sensor composition and reopens the package through `pxr`. Package convention is Z-up and meters-per-unit `1.0`, with relative references and a machine manifest.
 
-**Consequences.** This avoids an Isaac Sim dependency and works around Blender USD composition limitations. The sidecar and packaged Python/OpenUSD compatibility must pass an MS1 spike before application growth.
+**Consequences.** This avoids an Isaac Sim dependency and works around Blender USD composition limitations. The Python 3.13/OpenUSD author/reopen compatibility spike passes; embedding that fixed runtime in release artifacts remains MS5/MS9.
 
 ### DEC-012: Split licenses
 
@@ -53,6 +57,38 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 
 **Consequences.** Do not mix Blender-dependent GPL source into the Apache desktop package. Revisit with legal counsel before any proprietary/commercial distribution; this is an engineering compliance decision, not legal advice.
 
+### DEC-015: Retain node:sqlite
+
+**Evidence.** Global and per-project databases initialize in the packaged app. Tests
+cover migrations, WAL, distinct portable projects, provider-neutral messages/records,
+folder moves, consistent `VACUUM INTO` backup, and recovery. The predetermined
+`better-sqlite3` fallback is not justified and remains uninstalled.
+
+### DEC-017: Reconnect revision floor
+
+**Context.** Blender process-local revision counters reset on crash. Resetting project
+scene truth would make stale approvals appear current.
+
+**Decision.** The app persists the greatest observed revision in the short-lived,
+user-ACL-protected runtime descriptor. A reconnect initializes Blender at that floor;
+every mutation or manual event advances it. Real crash/checkpoint/reconnect evidence
+proves revisions remain monotonic.
+
+### DEC-018: Complete Electron fuse policy
+
+**Context.** Electron 43 added a ninth fuse while Electron Forge 7.11.2's optional fuse
+plugin still constrained its peer utility to a version exposing eight. Strict packaging
+correctly failed rather than leaving the new setting implicit.
+
+**Decision.** Use Electron's current official `@electron/fuses` utility directly from
+Forge's package hook, require a value for every fuse, retain WebAssembly trap handlers,
+and inspect the final `SimForge.exe` fuse wire during verification.
+
+**Consequences.** Package hardening cannot silently omit newly added Electron fuses.
+Future Electron upgrades must fail the build until each new fuse has an explicit policy.
+
 ## Approval Record
 
-The project owner approved the full SimForge Documentation and Architecture Baseline, including these decisions, on 2026-07-18. A separate instruction is still required to start application implementation.
+The project owner approved the full SimForge Documentation and Architecture Baseline
+on 2026-07-18, then explicitly instructed Codex to implement MS1 and MS2. Starting MS3
+still requires a separate owner instruction after this milestone closes.
