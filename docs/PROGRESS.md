@@ -3,10 +3,10 @@
 ## Current State
 
 - Phase: MS1 and MS2 complete; stopped before MS3
-- Overall status: Verified packaged foundation with one-click local MS1/MS2 test setup
+- Overall status: Verified MS1/MS2 foundation; owner UI review incorporated and launcher defects corrected
 - Architecture: Approved; no architecture changes were required
 - Current gate: owner review/instruction before starting MS3 deterministic validation
-- Last updated: 2026-07-18
+- Last updated: 2026-07-19
 
 ## Completed Work
 
@@ -21,12 +21,13 @@
 | 2026-07-18 | Security/package hardening | Proved no renderer Node globals, narrow preload API, explicit Electron 43 fuse policy, CSP/navigation denial, forged/oversized bridge rejection, path containment, user-only ACLs, secret scanning, and DPAPI lifecycle. | Fuse inspection; security/credential smoke; AT-003/AT-031 |
 | 2026-07-18 | Live NVIDIA acceptance | Protected owner key drove packaged runtime discovery and non-mutating capability probes; 119 models returned, intended Nemotron found, streamed text and no-op tool call observed, explicit reasoning control accepted, vision false. | `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`; AT-004 |
 | 2026-07-18 | User-local MS1/MS2 test installation | Installed hash-verified Blender 4.5.11 LTS and the validated bridge extension beside the packaged app; added a no-terminal desktop shortcut, automatic authenticated connection, disconnected descriptor renewal, and an exact manual walkthrough. Existing unrelated desktop shortcut was preserved. | `scripts/install-local-test.ps1`; `docs/MS1_MS2_MANUAL_TEST.md`; live installed-process/loopback smoke |
+| 2026-07-19 | Owner workspace review and launch correction | Confirmed the tested screen is an engineering harness, adopted the owner-directed three-column final workspace contract, moved sample goal text to a placeholder, and added a visible preview label. Replaced console-producing launch paths, fixed the authenticated bridge's 30-second idle disconnect, added extension auto-reconnect and live header polling, then reverified the installed shortcut. | `docs/UX_WORKSPACE.md`; `docs/UX_AUDIT_2026-07-19.md`; installed 35-second idle smoke; bridge regression test |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 21 passing; live Blender test opt-in/skipped in default suite |
+| TypeScript, ESLint, unit/contract/integration suite | 22 passing; live Blender test opt-in/skipped in default suite |
 | Real Blender 4.5.11 acceptance | 1 passing; snapshot, AI tool, checkpoint, manual edit, stale denial, crash/reconnect, Python fallback |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
@@ -36,7 +37,7 @@
 | Live NVIDIA | 119 models discovered; intended Nemotron found; text/stream/tools/reasoning controls true; vision false; no-op tool not executed |
 | Repository secret scan | Passing |
 | Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
-| User-local launch | Desktop shortcut opens installed app plus Blender 4.5.11 with no terminal; authenticated loopback connection observed |
+| User-local launch | Desktop shortcut opens installed app plus Blender 4.5.11 with zero new terminal windows; authenticated loopback connection remains established after 35 seconds idle |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -49,6 +50,9 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 - The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
 - The user-local installer is an owner testing convenience, not an MS9 release artifact;
   clean-account, uninstall, upgrade, signing, and redistributable packaging remain open.
+- The present renderer is explicitly an engineering preview. The owner-approved final
+  information architecture is fixed in `docs/UX_WORKSPACE.md`; full viewport/history/
+  docking integration remains MS6, with MS3/MS5 panels designed to fit it.
 - Deterministic validators and USD product export are intentionally MS3-MS5, not hidden
   behind the current compatibility worker.
 

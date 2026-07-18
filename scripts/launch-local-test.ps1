@@ -5,6 +5,7 @@ $installRoot = $PSScriptRoot
 $appPath = Join-Path $installRoot 'app\SimForge.exe'
 $appWorkingDirectory = Join-Path $installRoot 'app'
 $blenderPath = Join-Path $installRoot 'blender\blender.exe'
+$blenderLauncherPath = Join-Path $installRoot 'blender\blender-launcher.exe'
 $runtimeDirectory = Join-Path $env:LOCALAPPDATA 'SimForge\runtime'
 
 function Show-LaunchError([string] $message) {
@@ -23,6 +24,9 @@ try {
     }
     if (-not (Test-Path -LiteralPath $blenderPath -PathType Leaf)) {
         throw "Blender 4.5 LTS is missing at $blenderPath"
+    }
+    if (-not (Test-Path -LiteralPath $blenderLauncherPath -PathType Leaf)) {
+        throw "The windowless Blender launcher is missing at $blenderLauncherPath"
     }
 
     $env:SIMFORGE_BLENDER_PATH = $blenderPath
@@ -64,7 +68,7 @@ try {
     $blenderRunning = @(Get-Process -Name 'blender' -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -eq $blenderPath }).Count -gt 0
     if (-not $blenderRunning) {
-        Start-Process -FilePath $blenderPath -WorkingDirectory (Split-Path -Parent $blenderPath) | Out-Null
+        Start-Process -FilePath $blenderLauncherPath -WorkingDirectory (Split-Path -Parent $blenderPath) | Out-Null
     }
 }
 catch {

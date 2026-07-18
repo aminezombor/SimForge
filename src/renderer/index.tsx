@@ -93,7 +93,7 @@ function AssistantChat({
 
 function App() {
   const [state, setState] = useState<AppState | null>(null);
-  const [goal, setGoal] = useState('Create one inspection cube in the current Blender scene.');
+  const [goal, setGoal] = useState('');
   const [chat, setChat] = useState<ChatMessageView[]>([]);
   const [chatReady, setChatReady] = useState(false);
   const [job, setJob] = useState<GoalJobView | null>(null);
@@ -131,6 +131,15 @@ function App() {
     void refreshState().catch((reason: unknown) => {
       setError(reason instanceof Error ? reason.message : 'Unable to read application state');
     });
+  }, [refreshState]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void refreshState().catch(() => {
+        // The next successful poll restores live connection and revision status.
+      });
+    }, 1_000);
+    return () => window.clearInterval(timer);
   }, [refreshState]);
 
   useEffect(() => {
@@ -198,6 +207,11 @@ function App() {
         <p>{activeModeHelp}</p>
       </section>
 
+      <div className="preview-banner" role="note">
+        <strong>Engineering preview</strong>
+        <span>This MS1/MS2 test harness proves connection, policy, and persistence. It is not the final SimForge workspace.</span>
+      </div>
+
       {error && <div className="error-banner" role="alert">{error}</div>}
 
       <div className="workspace">
@@ -216,6 +230,7 @@ function App() {
             disabled={busy || Boolean(job)}
             onChange={(event) => setGoal(event.target.value)}
             aria-label="Goal description"
+            placeholder="Describe a goal, for example: Create one inspection cube in the current Blender scene."
           />
           {!job ? (
             <button className="primary" disabled={busy || !goal.trim()} onClick={() => void run(async () => {

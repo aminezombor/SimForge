@@ -11,6 +11,10 @@ real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nem
 3 Ultra model and proved streamed text plus a non-executed no-op tool call. Validation,
 robot generation, and verified USD export begin in MS3-MS5.
 
+The current screen is an engineering preview, not the final product UI. The approved
+three-column product direction is documented in [the workspace contract](docs/UX_WORKSPACE.md)
+and is integrated fully in MS6 as earlier milestones populate its validation and export panels.
+
 ## Repository Map
 
 - `src/` - sandboxed React renderer, narrow preload bridge, Electron main services,

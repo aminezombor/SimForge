@@ -26,6 +26,7 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-016 | 2026-07-18 | Compatibility | Pin Electron 43.1.1, Blender 4.5.11 LTS, Python 3.13.14, `usd-core` 26.5, and assistant-ui 0.14.27 for the proven seams. | Approved | REQ-PLATFORM-001, REQ-BLENDER-001, REQ-USD-001 |
 | DEC-017 | 2026-07-18 | Scene truth | Persist a monotonic revision floor in the protected bridge descriptor so Blender reconnects cannot move project scene truth backward. | Approved | REQ-BLENDER-003, REQ-BLENDER-004, REQ-BLENDER-007 |
 | DEC-018 | 2026-07-18 | Security | Apply a strict complete Electron fuse policy with current `@electron/fuses`, then inspect the packaged binary. | Approved | REQ-SECURITY-001, REQ-SECURITY-002 |
+| DEC-019 | 2026-07-19 | Product UX | Use the owner-directed three-column workspace contract: conversation rail, central mode-aware authoring surface, and contextual viewport/activity/validation/export dock; keep credentials in Settings and active routing visible. | Approved | REQ-AI-008 through REQ-AI-010, REQ-UX-001 through REQ-UX-009, REQ-VIEW-001 through REQ-VIEW-004 |
 
 ## Architecture Decision Details
 
@@ -95,6 +96,22 @@ and inspect the final `SimForge.exe` fuse wire during verification.
 
 **Consequences.** Package hardening cannot silently omit newly added Electron fuses.
 Future Electron upgrades must fail the build until each new fuse has an explicit policy.
+
+### DEC-019: Product workspace information architecture
+
+**Context.** Owner review of the MS1/MS2 build found that the engineering harness could
+be mistaken for the final UI and supplied an annotated workspace layout.
+
+**Decision.** Adopt `docs/UX_WORKSPACE.md` as the product workspace contract. Provider
+credentials and diagnostics move to Settings; only active routing stays in the main
+workspace. Blender remains authoritative while the right-side viewport is a
+revision-stamped inspector. Activity, validation, and export readiness share the
+context dock. The current screen remains explicitly labeled as an engineering preview.
+
+**Consequences.** MS3 and MS5 panels must fit this structure, while full navigation,
+history, viewport, docking, and responsive integration remain MS6. This records an
+owner interpretation of existing scope and does not change requirement priorities or
+milestone approval gates.
 
 ## Approval Record
 

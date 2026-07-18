@@ -32,6 +32,9 @@ h2 { font-size: 17px; letter-spacing: -.01em; }
 .mode { border: 0; border-radius: 8px; padding: 9px 16px; color: #8ba1af; background: transparent; }
 .mode.active { color: #071019; background: #61dfbc; font-weight: 800; }
 
+.preview-banner { display: flex; gap: 10px; align-items: baseline; margin-top: 12px; border: 1px solid #5f4a2d; border-radius: 10px; padding: 10px 13px; color: #d6c7ad; background: rgba(54, 39, 20, .72); font-size: 12px; }
+.preview-banner strong { color: #ffd18a; text-transform: uppercase; letter-spacing: .08em; }
+
 .error-banner { margin-top: 16px; border: 1px solid #7f3b49; border-radius: 10px; padding: 12px 14px; color: #ffd7dd; background: #34141b; }
 .workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, .75fr); gap: 18px; margin-top: 18px; }
 .panel { border: 1px solid #182c37; border-radius: 16px; background: rgba(8, 19, 27, .9); box-shadow: 0 18px 60px rgba(0, 0, 0, .22); }

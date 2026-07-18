@@ -154,6 +154,20 @@ describe('authenticated Blender bridge', () => {
     await finalDisconnect;
   });
 
+  it('keeps an authenticated idle Blender session connected', async () => {
+    const { server, descriptor } = await fixture({ handshakeTimeoutMs: 25 });
+    const connected = once(server, 'connected');
+    const client = await connectClient(descriptor, async () => Promise.resolve());
+    await connected;
+
+    await new Promise((resolve) => setTimeout(resolve, 75));
+    expect(server.connected).toBe(true);
+
+    const disconnected = once(server, 'disconnected');
+    client.destroy();
+    await disconnected;
+  });
+
   it('renews an expiring descriptor while disconnected', async () => {
     const { server, descriptor } = await fixture({
       descriptorTtlMs: 500,

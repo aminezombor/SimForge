@@ -6,10 +6,12 @@ $appSource = Join-Path $repositoryRoot 'out\SimForge-win32-x64'
 $blenderSource = Join-Path $repositoryRoot '.tools\blender-4.5.11\blender-4.5.11-windows-x64'
 $extensionArchive = Join-Path $repositoryRoot 'out\simforge_bridge-0.1.0.zip'
 $launcherSource = Join-Path $repositoryRoot 'scripts\launch-local-test.ps1'
+$windowlessLauncherSource = Join-Path $repositoryRoot 'scripts\launch-local-test.vbs'
 $installRoot = Join-Path $env:LOCALAPPDATA 'Programs\SimForge'
 $appDestination = Join-Path $installRoot 'app'
 $blenderDestination = Join-Path $installRoot 'blender'
 $launcherDestination = Join-Path $installRoot 'launch-simforge.ps1'
+$windowlessLauncherDestination = Join-Path $installRoot 'launch-simforge.vbs'
 $desktop = [Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path $desktop 'SimForge Hackathon.lnk'
 $expectedBlenderExecutableHash = '0949E462F677C3E341913A838C6E2F54CC1C811CCB6F281AE9B3FF5926A2B255'
@@ -32,6 +34,7 @@ Assert-File (Join-Path $appSource 'SimForge.exe') 'Packaged SimForge application
 Assert-File (Join-Path $blenderSource 'blender.exe') 'Verified Blender 4.5.11 LTS build'
 Assert-File $extensionArchive 'Packaged SimForge Blender extension'
 Assert-File $launcherSource 'SimForge launcher'
+Assert-File $windowlessLauncherSource 'Windowless SimForge launcher'
 
 $actualBlenderExecutableHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $blenderSource 'blender.exe')).Hash
 if ($actualBlenderExecutableHash -ne $expectedBlenderExecutableHash) {
@@ -49,6 +52,7 @@ if ($runningInstalledProcesses.Count -gt 0) {
 Copy-Tree $appSource $appDestination
 Copy-Tree $blenderSource $blenderDestination
 Copy-Item -LiteralPath $launcherSource -Destination $launcherDestination -Force
+Copy-Item -LiteralPath $windowlessLauncherSource -Destination $windowlessLauncherDestination -Force
 
 $installedBlender = Join-Path $blenderDestination 'blender.exe'
 & $installedBlender --background --command extension install-file -r user_default --enable $extensionArchive
@@ -58,8 +62,8 @@ if ($LASTEXITCODE -ne 0) {
 
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = (Join-Path $PSHOME 'powershell.exe')
-$shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$launcherDestination`""
+$shortcut.TargetPath = (Join-Path $env:SystemRoot 'System32\wscript.exe')
+$shortcut.Arguments = "//B //Nologo `"$windowlessLauncherDestination`""
 $shortcut.WorkingDirectory = $appDestination
 $shortcut.IconLocation = "$(Join-Path $appDestination 'SimForge.exe'),0"
 $shortcut.Description = 'Launch the SimForge MS1/MS2 test build with Blender 4.5 LTS'

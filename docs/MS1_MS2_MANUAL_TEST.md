@@ -31,7 +31,7 @@ closed while SimForge stayed open, use the shortcut again to reopen and reconnec
 
 ## Test Persistent Goal Execution
 
-1. Select **Goal** and keep the default inspection-cube goal.
+1. Select **Goal** and enter `Create one inspection cube in the current Blender scene.`
 2. Click **Create task plan**, inspect its four tasks, then **Approve exact plan**.
 3. Click **Start / resume**, then **Run next task** four times.
 4. Expect every task to complete, `SimForge Goal Cube` to appear in Blender, and the

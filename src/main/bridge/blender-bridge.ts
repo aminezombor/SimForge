@@ -38,6 +38,7 @@ export interface BlenderBridgeOptions {
   descriptorTtlMs?: number;
   renewalLeadMs?: number;
   renewalCheckMs?: number;
+  handshakeTimeoutMs?: number;
 }
 
 export class BridgeError extends Error {
@@ -61,12 +62,14 @@ export class BlenderBridgeServer extends EventEmitter {
   private readonly descriptorTtlMs: number;
   private readonly renewalLeadMs: number;
   private readonly renewalCheckMs: number;
+  private readonly handshakeTimeoutMs: number;
 
   constructor(options: BlenderBridgeOptions = {}) {
     super();
     this.descriptorTtlMs = options.descriptorTtlMs ?? 15 * 60_000;
     this.renewalLeadMs = options.renewalLeadMs ?? 2 * 60_000;
     this.renewalCheckMs = options.renewalCheckMs ?? 30_000;
+    this.handshakeTimeoutMs = options.handshakeTimeoutMs ?? 30_000;
   }
 
   get connected(): boolean {
@@ -194,7 +197,7 @@ export class BlenderBridgeServer extends EventEmitter {
       return;
     }
     socket.setNoDelay(true);
-    socket.setTimeout(30_000);
+    socket.setTimeout(this.handshakeTimeoutMs);
     const decoder = new FrameDecoder();
     let authenticated = false;
 
@@ -205,6 +208,7 @@ export class BlenderBridgeServer extends EventEmitter {
             assertContract<BridgeHandshake>(BridgeHandshakeSchema, message, 'bridge handshake');
             this.authenticate(socket, message);
             authenticated = true;
+            socket.setTimeout(0);
             this.socket = socket;
             this.emit('connected');
             void writeFrame(socket, {

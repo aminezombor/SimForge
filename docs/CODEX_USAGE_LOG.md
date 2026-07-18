@@ -103,6 +103,26 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   `docs/MS1_MS2_MANUAL_TEST.md`, bridge renewal integration test, installed connection
   smoke. Release installer/signing/clean-account coverage remains MS9.
 
+### 2026-07-19 - Owner UX feedback converted into product and defect evidence
+
+- Phase/milestone: MS1/MS2 owner acceptance preparation; MS3 not started
+- Requirement/test IDs: REQ-UX-001 through REQ-UX-009, REQ-VIEW-001 through
+  REQ-VIEW-004, REQ-BLENDER-007, REQ-PLATFORM-002; AT-008, AT-014, AT-018, AT-033
+- Contribution: Codex audited three annotated owner screenshots, distinguished the
+  foundation harness from the product UI, and converted the proposed layout into a
+  persistent three-column workspace contract without changing milestone priorities.
+- Important corrections: activity timestamps revealed that the bridge dropped every
+  authenticated idle session at exactly 30 seconds because a handshake timeout remained
+  active. Codex disabled it after authentication, added a regression test and extension
+  auto-reconnect, replaced console-producing launch paths with WScript and Blender's GUI
+  launcher, and added renderer state polling so connection status cannot remain stale.
+- Acceleration: owner feedback became a reproducible defect diagnosis, verified repair,
+  and future UI acceptance contract in one checkpoint rather than being lost as informal
+  visual feedback.
+- Evidence: `docs/UX_AUDIT_2026-07-19.md`, `docs/UX_WORKSPACE.md`, bridge tests, packaged
+  install smoke, and owner-provided screenshots. Exact colors/typography remain for MS6
+  visual exploration and reference-versus-build QA.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

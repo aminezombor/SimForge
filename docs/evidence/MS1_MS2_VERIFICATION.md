@@ -16,7 +16,7 @@ private model payloads.
 
 ```powershell
 pnpm verify
-# 21 tests pass, one opt-in Blender test skips; typecheck/lint/secret scan pass
+# 22 tests pass, one opt-in Blender test skips; typecheck/lint/secret scan pass
 
 $env:SIMFORGE_BLENDER_PATH = 'C:\path\to\blender.exe'
 pnpm exec vitest run tests/live/blender-live.test.ts --reporter=verbose
@@ -51,7 +51,10 @@ checkpoint reopen/reconnect with monotonic revision floor, project-path rejectio
 approved Python failure recovery, archived script metadata, and post-run inspection.
 The local test installer additionally validates the Blender extension archive with
 Blender, installs/enables it for the current user, and proves the desktop shortcut starts
-the packaged app and Blender with an authenticated loopback connection and no terminal.
+the packaged app and Blender with an authenticated loopback connection. Owner screenshot
+review exposed console windows, a stale renderer status, and a 30-second idle disconnect;
+the corrected WScript/GUI-launcher path creates zero new visible terminal windows, the
+header polls live state, and the connection remains established beyond the former timeout.
 
 Packaged security smoke proves renderer `require` and `process` are undefined, the
 preload exposes only the typed SimForge API, remote windows and navigation are denied,

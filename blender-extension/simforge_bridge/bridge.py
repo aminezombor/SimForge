@@ -87,45 +87,52 @@ def disconnect() -> None:
 
 def _socket_worker() -> None:
     global _CONNECTED, _DESCRIPTOR, _SCENE_REVISION
-    try:
-        _, descriptor = _latest_descriptor()
-        _DESCRIPTOR = descriptor
-        _SCENE_REVISION = max(_SCENE_REVISION, int(descriptor.get("revisionFloor", 0)))
-        with socket.create_connection(("127.0.0.1", int(descriptor["port"])), timeout=5) as sock:
-            sock.settimeout(0.1)
-            sock.sendall(
-                encode_frame(
-                    {
-                        "protocolVersion": PROTOCOL_VERSION,
-                        "kind": "handshake",
-                        "token": descriptor["token"],
-                        "projectId": descriptor["projectId"],
-                        "client": "simforge-blender-extension",
-                    }
+    auto_reconnect = os.environ.get("SIMFORGE_AUTO_CONNECT") == "1"
+    while not _STOP.is_set():
+        try:
+            _, descriptor = _latest_descriptor()
+            _DESCRIPTOR = descriptor
+            _SCENE_REVISION = max(_SCENE_REVISION, int(descriptor.get("revisionFloor", 0)))
+            with socket.create_connection(("127.0.0.1", int(descriptor["port"])), timeout=5) as sock:
+                sock.settimeout(0.1)
+                sock.sendall(
+                    encode_frame(
+                        {
+                            "protocolVersion": PROTOCOL_VERSION,
+                            "kind": "handshake",
+                            "token": descriptor["token"],
+                            "projectId": descriptor["projectId"],
+                            "client": "simforge-blender-extension",
+                        }
+                    )
                 )
-            )
-            decoder = FrameDecoder()
-            _CONNECTED = True
-            while not _STOP.is_set():
-                try:
-                    chunk = sock.recv(65_536)
-                    if not chunk:
-                        break
-                    for message in decoder.push(chunk):
-                        if message.get("kind") == "request":
-                            _REQUESTS.put(message)
-                except socket.timeout:
-                    pass
-                while True:
+                decoder = FrameDecoder()
+                _CONNECTED = True
+                while not _STOP.is_set():
                     try:
-                        sock.sendall(encode_frame(_OUTBOUND.get_nowait()))
-                    except queue.Empty:
-                        break
-    except Exception:
-        traceback.print_exc()
-    finally:
-        _CONNECTED = False
-        _DESCRIPTOR = None
+                        chunk = sock.recv(65_536)
+                        if not chunk:
+                            break
+                        for message in decoder.push(chunk):
+                            if message.get("kind") == "request":
+                                _REQUESTS.put(message)
+                    except socket.timeout:
+                        pass
+                    while True:
+                        try:
+                            sock.sendall(encode_frame(_OUTBOUND.get_nowait()))
+                        except queue.Empty:
+                            break
+        except Exception:
+            if not auto_reconnect:
+                traceback.print_exc()
+        finally:
+            _CONNECTED = False
+            _DESCRIPTOR = None
+        if not auto_reconnect:
+            break
+        if _STOP.wait(1.0):
+            break
 
 
 def _process_requests() -> float:

@@ -23,7 +23,7 @@ working commit, and a risk report. The owner started MS1/MS2 on 2026-07-18.
 
 | Milestone | Objective | Required outcome / gate |
 | --------- | --------- | ----------------------- |
-| MS6 - Embedded workspace and UX | Add revision-stamped mini 3D inspection, selection linkage, timeline, richer chat/history, and improved waiting/error states. | Embedded preview matches a known Blender revision and visibly reports staleness. |
+| MS6 - Embedded workspace and UX | Deliver `UX_WORKSPACE.md`: conversation rail, central mode-aware authoring surface, revision-stamped 3D inspector, context dock, timeline/history, Settings separation, and responsive waiting/error states. | The owner-directed workspace is integrated; embedded preview matches a known Blender revision and visibly reports staleness. |
 | MS7 - Warehouse mobile manipulator | Add warehouse, mobile base, arm, gripper, sensor representation, improved robotics checks, and a deterministic defect/correction. | Full generated demo and final export pass reliably without hard-coded one-off logic. |
 | MS8 - Imported robot path | Select a licensed asset, import to staging/`RobotGraph`, record conversion/provenance, modify, validate, and export. | Stage E passes if stable; failure cannot regress or block the generated P0 path. |
 | MS9 - Packaging and submission | Produce installer and portable build, clean-machine setup, sample project, complete README, evidence, rehearsed demo, submission copy, and checklist. | Definition of hackathon done and judge procedure pass from a clean account/machine. Remind owner to preserve `/feedback` ID. |
