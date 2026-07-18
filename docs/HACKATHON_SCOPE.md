@@ -1,42 +1,47 @@
 # Hackathon Scope
 
-## Status
+## Category and Release Goal
 
-- Selected category: To be determined
-- Scope approval: Pending master brief
-- Target submission date: To be determined
+- Default category: **Developer tools**
+- Working product: **SimForge**
+- Supported release baseline: Windows 11 x64 and Blender 4.5 LTS
+- Demonstration: generated warehouse mobile manipulator, real validation defect, reversible correction, verified USD package, and readiness report
 
-## Hackathon Outcome
+## Priority Policy
 
-_Define the smallest complete, compelling, and demonstrable product outcome._
+Every confirmed requirement uses exactly one label. Deferral means retaining the requirement in traceability, tests, architecture, and roadmap; it never means deleting it.
 
-## Priority Definitions
+## `HACKATHON-P0`
 
-- `HACKATHON-P0`: Required for a valid, coherent hackathon submission.
-- `HACKATHON-P1`: Valuable if P0 is complete and stable.
-- `POST-HACKATHON-V1`: Deferred from the event with explicit owner approval.
-- `V2-ISAAC-SIM`: Reserved for the later Isaac Sim-oriented scope.
+The stable submission path must include project creation/opening, modern chat and goal entry, plan approval, NVIDIA configuration and runtime Nemotron validation, provider-neutral proof or optional OpenAI integration, secure key storage, reliable Blender connection, structured actions, controlled Python fallback, fresh scene inspection, manual-edit detection, visible activity, risk checkpoints, generated robot/environment geometry, deterministic geometry and basic robotics validation, safe fixes, approval for structural fixes, explicit USD export, reopen verification, readiness reporting, the warehouse mobile-manipulator demo, complete setup/judge documentation, and a packaged or readily runnable build.
 
-## In Scope
+P0 also includes the process, security, privacy, documentation, traceability, licensing, and submission requirements needed to make those capabilities trustworthy and judgeable.
 
-_List approved requirement IDs and short descriptions._
+## `HACKATHON-P1`
 
-## Out of Scope
+Build only after the generated path is stable:
 
-_List explicit exclusions and link the approving decision._
+- Import, inspect, modify, validate, and export one licensed NVIDIA or open-source robot.
+- Embedded mini 3D inspection with selection linkage and revision status.
+- Advanced visual review and richer engineering panels.
+- Full checkpoint branching, expanded memory controls, improved background jobs, model routing, sensor preparation, dependency discovery, and robotics validation.
+- Additional native import coverage where it does not threaten P0.
 
-## Demo Slice
+The imported path is strongly preferred but must not destabilize the generated path or block submission.
 
-_Describe the judge-facing path, sample project or data, and expected result._
+## `POST-HACKATHON-V1`
 
-## Time and Resource Constraints
+Retain complete guaranteed Blender/USD/GLB/GLTF/FBX/OBJ/STL/URDF/MJCF import coverage, broader formats and providers, a larger reusable skills and asset library, advanced global memory, multiple simultaneous jobs, Linux, deeper CAD support, and more comprehensive robotics packaging.
 
-_Record confirmed event deadlines, team capacity, supported hardware, and service limits._
+## `V2-ISAAC-SIM`
 
-## Scope Change Control
+Retain an implementation-ready extension for importing the verified USD package into Isaac Sim, configuring and running tasks, capturing logs/metrics/media, detecting failures, using AI to analyze results and propose changes, applying approved corrections, rerunning, comparing outcomes, and preserving experiment history.
 
-Any addition, removal, reinterpretation, or postponement of a confirmed requirement must be proposed explicitly. Record the approved result in `DECISIONS.md`, update its priority here and in `PRODUCT_REQUIREMENTS.md`, then update traceability, tests, roadmap, and progress.
+## Scope Guards
 
-## Exit Criteria
-
-_Define the minimum evidence required to declare hackathon scope complete._
+- No application code, UI mockups, or dependency installation during MS0.
+- No self-hosted Nemotron 3 Ultra requirement.
+- No Isaac Sim hard dependency in the hackathon release.
+- No claim of broad format fidelity without format-specific evidence.
+- No major architecture changes in the second usage cycle without a recorded blocking reason and owner approval.
+- Any requested reduction or reprioritization must be explicit in `DECISIONS.md` and traceability.

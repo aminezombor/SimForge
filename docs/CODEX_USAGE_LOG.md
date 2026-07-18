@@ -2,41 +2,45 @@
 
 ## Purpose
 
-Record material ways Codex and GPT-5.6 accelerated delivery, improved quality, or informed decisions. Keep entries specific and verifiable; do not claim work a tool did not perform. Never include prompts, output, screenshots, or logs containing secrets or private data.
+Record concrete ways Codex and GPT-5.6 accelerated research, product/architecture decisions, implementation, debugging, testing, and documentation. Do not include prompts, tool output, paths, screenshots, or identifiers that expose secrets or private data. Preserve the `/feedback` Session ID privately outside public source.
 
-## Usage Register
+## Entries
 
-| ID | Date | Tool/model | Task | Acceleration or contribution | Human oversight | Evidence |
-| -- | ---- | ---------- | ---- | ---------------------------- | --------------- | -------- |
-| CU-001 | 2026-07-18 | Codex | Establish project context system | Converted the owner's governance instructions into linked repository templates, traceability rules, approval gates, and verification records. | Owner supplied rules and will approve product, architecture, and scope. | `AGENTS.md`, `README.md`, `docs/` |
+### 2026-07-18 - Persistent project-memory scaffold
 
-## Entry Guidance
+- Phase: Project setup
+- Contribution: Codex created the repository operating rules and structured templates for vision, requirements, traceability, tests, research, decisions, architecture, roadmap, progress, licensing, submission, and usage evidence.
+- Acceleration: Established durable memory and approval gates before a long build, reducing requirement-loss and uncontrolled implementation risk.
+- Evidence: Initial commit `7e1d35e Establish project documentation system`.
 
-Log contributions such as:
+### 2026-07-18 - Master brief decomposition and architecture research
 
-- requirements structuring and traceability maintenance;
-- architecture research, option comparison, and decision support;
-- implementation, refactoring, debugging, and test generation;
-- security, dependency, license, and compatibility review;
-- documentation, packaging, demo preparation, and submission validation.
+- Phase: MS0
+- Contribution: Codex read the complete 34-section brief, separated product requirements from implementation choices, researched current primary sources for NVIDIA/Nemotron, OpenAI, Blender, OpenUSD/UsdPhysics, Isaac validation, Electron/Tauri, SQLite, 3D preview, URDF/MJCF, packaging, secret storage, and open-source chat/Blender prior art.
+- Important decisions: Electron over Tauri; separate Blender 4.5 LTS extension; hosted NVIDIA capability probing; provider-neutral contracts; neutral OpenUSD sidecar; rule-based validation; split Apache/GPL licensing; generated P0 versus imported P1 versus Isaac V2.
+- Acceleration: Compared cross-domain tradeoffs and resolved the risky boundaries before code, while avoiding large planning-time installs.
+- Evidence: `docs/RESEARCH.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`.
 
-Distinguish generated proposals from owner-approved decisions and verified results.
+### 2026-07-18 - Atomic requirements, tests, and two-cycle delivery system
 
-## Detailed Entry Template
+- Phase: MS0
+- Contribution: Codex converted the brief into 123 stable requirements, mapped each to a priority, milestone, acceptance test, status, and evidence location, and defined deterministic success/failure/recovery tests plus the two-cycle roadmap.
+- Acceleration: Turned a large narrative brief into an auditable delivery ledger and judge-oriented evidence plan without silently dropping future scope.
+- Evidence: `docs/PRODUCT_REQUIREMENTS.md`, `docs/REQUIREMENTS_TRACEABILITY.md`, `docs/ACCEPTANCE_TESTS.md`, `docs/ROADMAP.md`.
 
-### CU-XXX: Short Title
+## Future Entry Template
 
-- Date:
-- Tool/model:
-- Goal:
-- Inputs/context used:
-- Work accelerated:
-- Validation performed:
-- Human review or decision:
-- Related requirements/decisions:
-- Evidence:
-- Limitations or corrections:
+### YYYY-MM-DD - Outcome
 
-## Submission Summary
+- Phase/milestone:
+- Requirement/test IDs:
+- What Codex/GPT-5.6 contributed:
+- Important decisions or alternatives:
+- Time/risk saved:
+- Human review and verification:
+- Evidence commit/files/tests:
+- Limitations or correction made:
 
-_Before submission, synthesize the most important entries into a concise explanation of how Codex and GPT-5.6 were used and which important decisions they supported._
+## Submission Reminder
+
+After substantial core functionality works and before fragmenting the primary task, remind the owner to run `/feedback` and preserve the resulting Session ID for the submission form. Do not commit the ID unless the owner explicitly chooses to make it public.

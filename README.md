@@ -1,34 +1,53 @@
-# SimForge Hackathon Project
+# SimForge
 
-## Status
+SimForge is a planned Windows-first, local-first desktop developer tool for creating and preparing robotics assets through conversational AI and a real Blender scene. Its target loop is:
 
-Project definition is in progress. The repository currently contains the documentation and governance system only. The complete product master brief is pending; no technology stack, application code, UI mockups, or large dependencies have been introduced.
+> Idea -> approved plan -> Blender creation or modification -> live scene inspection -> deterministic validation -> safe correction -> verified robotics-ready USD package.
 
-## Purpose
+The hackathon demonstration will build a warehouse mobile manipulator, catch a real geometry or robotics-readiness defect, apply a reversible correction, and export a reopened, verified USD package with a readiness report.
 
-This repository is the single source of truth for product requirements, scope, decisions, architecture, delivery progress, verification evidence, and hackathon submission readiness. Confirmed requirements must remain traceable from the product brief through a milestone and acceptance test to implementation evidence.
+## Current Status
 
-## Documentation Map
+**MS0: documentation and architecture baseline.** No application code or UI implementation exists yet. The architecture is approved, but work must stop after MS0 until the owner explicitly starts MS1.
 
-- [`docs/PRODUCT_VISION.md`](docs/PRODUCT_VISION.md): problem, users, value, and success definition
-- [`docs/PRODUCT_REQUIREMENTS.md`](docs/PRODUCT_REQUIREMENTS.md): confirmed product behavior and constraints
-- [`docs/HACKATHON_SCOPE.md`](docs/HACKATHON_SCOPE.md): hackathon priorities and explicit exclusions
-- [`docs/DECISIONS.md`](docs/DECISIONS.md): approved product and architecture decisions
-- [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md): unresolved questions requiring an owner or answer
-- [`docs/REQUIREMENTS_TRACEABILITY.md`](docs/REQUIREMENTS_TRACEABILITY.md): requirement-to-milestone-to-test mapping
-- [`docs/ACCEPTANCE_TESTS.md`](docs/ACCEPTANCE_TESTS.md): verifiable end-to-end acceptance criteria
-- [`docs/RESEARCH.md`](docs/RESEARCH.md): sourced investigations and evaluations
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): proposed system design and approval record
-- [`docs/ROADMAP.md`](docs/ROADMAP.md): small, independently testable milestones
-- [`docs/PROGRESS.md`](docs/PROGRESS.md): completed work, current state, and next step
-- [`docs/DEPENDENCIES_AND_LICENSES.md`](docs/DEPENDENCIES_AND_LICENSES.md): dependency due diligence and notices
-- [`docs/HACKATHON_SUBMISSION_CHECKLIST.md`](docs/HACKATHON_SUBMISSION_CHECKLIST.md): submission readiness
-- [`docs/CODEX_USAGE_LOG.md`](docs/CODEX_USAGE_LOG.md): material Codex and GPT-5.6 contributions
+## Planned Architecture
 
-## Working Agreement
+- Electron, React, and TypeScript desktop application
+- Thin GPL-3.0-or-later Blender 4.5 LTS extension
+- NVIDIA-first, provider-neutral AI layer with optional OpenAI support
+- Local SQLite project storage and Windows DPAPI-backed secret storage
+- Bundled Python/OpenUSD sidecar for USD composition and verification
+- Blender-authoritative scene state with structured operations, revisions, checkpoints, and approvals
 
-Read [`AGENTS.md`](AGENTS.md) before contributing. Before milestone planning, refresh the vision, requirements, decisions, traceability matrix, and acceptance tests. Proposed scope changes require explicit owner approval. Major implementation remains blocked until the initial architecture and milestone plan are approved.
+See [Architecture](docs/ARCHITECTURE.md), [Security](docs/SECURITY.md), and [Roadmap](docs/ROADMAP.md) for the approved design.
 
-## Build and Run
+## Repository Map
 
-No application toolchain is configured yet. Setup, build, test, and run commands will be added only after the architecture and stack are selected and approved.
+- `AGENTS.md` - permanent contributor and Codex operating rules
+- `docs/PRODUCT_VISION.md` - users, problem, experience, and product principles
+- `docs/PRODUCT_REQUIREMENTS.md` - confirmed, stable product requirements
+- `docs/REQUIREMENTS_TRACEABILITY.md` - requirement-to-milestone/test/evidence mapping
+- `docs/ACCEPTANCE_TESTS.md` - deterministic acceptance procedures
+- `docs/ARCHITECTURE.md` - approved system design and interfaces
+- `docs/DECISIONS.md` - consequential product and technical decisions
+- `docs/RESEARCH.md` - primary-source ecosystem research
+- `docs/HACKATHON_SCOPE.md` and `docs/ROADMAP.md` - priority tiers and two-cycle delivery plan
+- `docs/SECURITY.md` and `docs/PRIVACY.md` - threat model and data-handling policy
+- `docs/PROGRESS.md` - current state, verification, and next gate
+- `docs/HACKATHON_SUBMISSION_CHECKLIST.md` and `docs/DEMO_SCRIPT.md` - submission readiness
+
+## Build and Test Commands
+
+Commands will be added in MS1 after the package manifests exist. Planned commands are `pnpm dev`, `pnpm test`, `pnpm test:integration`, `pnpm lint`, and `pnpm package`. Do not present them as working before MS1 evidence exists.
+
+## Supported Platform
+
+The hackathon baseline is Windows 11 x64 with a separately installed Blender 4.5 LTS. Isaac Sim is not required for V1. Future Linux and Isaac Sim work is preserved in the roadmap.
+
+## Licensing
+
+The standalone desktop application will use Apache-2.0. The Blender extension will use GPL-3.0-or-later. Third-party assets retain their own licenses and must be recorded in project metadata and notices. License files will be added with the first distributable source packages.
+
+## Secrets
+
+Never place API keys in source, project databases, logs, screenshots, commands, sample files, or submission materials. The implemented app will store provider credentials through Windows-protected local storage.

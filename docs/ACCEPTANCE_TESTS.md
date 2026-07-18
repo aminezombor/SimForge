@@ -1,31 +1,67 @@
 # Acceptance Tests
 
-## Status
+## Policy
 
-Acceptance tests are pending the confirmed product requirements. Define tests before implementing their milestones.
+Tests verify observable outcomes and retain reproducible evidence. Model confidence is not evidence. Automated deterministic and integration tests are preferred; manual judge steps are used only where UI/video review is inherently manual. Live-provider tests are opt-in and receive credentials only from protected runtime storage.
+
+Statuses: Draft, Ready, Passing, Failing, or Blocked. `Passing` means evidence exists for the current implementation; it does not predict future behavior.
 
 ## Test Register
 
-| Test ID | Requirement IDs | Scenario | Preconditions | Procedure | Expected result | Status | Evidence |
-| ------- | --------------- | -------- | ------------- | --------- | --------------- | ------ | -------- |
-| _AT-Pending_ | _Pending_ | _To be defined_ | _Pending_ | _Pending_ | _Observable outcome_ | Draft | — |
+| Test ID | Scenario | Preconditions | Procedure | Expected result | Milestone | Status / evidence |
+| ------- | -------- | ------------- | --------- | --------------- | --------- | ----------------- |
+| AT-001 | Documentation completeness audit | Approved master brief and MS0 plan | Verify required files; unique requirement/test/decision IDs; allowed priorities/statuses; valid milestone/test mappings; brief sections 1-34 coverage; zero unmapped requirements; no secrets | All checks pass and audit counts are recorded | MS0 | Passing - repository docs and `docs/PROGRESS.md` |
+| AT-002 | Clean-build/source-of-truth guard | Clean repository | Inspect repository origin/history and contributor rules; confirm no prior implementation source or dependency was imported | Only new documentation exists and the clean-build rule is explicit | MS0 | Passing - `AGENTS.md`, Git tree |
+| AT-003 | Secure provider credential lifecycle | Packaged app and fake/live test key | Add key, restart, use provider, inspect renderer/DB/project/logs/CLI/diagnostics, remove key | Key works from protected storage and appears nowhere outside protected credential data; removal invalidates it | MS1 | Draft |
+| AT-004 | NVIDIA discovery and capability probe | Network and user NVIDIA key | Discover models; probe streaming, tools, reasoning and vision flags; select Nemotron only if found; simulate unavailable model | Capability record reflects observed behavior; text-only work is not routed as vision; clear fallback/error occurs | MS1 | Draft |
+| AT-005 | Provider-neutral OpenAI path | Optional OpenAI key or deterministic mock | Run the same normalized planning/tool fixture through NVIDIA adapter and OpenAI adapter; reload stored conversation | Both produce the same provider-neutral events/tool contract; provider/model/reason/usage are visible | MS1 | Draft |
+| AT-006 | Portable multi-project persistence | Two temporary project directories | Create/open projects, store project records/artifacts, restart app, move one folder, reopen, export project metadata | Projects remain distinct, local, portable, recoverable, and contain no global secrets | MS1 | Draft |
+| AT-007 | Conversation and memory lifecycle | Existing project | Create multiple conversations; attach a reference; rename/search/delete; branch/edit/retry; exercise project/global memory controls and compaction | History and attachments persist; scopes are clear; controls work; confirmed project decisions survive compaction; no secret is displayed | MS6 | Draft |
+| AT-008 | Transparent activity and honest states | Mock provider, tool, retry, and long local job | Run success, wait, retry, cancel, and error fixtures | UI shows phase/task/tool/action/files/provider/changes/validation/progress and concise rationale without hidden-chain-of-thought claims | MS2 | Draft |
+| AT-009 | Plan Mode cannot mutate | Connected Blender fixture with known hash/revision | Ask directly and via prompt injection for every mutating tool/Python fallback while in Plan Mode; forge renderer IPC request | No mutating tool is offered or executed; bridge sees no mutation; scene hash/revision is unchanged; denial is logged | MS2 | Draft |
+| AT-010 | Build Mode approval enforcement | Approved plan and connected Blender | Execute safe operation; attempt structural/destructive operation without approval; approve correct hash/revision then retry; alter plan/revision | Safe permitted action succeeds; risky action fails closed until valid approval; changed/stale approvals are rejected | MS2 | Draft |
+| AT-011 | Goal job lifecycle and restart | Multi-task deterministic job | Approve plan; run, pause, resume, retry a failed task, cancel, rewind, branch, restart app mid-job, and chat during local work | State and checkpoint restore correctly; no duplicated mutation; chat remains usable; restricted actions never occur silently | MS2 | Draft |
+| AT-012 | Blender thin slice | Blender 4.5 LTS fixture and extension | Connect, read snapshot, create one primitive through structured RPC, observe activity, save checkpoint, reread scene | Real Blender visibly changes; response reports pre/post revisions and entity IDs; fresh scene equals recorded result | MS1 | Draft |
+| AT-013 | Manual edit and stale-scene protection | Connected scene at known revision | Manually edit Blender, wait for event, attempt mutation using old revision, request diff/refresh, retry with valid plan | Manual change is detected; stale action is rejected; meaningful diff appears; manual work is preserved | MS2 | Draft |
+| AT-014 | Blender disconnect/crash recovery | Active job and checkpoint | Disconnect extension and terminate Blender during controlled operation; restart and relink | New mutations stop; error is actionable; state/checkpoint survives; reconnect refreshes scene before resume | MS2 | Draft |
+| AT-015 | Controlled Python fallback | Operation unavailable as structured tool | Attempt in Plan Mode, then Build Mode without approval, then with displayed intent/script hash and checkpoint; force script failure | First two attempts fail closed; approved run is logged, scoped, inspected, and recoverable; failure does not corrupt project | MS2 | Draft |
+| AT-016 | Primitive wheeled robot | Empty Blender project | Use approved goal to create base/wheels and hierarchy, then inspect/checkpoint/validate | Correct objects, reasonable scale, stable IDs, hierarchy, scene truth, validation, and checkpoint exist | MS4 | Draft |
+| AT-017 | Warehouse mobile manipulator | Passing primitive path | Add warehouse, shelves/boxes/pallets, materials, arm, gripper, sensor, collisions, mass/physics, joints; inject known defect; correct and export | Complete visual scenario is general-purpose, defect is caught, correction follows policy, and final Stage B/C/D tests pass | MS7 | Draft |
+| AT-018 | Embedded view synchronization | Blender scene and generated GLB preview | Orbit/pan/zoom/select, link selection, inspect dimensions/materials, change Blender without refreshing, compare before/after, open Blender | Preview is useful; exact source revision is shown; stale badge appears; it never silently claims current truth | MS6 | Draft |
+| AT-019 | Native-format staging import | Licensed fixtures for Blender/USD/GLTF/FBX/OBJ/STL | Import each into staging with script auto-execution disabled; inspect and accept/reject merge | Supported content is staged safely; report lists conversions/losses/units/materials/hierarchy/source/license/status | MS8 | Draft |
+| AT-020 | External robot import path | Selected licensed URDF or MJCF robot | Parse to `RobotGraph`, contain asset paths, import, inspect, modify meaningfully, validate, export, and verify | Robot integrity/provenance are recorded; unsupported features are explicit; generated path remains unaffected | MS8 | Draft |
+| AT-021 | Deterministic geometry validation | Fixtures with unit, transform, contact, topology, naming, hierarchy, material, and missing-reference defects | Run validators twice and compare results | Expected stable rule IDs/entities/evidence are emitted with no invented findings; repaired fixtures pass relevant rules | MS3 | Draft |
+| AT-022 | Materialized visual review | Scene with materials, references, and a visible defect | Render lit multi-angle/close-up/sensor/before-after views; optionally route to probed vision model | Review images show materials and revision; model comments are labeled advisory and never replace deterministic/human acceptance | MS4 | Draft |
+| AT-023 | Robotics-readiness validation | Robot fixtures with good/bad links, joints, axes, limits, collisions, mass/inertia, articulation, and sensors | Run rules and compare expected findings; include missing physical values | Rules catch real defects and identify affected entities; unknown mass/inertia remains an explicit assumption, not fabricated data | MS4 | Draft |
+| AT-024 | Safe automatic correction | Fixture with unambiguous normals/naming/reference/ground-contact issue | Run rule, inspect eligible fix/preconditions, auto-apply, post-validate, undo | Only `SAFE_LOCAL` fix runs; log and inverse/checkpoint exist; target finding clears without unrelated changes | MS3 | Draft |
+| AT-025 | Structural correction gate | Fixture requiring joint/collision/mass/design change | Request correction without approval, reject it, then approve exact proposed change | No unapproved mutation occurs; rejection preserves state; approved action is checkpointed and revalidated | MS3 | Draft |
+| AT-026 | Checkpoint, action undo, and restore | Project with source, DB, scripts, references, validation, and active task | Create checkpoint, make safe and risky changes, undo safe action, restore checkpoint after approval | All captured state is internally consistent; restore creates a pre-restore checkpoint and no orphan references | MS3 | Draft |
+| AT-027 | Named versions, branches, and timeline | Several actions/checkpoints/providers | Name versions, branch earlier checkpoint, create divergent edit/export, inspect timeline | Branches remain isolated; timeline identifies actor/model/tool/time/validation/checkpoint/export; conversational deletion does not remove recovery | MS6 | Draft |
+| AT-028 | Quick USD export | Valid simple robot and explicit destination | Attempt without intent, export one `.usdc`, attempt overwrite without approval, then approve | Silent/overwrite attempts fail; approved single file opens and has correct units/up axis/hierarchy/metadata | MS5 | Draft |
+| AT-029 | Canonical USD package and portability | Passing robot/environment validation | Approve destination/package, export to temporary area, reopen root/robot stages, resolve references, verify schemas/hashes, move package and reopen | Required modular files exist; all paths are relative/contained; moved package opens; failure is reported instead of promoted | MS5 | Draft |
+| AT-030 | Machine and human readiness reports | Validation/export run with known warning | Inspect JSON schema and Markdown report against stage and manifest | Both agree on rules, evidence, assumptions, limitations, versions, conventions, provenance, and export result | MS5 | Draft |
+| AT-031 | Desktop, IPC, bridge, file, and import security | Packaged security fixtures | Attempt renderer Node access/unsafe navigation, invalid IPC, forged/oversized bridge frames, path traversal/symlink escape, remote import, silent overwrite | Every attack fails closed, is safely reported/redacted, and leaves project/scene unchanged | MS2/MS9 | Draft |
+| AT-032 | Privacy controls and cloud minimization | Mock provider that records payload | Toggle cloud/file/visual/memory/log controls; send selected request; export/delete project and diagnostics | Disclosure matches payload; disabled data is absent; no unrelated/global/secret data leaks; deletion/export scope is accurate; no telemetry occurs | MS6 | Draft |
+| AT-033 | Environment Doctor and packaged launch | Clean Windows 11 account with/without dependencies | Install or unzip, launch without terminal, run Doctor across missing/valid Blender, providers, USD sidecar, ports, permissions; uninstall/cleanup | Normal launch works; supported versions and failures are actionable; cleanup documented; Isaac is not required | MS9 | Draft |
+| AT-034 | Judge-friendly clean setup | Release artifact, README, sample project, fresh account/machine | Follow only documented install/key/project/test steps without source rebuild | Judge reaches expected demo/check results within documented time; no hidden developer state is required | MS9 | Draft |
+| AT-035 | Demo and submission package | Passing generated workflow | Rehearse and record under-three-minute script; audit repository/checklist/project copy/video narration | Required problem/goal/plan/action/defect/fix/export/Codex story appears; no secrets/private feedback ID; all submission placeholders resolved | MS9 | Draft |
+| AT-036 | License, dependency, and asset provenance | Release package and sample/imported assets | Generate inventory/notices; inspect package/source boundaries and every asset record | Apache desktop and GPL Blender boundaries are clear; all third-party versions/licenses/sources/modifications are present and redistributable | MS9 | Draft |
+| AT-037 | Complete post-hackathon V1 capability | MS10 build and format/provider fixtures | Run full guaranteed import matrix, broader providers, Linux, multiple jobs, advanced memory/assets/CAD/robotics packaging tests | Each retained V1 requirement has format/platform-specific evidence or explicit approved limitation | MS10 | Draft |
+| AT-038 | Isaac Sim feedback-loop extension | MS11 build, Isaac-compatible environment, canonical package | Import/configure/run, capture evidence, detect failure, request analysis, approve correction, rerun and compare, reload experiment | Experiment is reproducible; approval is enforced; before/after metrics/media and history are linked | MS11 | Draft |
+| AT-039 | Milestone governance and evidence | Any milestone | Verify memory reread, objective/IDs/tests/checkpoint, implementation, test/demo evidence, docs/trace/progress/Codex updates, commit, risks, and gate | Milestone cannot be marked accepted with a missing step or model-only evidence | Every milestone | Passing for MS0 - `AGENTS.md`, docs, Git commit pending |
 
-Allowed statuses: Draft, Approved, Ready, Passing, Failing, Blocked.
+## Judge-Friendly P0 Procedure (Target)
 
-## Test Design Rules
+1. Install or unzip SimForge and install the documented Blender 4.5 LTS version.
+2. Launch normally, run Environment Doctor, and configure an NVIDIA key through protected settings.
+3. Open the bundled sample project and connect Blender.
+4. Submit the prepared warehouse mobile-manipulator goal and inspect/approve its plan.
+5. Observe a structured Blender action, fresh scene revision, activity, and checkpoint.
+6. Run deterministic validation, observe the prepared real defect, and approve or auto-apply the policy-appropriate fix.
+7. Explicitly export the canonical USD package, then inspect reopen results and readiness report.
 
-- Use stable IDs (`AT-001`, `AT-002`, ...).
-- Test observable outcomes, not private implementation details.
-- Include the main success path and meaningful failure or recovery paths.
-- Make procedures repeatable on every supported platform.
-- State required sample data, accounts, network access, and environment configuration.
-- Keep secrets out of procedures, output, screenshots, and evidence.
-- Link automated tests where possible and document necessary manual judge checks.
+MS9 will replace this target with exact clicks, expected text, timing, screenshots, and troubleshooting based on the packaged build.
 
-## Judge-Friendly Test Procedure
+## Evidence Convention
 
-_Provide a short, deterministic procedure that starts from documented setup and demonstrates the complete P0 experience._
-
-## Evidence Retention
-
-_For each passing test, link reproducible command output, artifact paths, screenshots, recordings, or commit identifiers in the register and traceability matrix._
+Sanitized evidence lives under `reports/` in a sample project or a documented release evidence location. Each artifact records application version, commit, environment, test ID, timestamp, inputs/fixtures, outcome, and limitations. Large videos/binaries may use release links; no evidence may contain credentials or private `/feedback` identifiers.
