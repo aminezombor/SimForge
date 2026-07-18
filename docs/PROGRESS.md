@@ -62,3 +62,17 @@ Run the owner-guided checks in `docs/MS1_MS2_MANUAL_TEST.md`, record any defects
 stop. Do not start MS3 until the owner explicitly approves the next milestone. MS3 must
 begin by rereading persistent memory and naming its deterministic validation rules and
 acceptance evidence.
+
+## End-of-Day Handoff - 2026-07-19
+
+- Repository state is committed and verified; no uncommitted work is intentionally left.
+- The corrected **SimForge Hackathon** shortcut launches without terminals, Blender
+  reconnects automatically, and visible status follows the live bridge.
+- The current renderer is an engineering preview. `docs/UX_WORKSPACE.md` is the approved
+  final workspace direction; no full MS6 redesign has been started.
+- MS3 has not started and still requires explicit owner approval.
+- Resume by rereading the required persistent-memory documents, confirming whether to
+  create a Figma workspace reference or begin MS3, then naming the exact requirements
+  and acceptance tests before implementation.
+- Publishing is pending because no Git remote is configured. Add an owner-selected
+  remote before pushing; do not create or guess a repository destination.
