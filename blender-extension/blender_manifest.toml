@@ -12,4 +12,4 @@ license = ["SPDX:GPL-3.0-or-later"]
 
 [permissions]
 network = "Connects only to an authenticated SimForge listener on 127.0.0.1"
-files = "Reads the user-selected runtime descriptor and writes approved project checkpoints"
+files = "Reads runtime descriptor; writes approved project checkpoints"

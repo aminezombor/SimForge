@@ -84,6 +84,25 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Evidence: `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`, provider unit tests, packaged
   `--provider-acceptance-test` result.
 
+### 2026-07-18 - One-click owner test environment
+
+- Phase/milestone: MS1/MS2 owner acceptance preparation
+- Requirement/test IDs: REQ-BLENDER-001, REQ-BLENDER-007, REQ-PLATFORM-002 through
+  REQ-PLATFORM-005; AT-012 through AT-014 and partial AT-033
+- Contribution: Codex converted the packaged checkpoint into a current-user desktop
+  installation that launches SimForge and a hash-verified Blender 4.5.11 LTS together,
+  installs/enables the bridge extension, auto-connects locally, and shows no terminal.
+- Important corrections: direct Blender validation exposed an overlong manifest field
+  and invalid extension ZIP root; both were corrected. The authenticated descriptor now
+  renews only while disconnected near expiry, retaining a short lifetime while making
+  repeat shortcut launches reliable. The launcher selects descriptors only from the
+  installed app process and preserves unrelated desktop shortcuts.
+- Acceleration: automated the fragile multi-process setup and turned owner testing into
+  documented clicks with exact outcomes instead of manual environment reconstruction.
+- Evidence: `scripts/install-local-test.ps1`, `scripts/launch-local-test.ps1`,
+  `docs/MS1_MS2_MANUAL_TEST.md`, bridge renewal integration test, installed connection
+  smoke. Release installer/signing/clean-account coverage remains MS9.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

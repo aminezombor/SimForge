@@ -54,8 +54,20 @@ $env:SIMFORGE_BLENDER_PATH = 'C:\path\to\Blender 4.5\blender.exe'
 pnpm exec vitest run tests/live/blender-live.test.ts --reporter=verbose
 ```
 
-Install `out/simforge_bridge-0.1.0.zip` in Blender, enable the extension, launch
-SimForge, then choose **View3D > Sidebar > SimForge > Connect SimForge**.
+## One-click Local Test Build
+
+After `pnpm verify`, `pnpm package`, and `pnpm package:extension`, install the
+developer test build for the current Windows user:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/install-local-test.ps1
+```
+
+This verifies the prepared Blender 4.5.11 executable, installs the extension, and
+creates **SimForge Hackathon** on the desktop. The shortcut starts SimForge and Blender,
+auto-connects the authenticated local bridge, and leaves no terminal open. This is a
+test convenience, not the future signed MS9 installer; Blender remains a separately
+licensed executable. Follow [the MS1/MS2 manual test](docs/MS1_MS2_MANUAL_TEST.md).
 
 ## Security and Licensing
 

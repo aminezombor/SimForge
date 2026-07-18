@@ -10,6 +10,8 @@ bl_info = {
     "category": "Development",
 }
 
+import os
+
 import bpy
 
 from . import bridge
@@ -54,15 +56,25 @@ class SIMFORGE_PT_bridge(bpy.types.Panel):
 CLASSES = (SIMFORGE_OT_connect, SIMFORGE_OT_disconnect, SIMFORGE_PT_bridge)
 
 
+def _auto_connect():
+    if os.environ.get("SIMFORGE_AUTO_CONNECT") == "1":
+        bridge.connect()
+    return None
+
+
 def register():
     for cls in CLASSES:
         bpy.utils.register_class(cls)
     if bridge.depsgraph_update_handler not in bpy.app.handlers.depsgraph_update_post:
         bpy.app.handlers.depsgraph_update_post.append(bridge.depsgraph_update_handler)
+    if os.environ.get("SIMFORGE_AUTO_CONNECT") == "1" and not bpy.app.timers.is_registered(_auto_connect):
+        bpy.app.timers.register(_auto_connect, first_interval=1.0)
 
 
 def unregister():
     bridge.disconnect()
+    if bpy.app.timers.is_registered(_auto_connect):
+        bpy.app.timers.unregister(_auto_connect)
     if bridge.depsgraph_update_handler in bpy.app.handlers.depsgraph_update_post:
         bpy.app.handlers.depsgraph_update_post.remove(bridge.depsgraph_update_handler)
     for cls in reversed(CLASSES):

@@ -9,11 +9,11 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $entries = @(
-    'blender_manifest.toml',
-    'LICENSE',
-    'simforge_bridge/__init__.py',
-    'simforge_bridge/bridge.py',
-    'simforge_bridge/protocol.py'
+    @{ Source = 'blender_manifest.toml'; Archive = 'blender_manifest.toml' },
+    @{ Source = 'LICENSE'; Archive = 'LICENSE' },
+    @{ Source = 'simforge_bridge/__init__.py'; Archive = '__init__.py' },
+    @{ Source = 'simforge_bridge/bridge.py'; Archive = 'bridge.py' },
+    @{ Source = 'simforge_bridge/protocol.py'; Archive = 'protocol.py' }
 )
 
 $stream = [System.IO.File]::Open($destination, [System.IO.FileMode]::Create)
@@ -25,11 +25,11 @@ try {
     )
     try {
         foreach ($entry in $entries) {
-            $source = Join-Path $sourceRoot ($entry -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            $source = Join-Path $sourceRoot ($entry.Source -replace '/', [System.IO.Path]::DirectorySeparatorChar)
             [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
                 $archive,
                 $source,
-                $entry,
+                $entry.Archive,
                 [System.IO.Compression.CompressionLevel]::Optimal
             ) | Out-Null
         }

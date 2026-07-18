@@ -107,10 +107,10 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-SECURITY-006 | Restricted local services and loopback Blender bridge | HACKATHON-P0 | MS1 | AT-031 | Tested | Random 127.0.0.1 listener, 256-bit token, ACL, project binding, frame limit |
 | REQ-SECURITY-007 | Privileged execution and secret-safe source/evidence/submission | HACKATHON-P0 | MS2 | AT-015, AT-031, AT-035 | Tested | Controlled fallback/secret scanner/sanitized evidence; final submission audit MS9 |
 | REQ-PLATFORM-001 | Windows-first without needless future Linux barrier | HACKATHON-P0 | MS9 | AT-033, AT-037 | Implemented | Windows x64 package/Blender/DPAPI passing; clean-machine and future Linux gates retained |
-| REQ-PLATFORM-002 | Installer/portable build, one-click no-terminal launch | HACKATHON-P0 | MS9 | AT-033, AT-034 | Planned | - |
-| REQ-PLATFORM-003 | Developer build and uninstall/cleanup instructions | HACKATHON-P0 | MS9 | AT-033, AT-034 | Planned | - |
-| REQ-PLATFORM-004 | Supported versions, actionable errors, Environment Doctor | HACKATHON-P0 | MS9 | AT-033 | Planned | - |
-| REQ-PLATFORM-005 | Complete Environment Doctor checks | HACKATHON-P0 | MS9 | AT-033 | Planned | - |
+| REQ-PLATFORM-002 | Installer/portable build, one-click no-terminal launch | HACKATHON-P0 | MS9 | AT-033, AT-034 | In progress | Current-user developer install and desktop shortcut pass; signed installer/portable release and clean-account test remain MS9 |
+| REQ-PLATFORM-003 | Developer build and uninstall/cleanup instructions | HACKATHON-P0 | MS9 | AT-033, AT-034 | In progress | README developer install documented; uninstall/cleanup and release upgrade path remain MS9 |
+| REQ-PLATFORM-004 | Supported versions, actionable errors, Environment Doctor | HACKATHON-P0 | MS9 | AT-033 | In progress | Blender 4.5.11/Python detection and launcher errors exercised; complete Doctor matrix remains MS9 |
+| REQ-PLATFORM-005 | Complete Environment Doctor checks | HACKATHON-P0 | MS9 | AT-033 | In progress | Blender/Python/USD status displayed; provider, port, permission, and full recovery checks remain MS9 |
 | REQ-PLATFORM-006 | Isaac Sim is not a V1 hard dependency | HACKATHON-P0 | MS9 | AT-033, AT-034 | Planned | `docs/ARCHITECTURE.md` |
 | REQ-SUBMISSION-001 | Developer tools category | HACKATHON-P0 | MS9 | AT-035 | Planned | `docs/HACKATHON_SCOPE.md` |
 | REQ-SUBMISSION-002 | Working project/repository/description/README/setup | HACKATHON-P0 | MS9 | AT-034, AT-035 | Planned | - |

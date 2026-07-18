@@ -16,7 +16,7 @@ private model payloads.
 
 ```powershell
 pnpm verify
-# 20 tests pass, one opt-in Blender test skips; typecheck/lint/secret scan pass
+# 21 tests pass, one opt-in Blender test skips; typecheck/lint/secret scan pass
 
 $env:SIMFORGE_BLENDER_PATH = 'C:\path\to\blender.exe'
 pnpm exec vitest run tests/live/blender-live.test.ts --reporter=verbose
@@ -49,6 +49,9 @@ provider-neutral AI tool routing, checkpoint save-copy, structured cube mutation
 pre/post revisions, manual-edit event and diff, stale rejection, crash detection,
 checkpoint reopen/reconnect with monotonic revision floor, project-path rejection,
 approved Python failure recovery, archived script metadata, and post-run inspection.
+The local test installer additionally validates the Blender extension archive with
+Blender, installs/enables it for the current user, and proves the desktop shortcut starts
+the packaged app and Blender with an authenticated loopback connection and no terminal.
 
 Packaged security smoke proves renderer `require` and `process` are undefined, the
 preload exposes only the typed SimForge API, remote windows and navigation are denied,

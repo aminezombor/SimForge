@@ -43,12 +43,12 @@ async function connectClient(
   return socket;
 }
 
-async function fixture() {
+async function fixture(options: ConstructorParameters<typeof BlenderBridgeServer>[0] = {}) {
   const sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-bridge-'));
   sandboxes.push(sandbox);
   const runtime = path.join(sandbox, 'runtime');
   const project = path.join(sandbox, 'project');
-  const server = new BlenderBridgeServer();
+  const server = new BlenderBridgeServer(options);
   servers.push(server);
   const publicDescriptor = await server.start(runtime, 'project-id', project);
   const descriptorPath = path.join(runtime, `${process.pid}-project-id.json`);
@@ -152,5 +152,31 @@ describe('authenticated Blender bridge', () => {
     const finalDisconnect = once(server, 'disconnected');
     second.destroy();
     await finalDisconnect;
+  });
+
+  it('renews an expiring descriptor while disconnected', async () => {
+    const { server, descriptor } = await fixture({
+      descriptorTtlMs: 500,
+      renewalLeadMs: 100,
+      renewalCheckMs: 10,
+    });
+    const descriptorPath = path.join(
+      path.dirname(descriptor.projectRoot),
+      'runtime',
+      `${process.pid}-project-id.json`,
+    );
+
+    let renewed = descriptor;
+    await expect.poll(async () => {
+      renewed = JSON.parse(await readFile(descriptorPath, 'utf8')) as BridgeDescriptor;
+      return renewed.token;
+    }, { timeout: 1_000 }).not.toBe(descriptor.token);
+    expect(new Date(renewed.expiresAt).getTime()).toBeGreaterThan(Date.now());
+
+    const connected = once(server, 'connected');
+    const client = await connectClient(renewed, async () => Promise.resolve());
+    await connected;
+    expect(server.connected).toBe(true);
+    client.destroy();
   });
 });

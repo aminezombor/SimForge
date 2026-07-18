@@ -34,6 +34,12 @@ export interface BridgeDescriptor {
   revisionFloor: number;
 }
 
+export interface BlenderBridgeOptions {
+  descriptorTtlMs?: number;
+  renewalLeadMs?: number;
+  renewalCheckMs?: number;
+}
+
 export class BridgeError extends Error {
   readonly code: string;
 
@@ -50,7 +56,18 @@ export class BlenderBridgeServer extends EventEmitter {
   private descriptorPath: string | null = null;
   private descriptor: BridgeDescriptor | null = null;
   private descriptorWrite: Promise<void> = Promise.resolve();
+  private renewalTimer: NodeJS.Timeout | null = null;
   private readonly pending = new Map<string, PendingRequest>();
+  private readonly descriptorTtlMs: number;
+  private readonly renewalLeadMs: number;
+  private readonly renewalCheckMs: number;
+
+  constructor(options: BlenderBridgeOptions = {}) {
+    super();
+    this.descriptorTtlMs = options.descriptorTtlMs ?? 15 * 60_000;
+    this.renewalLeadMs = options.renewalLeadMs ?? 2 * 60_000;
+    this.renewalCheckMs = options.renewalCheckMs ?? 30_000;
+  }
 
   get connected(): boolean {
     return Boolean(this.socket && !this.socket.destroyed);
@@ -89,7 +106,7 @@ export class BlenderBridgeServer extends EventEmitter {
       projectId,
       projectRoot: path.resolve(projectRoot),
       token,
-      expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
+      expiresAt: new Date(Date.now() + this.descriptorTtlMs).toISOString(),
       revisionFloor,
     };
     this.descriptor = descriptor;
@@ -100,6 +117,8 @@ export class BlenderBridgeServer extends EventEmitter {
       flag: 'wx',
     });
     await protectUserOnlyFile(this.descriptorPath);
+    this.renewalTimer = setInterval(() => this.renewDescriptorWhileDisconnected(), this.renewalCheckMs);
+    this.renewalTimer.unref();
     return {
       protocolVersion: descriptor.protocolVersion,
       port: descriptor.port,
@@ -145,6 +164,8 @@ export class BlenderBridgeServer extends EventEmitter {
   }
 
   async stop(): Promise<void> {
+    if (this.renewalTimer) clearInterval(this.renewalTimer);
+    this.renewalTimer = null;
     this.socket?.destroy();
     this.socket = null;
     for (const [requestId, pending] of this.pending) {
@@ -271,6 +292,26 @@ export class BlenderBridgeServer extends EventEmitter {
       .then(() => writeFile(descriptorPath, serialized, { encoding: 'utf8', mode: 0o600 }))
       .catch(() => {
         // A live session remains authenticated; reconnect will fail closed if persistence fails.
+      });
+  }
+
+  private renewDescriptorWhileDisconnected(): void {
+    const descriptor = this.descriptor;
+    const descriptorPath = this.descriptorPath;
+    if (
+      this.connected ||
+      !descriptor ||
+      !descriptorPath ||
+      new Date(descriptor.expiresAt).getTime() > Date.now() + this.renewalLeadMs
+    ) return;
+
+    descriptor.token = randomBytes(32).toString('base64url');
+    descriptor.expiresAt = new Date(Date.now() + this.descriptorTtlMs).toISOString();
+    const serialized = `${JSON.stringify(descriptor, null, 2)}\n`;
+    this.descriptorWrite = this.descriptorWrite
+      .then(() => writeFile(descriptorPath, serialized, { encoding: 'utf8', mode: 0o600 }))
+      .catch(() => {
+        // Reconnect fails closed if the protected descriptor cannot be renewed.
       });
   }
 }
