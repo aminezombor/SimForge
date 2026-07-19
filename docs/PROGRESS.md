@@ -2,10 +2,10 @@
 
 ## Current State
 
-- Phase: MS1 and MS2 complete; stopped before MS3
+- Phase: MS1 and MS2 complete; owner-authorized continuation paused before MS3
 - Overall status: Verified MS1/MS2 foundation; owner UI review incorporated and launcher defects corrected
 - Architecture: Approved; no architecture changes were required
-- Current gate: owner review/instruction before starting MS3 deterministic validation
+- Current gate: owner authorized MS3-MS9; work is paused at the owner's end-of-day request
 - Last updated: 2026-07-19
 
 ## Completed Work
@@ -58,10 +58,11 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Run the owner-guided checks in `docs/MS1_MS2_MANUAL_TEST.md`, record any defects, and
-stop. Do not start MS3 until the owner explicitly approves the next milestone. MS3 must
-begin by rereading persistent memory and naming its deterministic validation rules and
-acceptance evidence.
+When the owner resumes, begin MS3 deterministic validation. First reread the required
+persistent-memory documents, then state the MS3 objective, requirement IDs, acceptance
+tests, and smallest independently testable validation slice before changing code. The
+owner has already authorized continuing through the remaining milestones; preserve each
+milestone's verification and checkpoint gate.
 
 ## End-of-Day Handoff - 2026-07-19
 
@@ -70,9 +71,10 @@ acceptance evidence.
   reconnects automatically, and visible status follows the live bridge.
 - The current renderer is an engineering preview. `docs/UX_WORKSPACE.md` is the approved
   final workspace direction; no full MS6 redesign has been started.
-- MS3 has not started and still requires explicit owner approval.
-- Resume by rereading the required persistent-memory documents, confirming whether to
-  create a Figma workspace reference or begin MS3, then naming the exact requirements
-  and acceptance tests before implementation.
+- MS3 has not started. The owner subsequently authorized continuing through the
+  remaining milestones, then asked to pause until tomorrow.
+- Resume directly with MS3: reread persistent memory, name the exact deterministic
+  validation requirements and acceptance tests, and implement the smallest complete
+  slice. Figma exploration is optional and must not displace milestone evidence.
 - Publishing is pending because no Git remote is configured. Add an owner-selected
   remote before pushing; do not create or guess a repository destination.
