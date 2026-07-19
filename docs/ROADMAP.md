@@ -48,8 +48,12 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
 - MS5: complete. Exact destination/overwrite approval, Blender staging, quick `.usdc`,
   canonical relative-reference layers, SHA-256 inventory, source/previews/notices,
   matching reports, embedded runtime, and deep relocated OpenUSD reopen pass.
-- MS6: active. Replace the engineering preview with the owner-approved embedded workspace
-  while preserving all MS1-MS5 policy, validation, and export behavior.
+- MS6: complete. The owner-approved three-column workspace, conversations, scoped memory,
+  routing/settings, exact-revision GLB inspection, Blender selection linkage, stale state,
+  comparisons, versions/timeline, responsive drawers, and privacy controls pass unit,
+  real-Blender, browser, packaged-security, and recoverable-deletion evidence.
+- MS7: active. Build and verify the generated warehouse mobile manipulator inside the
+  stable MS6 workspace without changing the approved architecture.
 
 ## Post-Hackathon V1 (MS10)
 

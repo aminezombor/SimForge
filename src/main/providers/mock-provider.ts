@@ -44,9 +44,10 @@ export class MockProviderAdapter implements ProviderAdapter {
   async *stream(
     _apiKey: string | null,
     request: ProviderRequest,
+    signal?: AbortSignal,
   ): AsyncIterable<ProviderEvent> {
     await Promise.resolve();
-    if (this.cancelled.delete(request.requestId)) {
+    if (signal?.aborted || this.cancelled.delete(request.requestId)) {
       yield { type: 'warning', message: 'Request cancelled' };
       return;
     }

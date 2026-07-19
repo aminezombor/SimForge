@@ -1,4 +1,4 @@
-import type { ModelDescriptor } from '../../shared/contracts';
+import type { ModelDescriptor, ProviderEvent, ProviderRequest } from '../../shared/contracts';
 import type { ActivityService } from '../domain/activity-service';
 import type { CredentialStore } from '../security/credential-store';
 import { NvidiaProviderAdapter } from './nvidia-provider';
@@ -33,6 +33,7 @@ interface StateRepository {
 
 export class ProviderService {
   private readonly adapters: Record<CloudProviderId, ProviderAdapter>;
+  private readonly activeRequests = new Map<string, AbortController>();
 
   constructor(
     private readonly credentials: CredentialStore,
@@ -70,6 +71,10 @@ export class ProviderService {
       discoveredModels: models.length,
       lastError: this.repository.getState<string>(`provider:${providerId}:lastError`),
     };
+  }
+
+  storedModels(providerId: CloudProviderId): ModelDescriptor[] {
+    return this.repository.getState<ModelDescriptor[]>(`provider:${providerId}:models`) ?? [];
   }
 
   async discover(providerId: CloudProviderId): Promise<ModelDescriptor[]> {
@@ -125,6 +130,27 @@ export class ProviderService {
       attachments: [],
     });
     return result;
+  }
+
+  async *stream(providerId: CloudProviderId, request: ProviderRequest): AsyncIterable<ProviderEvent> {
+    const controller = new AbortController();
+    this.activeRequests.set(request.requestId, controller);
+    try {
+      for await (const event of this.adapters[providerId].stream(
+        await this.secret(providerId),
+        request,
+        controller.signal,
+      )) {
+        yield event;
+      }
+    } finally {
+      this.activeRequests.delete(request.requestId);
+    }
+  }
+
+  cancel(requestId: string): void {
+    this.activeRequests.get(requestId)?.abort();
+    for (const adapter of Object.values(this.adapters)) adapter.cancel(requestId);
   }
 
   private async secret(providerId: CloudProviderId): Promise<string | null> {

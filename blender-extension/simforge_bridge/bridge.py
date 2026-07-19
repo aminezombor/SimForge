@@ -363,6 +363,64 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             }, [str(obj["simforge.id"])], True
         finally:
             _INTERNAL_MUTATION = False
+    if operation == "preview.generate":
+        preview_id = str(payload.get("previewId", ""))
+        output_path = _safe_project_path(str(payload.get("outputPath", "")))
+        if not preview_id or output_path.suffix.lower() != ".glb":
+            raise BridgeOperationError("INVALID_PREVIEW", "Preview identity and .glb destination are required")
+        if output_path.exists():
+            raise BridgeOperationError("PREVIEW_EXISTS", "Preview output already exists")
+        visual_objects = [
+            obj for obj in bpy.context.scene.objects
+            if obj.type == "MESH" and obj.visible_get() and
+            obj.get("simforge.role") != "collision"
+        ]
+        if not visual_objects:
+            raise BridgeOperationError("PREVIEW_EMPTY", "No visible mesh objects are available for preview")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        selected = list(bpy.context.selected_objects)
+        active = bpy.context.view_layer.objects.active
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in visual_objects:
+                obj.select_set(True)
+            bpy.context.view_layer.objects.active = visual_objects[0]
+            export_result = bpy.ops.export_scene.gltf(
+                filepath=str(output_path),
+                export_format="GLB",
+                use_selection=True,
+                export_apply=True,
+                export_yup=True,
+                export_extras=True,
+                export_cameras=False,
+                export_lights=False,
+            )
+            if "FINISHED" not in export_result or not output_path.is_file():
+                raise BridgeOperationError("PREVIEW_EXPORT_FAILED", "Blender GLB preview export failed")
+            return {
+                "previewId": preview_id,
+                "filepath": str(output_path),
+                "objectCount": len(visual_objects),
+            }, [], False
+        finally:
+            bpy.ops.object.select_all(action="DESELECT")
+            for selected_object in selected:
+                if selected_object.name in bpy.context.scene.objects:
+                    selected_object.select_set(True)
+            if active and active.name in bpy.context.scene.objects:
+                bpy.context.view_layer.objects.active = active
+    if operation == "selection.set":
+        object_id = str(payload.get("objectId", ""))
+        target = next((
+            obj for obj in bpy.context.scene.objects
+            if str(obj.get("simforge.id", "")) == object_id
+        ), None)
+        if target is None:
+            raise BridgeOperationError("OBJECT_NOT_FOUND", "Selected preview object is unavailable in Blender")
+        bpy.ops.object.select_all(action="DESELECT")
+        target.select_set(True)
+        bpy.context.view_layer.objects.active = target
+        return {"objectId": object_id, "name": target.name}, [], False
     if operation == "review.render":
         robot_id = str(payload.get("robotId", ""))
         label = str(payload.get("label", ""))

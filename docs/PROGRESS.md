@@ -2,10 +2,10 @@
 
 ## Current State
 
-- Phase: MS0-MS5 complete; MS6 embedded workspace and UX is active
-- Overall status: The complete first-cycle path passes from structured robot authoring and
-  fresh Blender truth through deterministic validation, exact-approved quick/canonical USD,
-  atomic promotion, deep relocated reopen, and matching machine/human readiness reports
+- Phase: MS0-MS6 complete; MS7 warehouse mobile manipulator is active
+- Overall status: The first-cycle path and owner-approved embedded workspace now pass with
+  persistent conversations/memory, capability routing, exact-revision Blender previews,
+  responsive context docking, named history, and packaged privacy/security controls
 - Architecture: Approved; no architecture changes were required
 - Current gate: owner authorized continuation through MS9; proceed milestone-by-milestone
 - Last updated: 2026-07-19
@@ -27,13 +27,14 @@
 | 2026-07-19 | MS3 deterministic validation and recovery | Added evidence-rich Blender snapshots, 18 stable geometry/scene/topology/material/reference rules, persisted runs/findings/fixes, safe preconditioned ground correction, structural approval, inverse undo, hashed complete checkpoints, approved restore, and a validation/recovery dock. | `docs/evidence/MS3_VERIFICATION.md`; 26 default tests; real Blender safe-fix/undo/restore acceptance; packaged renderer smoke |
 | 2026-07-19 | MS4 primitive wheeled robot and review | Added a versioned provider-neutral `RobotGraph`, structured Blender materialization/link-pose tools, stable renderable sensor representation, robotics/physics/sensor rules, exact approval, hashed materialized review, and built-state UX. Real Blender caught and corrected a raised wheel; humans rejected poor sensor views until useful. | `docs/evidence/MS4_VERIFICATION.md`; 28 default tests; 2 real Blender tests; packaged/installed smoke; reviewed PNGs |
 | 2026-07-19 | MS5 verified USD export | Added exact destination/overwrite proposals, project-contained Blender export staging, neutral modular USD composition, quick flattening, SHA-256 manifest, atomic promotion, deep relocated reopen, project report persistence, and a packaged Python/OpenUSD runtime. Fixed graceful bridge token revocation and stale-descriptor cleanup discovered during installed launch validation. | `docs/evidence/MS5_VERIFICATION.md`; AT-028/029/030; real Blender/OpenUSD acceptance; packaged embedded-runtime/security smoke |
+| 2026-07-19 | MS6 embedded workspace and UX | Delivered the owner-approved three-column workspace, persistent conversation/memory lifecycle, capability-aware routing/budgets, exact-revision Three.js inspector with Blender selection/staleness, stored comparisons, named versions/timeline, responsive drawers, and packaged export/diagnostics/Recycle Bin privacy controls. | `docs/evidence/MS6_VERIFICATION.md`; `design-qa.md`; 37 default tests; real Blender preview acceptance; packaged security/credential/privacy smoke |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 31 passing; 2 live Blender tests opt-in/skipped in default suite |
-| Real Blender 4.5.11 acceptance | 2 passing in 12.61 seconds; full prior path plus approval/overwrite denial, quick/canonical export, reports, move, and deep reopen |
+| TypeScript, ESLint, unit/contract/integration suite | 37 passing; 2 live Blender tests opt-in/skipped in default suite |
+| Real Blender 4.5.11 acceptance | MS6 targeted path passes exact preview, selection linkage, stale rejection, review, validation, correction, and export; full earlier suite retained |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
 | Credential smoke | Protected store works in isolated profile; plaintext scan false before/after removal; primary database SHA-256 unchanged |
@@ -46,6 +47,7 @@
 | MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
 | MS4 robotics and visual review | Four links, three joints, four collisions, two sensor frames plus renderable bodies; deterministic `ROB-*` rules; five lit/hash-stamped views; visible before/after correction and useful sensor angle |
 | MS5 verified export | Exact plan/revision/destination/overwrite binding; quick `.usdc`; modular relative-reference package; source/previews/notices/reports; deep moved-package reopen |
+| MS6 workspace | Owner-directed three-column layout; conversations, scoped memory, model routing, exact-revision GLB inspector, timeline, responsive drawers, project/diagnostic export, and recoverable deletion pass |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -56,9 +58,9 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 - The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
 - The user-local installer is an owner testing convenience, not an MS9 release artifact;
   clean-account, uninstall, upgrade, signing, and redistributable packaging remain open.
-- The present renderer is explicitly an engineering preview. The owner-approved final
-  information architecture is fixed in `docs/UX_WORKSPACE.md`; full viewport/history/
-  docking integration remains MS6, with MS3/MS5 panels designed to fit it.
+- The approved workspace is implemented and visually verified. MS7-MS8 will add richer
+  manipulator/import content inside the existing information architecture; MS9 still owns
+  final accessibility, copy, release, and clean-account judge validation.
 - The packaged OpenUSD runtime passes its embedded doctor and export acceptance, but MS9
   must still audit release size, redistribution notices, clean-account behavior, upgrade,
   uninstall, and signing.
@@ -75,8 +77,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Begin MS6 without pausing. Implement the owner-approved `docs/UX_WORKSPACE.md` contract:
-conversation/history rail, central mode-aware authoring canvas, revision-stamped 3D
-inspector, context dock for activity/validation/export, timeline/history, Settings
-separation, and explicit loading/disconnected/stale/error states. Preserve the complete
-MS1-MS5 path while replacing the engineering-preview information architecture.
+Begin MS7 without pausing. Extend the general `RobotGraph` and structured Blender path to
+the warehouse mobile-manipulator sample, then prove a real deterministic defect,
+approval-aware correction, rendered review, fresh validation, and verified final export.

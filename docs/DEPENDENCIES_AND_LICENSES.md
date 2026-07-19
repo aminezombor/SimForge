@@ -41,8 +41,9 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | SimForge Blender extension | Bridge and structured operations | Project source | GPL-3.0-or-later | Maintained in this repository | Approved boundary; privileged code |
 | CPython runtime | Fixed USD authoring environment | 3.13.14 | PSF License | Python upstream | Adopted as a relocatable packaged resource; embedded doctor passes |
 | `usd-core` | OpenUSD composition/validation | 26.5 | LicenseRef-TOST-1.0 | Pixar release 2026-04-24 | Adopted; packaged author/deep reopen/portability passing |
-| Three.js | Embedded preview | Pin in MS6 | MIT | Active releases | P1 approved concept |
-| React Three Fiber | React/Three integration | Pin in MS6 | MIT | Active releases | P1 approved concept |
+| Three.js | Revision-stamped GLB inspection | 0.184.0 | MIT | Active releases | Adopted; direct renderer keeps Blender authoritative and avoids an extra runtime wrapper |
+| `@phosphor-icons/react` | Workspace iconography | 2.1.10 | MIT | Active upstream | Adopted; no custom/fake icon assets |
+| `@types/three` | TypeScript declarations | 0.183.1 | MIT | DefinitelyTyped/upstream maintained | Adopted as development-only dependency |
 | Urchin | URDF parser candidate | 0.0.30 baseline | MIT | Release 2025-10-21 | P1 candidate; Python 3.13/asset proof required |
 | `yourdfpy` | URDF fallback candidate | 0.0.57 baseline | MIT | 2025 release | Not adopted; evaluate only if Urchin fails contract |
 | MuJoCo Python | MJCF parser/compiler candidate | Pin in MS10 | Apache-2.0 | Google DeepMind active monthly releases | Post-V1 candidate; native size/plugins/includes risks |
@@ -85,7 +86,7 @@ MS4 adds no external runtime dependency or third-party asset. Robot construction
 rendering, and inspection use Blender 4.5.11's bundled `bpy`, `bmesh`, and math utilities;
 desktop contracts/validation remain TypeScript. The package, extension ZIP, fuse policy,
 isolated credential/security smoke, and current-user installation pass at the existing
-pinned versions. OpenUSD is now adopted in MS5; Three.js dependency work remains MS6.
+pinned versions. OpenUSD is adopted in MS5; Three.js is adopted and audited in MS6.
 
 ## MS5 Audit Result
 
@@ -96,3 +97,12 @@ doctor reports the exact versions and UsdPhysics availability; no runtime downlo
 shell invocation, or user-site import is used. The app package retains root license and
 third-party notices, while canonical exports carry their own notice. MS9 must still run
 the release-wide binary/notice/redistribution and clean-account audit required by AT-036.
+
+## MS6 Audit Result
+
+MS6 adopts Three.js 0.184.0, `@phosphor-icons/react` 2.1.10, and development-only
+`@types/three` 0.183.1. Their installed package metadata declares MIT licenses. Direct
+Three.js GLB rendering avoided the previously considered React Three Fiber dependency.
+No cloud UI transport, telemetry SDK, external asset, or runtime download was added.
+The package and lockfile remain the version authority; MS9 still owns release-wide notice
+generation and the production dependency/security audit.

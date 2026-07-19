@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { access } from 'node:fs/promises';
+import { access, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type {
   AppState,
@@ -14,11 +14,19 @@ import type {
 } from '../shared/contracts';
 import { sha256 } from '../shared/hash';
 import type {
+  AttachmentView,
   ApprovalInput as DesktopApprovalInput,
   ChatMessageView,
+  ConversationContextView,
+  ConversationSummaryView,
   GoalJobView,
   GoalPlanInput,
+  MemoryView,
+  TimelineEventView,
   ToolExecutionInput,
+  UsageSummaryView,
+  VersionView,
+  WorkspaceSettings,
 } from '../shared/desktop-api';
 import { BlenderBridgeServer } from './bridge/blender-bridge';
 import { SceneStateService } from './bridge/scene-state';
@@ -32,6 +40,7 @@ import { ToolExecutor } from './domain/tool-executor';
 import { runEnvironmentDoctor, type DoctorCheck } from './environment-doctor';
 import { ExportService, type ExportProposal } from './export/export-service';
 import { MockProviderAdapter } from './providers/mock-provider';
+import { ModelRouter } from './providers/model-router';
 import {
   ProviderService,
   type CloudProviderId,
@@ -39,12 +48,14 @@ import {
   type ProviderStatus,
 } from './providers/provider-service';
 import { ElectronCredentialStore } from './security/credential-store';
-import { containsLikelySecret } from './security/secret-redaction';
+import { containsLikelySecret, redactLikelySecrets } from './security/secret-redaction';
 import { GlobalRepository } from './storage/global-repository';
 import { ProjectManager, type ProjectHandle } from './storage/project-repository';
 import { ValidationService, type CheckpointView } from './validation/validation-service';
 import { primitiveWheeledRobotGraph } from './robotics/primitive-wheeled-robot';
 import { ReviewService } from './robotics/review-service';
+import { PreviewService } from './preview/preview-service';
+import { WorkspaceService } from './workspace/workspace-service';
 
 export class AppRuntime {
   private project: ProjectHandle | null = null;
@@ -59,10 +70,14 @@ export class AppRuntime {
   private validation: ValidationService | null = null;
   private reviews: ReviewService | null = null;
   private exports: ExportService | null = null;
+  private previews: PreviewService | null = null;
+  private workspace: WorkspaceService | null = null;
   private providers: ProviderService | null = null;
+  private modelRouter: ModelRouter | null = null;
   private closed = false;
   private readonly mockProvider = new MockProviderAdapter();
   private readonly aiTools = new AiToolCoordinator();
+  private readonly activeChats = new Map<string, { requestId: string; cancel: () => void }>();
 
   constructor(
     private readonly userDataDirectory: string,
@@ -92,6 +107,9 @@ export class AppRuntime {
       this.globalRepository,
       this.activities,
     );
+    this.modelRouter = new ModelRouter(this.providers);
+    this.workspace = new WorkspaceService(project, this.globalRepository, this.activities);
+    this.workspace.ensureInitialConversation();
     this.approvals = new ApprovalService(project.repository);
     this.jobs = new JobOrchestrator(project.manifest.projectId, project.repository);
     this.bridge = new BlenderBridgeServer();
@@ -125,6 +143,7 @@ export class AppRuntime {
       this.activities,
       this.applicationRoot,
     );
+    this.previews = new PreviewService(project, this.bridge, this.sceneState, this.activities);
     this.bridge.on('connected', () => {
       this.requireActivities().record('bridge', 'connected', 'Blender connected');
     });
@@ -287,6 +306,10 @@ export class AppRuntime {
     const graph = this.requireValidation().latestRobotGraph();
     if (!graph) throw new Error('Build a RobotGraph before rendering a materialized review');
     return this.requireReviews().render(graph.robotId, label);
+  }
+
+  listReviews(): ReviewManifest[] {
+    return this.requireReviews().list();
   }
 
   getReviewImage(reviewId: string, view: string): Promise<string> {
@@ -509,8 +532,29 @@ export class AppRuntime {
     return this.getState();
   }
 
-  getChat(): ChatMessageView[] {
-    return this.requireProject().repository.listMessages('main-chat').map((message) => ({
+  listConversations(search = ''): ConversationSummaryView[] {
+    return this.requireWorkspace().listConversations(search);
+  }
+
+  createConversation(title?: string): ConversationSummaryView {
+    return this.requireWorkspace().createConversation(title);
+  }
+
+  renameConversation(conversationId: string, title: string): ConversationSummaryView {
+    return this.requireWorkspace().renameConversation(conversationId, title);
+  }
+
+  deleteConversation(conversationId: string): ConversationSummaryView[] {
+    return this.requireWorkspace().deleteConversation(conversationId);
+  }
+
+  branchConversation(conversationId: string, throughMessageId?: string | null): ConversationSummaryView {
+    return this.requireWorkspace().branchConversation(conversationId, throughMessageId);
+  }
+
+  getChat(conversationId: string): ChatMessageView[] {
+    this.requireWorkspace().context(conversationId);
+    return this.requireProject().repository.listMessages(conversationId).map((message) => ({
       id: message.id,
       role: message.role,
       text: message.parts
@@ -525,50 +569,257 @@ export class AppRuntime {
     }));
   }
 
-  async sendChat(message: string): Promise<ChatMessageView[]> {
+  async sendChat(conversationId: string, message: string, attachmentIds: string[] = []): Promise<ChatMessageView[]> {
     const trimmed = message.trim();
     if (!trimmed || trimmed.length > 8_000) throw new Error('Chat message is invalid');
     if (containsLikelySecret(trimmed)) {
       throw new Error('Possible API key or private key detected. Configure credentials in Provider Settings.');
     }
     const project = this.requireProject();
+    const workspace = this.requireWorkspace();
+    workspace.context(conversationId);
+    const attachments = workspace.attachments(attachmentIds, conversationId);
+    if (this.activeChats.has(conversationId)) throw new Error('This conversation already has a response in progress');
+    const settings = workspace.settings();
+    let route = await this.requireModelRouter().select(settings, 'conversation', ['text', 'streaming']);
+    if (route.providerId !== 'local' && attachments.length > 0) {
+      if (settings.routingMode === 'manual') {
+        if (!settings.fileUploads) throw new Error('File uploads are disabled in Privacy Settings');
+        throw new Error('Cloud attachment dispatch is not yet available; select the local route');
+      }
+      route = await this.requireModelRouter().select({
+        ...settings,
+        activeProvider: 'local',
+        activeModel: 'mock-planner',
+        fallbackOrder: ['local'],
+      }, 'conversation', ['text', 'streaming']);
+      route = { ...route, fallback: true, reason: `${route.reason}; attachment references remained local` };
+    }
     const now = new Date().toISOString();
-    project.repository.saveConversation({
-      id: 'main-chat',
-      projectId: project.manifest.projectId,
-      title: 'SimForge conversation',
-      createdAt: now,
-      updatedAt: now,
-    });
     project.repository.addMessage({
       id: randomUUID(),
-      conversationId: 'main-chat',
+      conversationId,
       role: 'user',
-      parts: [{ type: 'text', text: trimmed }],
+      parts: [
+        { type: 'text', text: trimmed },
+        ...attachments.map((attachment) => ({
+          type: 'attachment-reference',
+          attachmentId: attachment.id,
+          name: attachment.name,
+          mediaType: attachment.mediaType,
+          sha256: attachment.sha256,
+        })),
+      ],
       createdAt: now,
     });
+    const conversation = workspace.listConversations().find((entry) => entry.id === conversationId);
+    if (conversation && ['New conversation', 'New robot workspace'].includes(conversation.title)) {
+      workspace.renameConversation(conversationId, trimmed.replace(/\s+/g, ' ').slice(0, 64));
+    }
+    workspace.touchConversation(conversationId);
+    workspace.autoCompactIfNeeded(conversationId);
+    const requestId = randomUUID();
+    const cloudProvider: CloudProviderId | null = route.providerId === 'local' ? null : route.providerId;
+    const cloud = cloudProvider !== null;
+    const disclosure = {
+      providerId: route.providerId,
+      modelId: route.modelId,
+      purpose: 'Project conversation',
+      dataClasses: ['conversation text', ...(attachments.length ? ['project attachment references'] : [])],
+      attachments: attachments.map((attachment) => attachment.name),
+      selectionReason: route.reason,
+    };
+    this.requireActivities().record('provider', 'dispatch-disclosed', `${route.providerId}/${route.modelId}: ${route.reason}`, disclosure);
     let responseText = '';
-    for await (const event of this.mockProvider.stream(null, {
-      requestId: randomUUID(),
-      modelId: 'mock-planner',
-      purpose: 'Local non-mutating conversation fixture',
-      messages: [{ role: 'user', parts: [{ type: 'text', text: trimmed }] }],
+    let usage: { inputTokens: number | null; outputTokens: number | null } | null = null;
+    const request = {
+      requestId,
+      modelId: route.modelId,
+      purpose: cloud ? 'Project conversation' : 'Local non-mutating conversation',
+      messages: workspace.dispatchMessages(conversationId),
       tools: [],
-    })) {
-      if (event.type === 'text-delta') responseText += event.text;
+    };
+    const localController = new AbortController();
+    this.activeChats.set(conversationId, {
+      requestId,
+      cancel: cloud
+        ? () => this.requireProviders().cancel(requestId)
+        : () => localController.abort(),
+    });
+    try {
+      const stream = cloudProvider
+        ? this.requireProviders().stream(cloudProvider, request)
+        : this.mockProvider.stream(null, request, localController.signal);
+      for await (const event of stream) {
+        if (event.type === 'text-delta') responseText += event.text;
+        if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+      }
+    } catch (error) {
+      if (!localController.signal.aborted && !(error instanceof Error && error.name === 'AbortError')) throw error;
+      responseText = responseText || 'Response stopped by user.';
+    } finally {
+      this.activeChats.delete(conversationId);
     }
     project.repository.addMessage({
       id: randomUUID(),
-      conversationId: 'main-chat',
+      conversationId,
       role: 'assistant',
       parts: [{ type: 'text', text: responseText }],
       createdAt: new Date().toISOString(),
     });
-    this.requireActivities().record('conversation', 'message-completed', 'Local conversation response stored', {
-      providerId: this.mockProvider.id,
-      mutatingToolsAvailable: false,
+    workspace.touchConversation(conversationId);
+    const completedAt = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `usage:${requestId}`,
+      projectId: project.manifest.projectId,
+      kind: 'usage',
+      body: { type: 'provider-usage', providerId: route.providerId, modelId: request.modelId, usage, costUsd: null, purpose: request.purpose, selectionReason: route.reason },
+      createdAt: completedAt,
+      updatedAt: completedAt,
     });
-    return this.getChat();
+    this.requireActivities().record('conversation', 'message-completed', 'Conversation response stored', {
+      providerId: route.providerId,
+      modelId: request.modelId,
+      selectionReason: route.reason,
+      mutatingToolsAvailable: false,
+      usage,
+    });
+    return this.getChat(conversationId);
+  }
+
+  stopChat(conversationId: string): void {
+    const active = this.activeChats.get(conversationId);
+    if (!active) return;
+    active.cancel();
+    this.requireActivities().record('conversation', 'response-stopped', 'Stopped an in-progress response', { conversationId, requestId: active.requestId });
+  }
+
+  compactConversation(conversationId: string): ConversationContextView {
+    return this.requireWorkspace().compact(conversationId);
+  }
+
+  getConversationContext(conversationId: string): ConversationContextView {
+    return this.requireWorkspace().context(conversationId);
+  }
+
+  importAttachments(conversationId: string, paths: string[]): Promise<AttachmentView[]> {
+    return this.requireWorkspace().importAttachments(conversationId, paths);
+  }
+
+  listAttachments(conversationId: string): AttachmentView[] {
+    return this.requireWorkspace().listAttachments(conversationId);
+  }
+
+  getWorkspaceSettings(): WorkspaceSettings {
+    return this.requireWorkspace().settings();
+  }
+
+  updateWorkspaceSettings(settings: WorkspaceSettings): WorkspaceSettings {
+    return this.requireWorkspace().updateSettings(settings);
+  }
+
+  listMemories(scope: 'project' | 'global'): MemoryView[] {
+    return this.requireWorkspace().listMemories(scope);
+  }
+
+  saveMemory(scope: 'project' | 'global', title: string, content: string, id?: string): MemoryView {
+    return this.requireWorkspace().saveMemory(scope, title, content, id);
+  }
+
+  deleteMemory(scope: 'project' | 'global', id: string): MemoryView[] {
+    return this.requireWorkspace().deleteMemory(scope, id);
+  }
+
+  exportMemories(scope: 'project' | 'global', destination: string): Promise<string> {
+    return this.requireWorkspace().exportMemories(scope, destination);
+  }
+
+  getUsageSummary(): UsageSummaryView {
+    return this.requireWorkspace().usageSummary();
+  }
+
+  exportProject(destination: string): Promise<string> {
+    return this.requireWorkspace().exportProject(destination);
+  }
+
+  async exportDiagnostics(destination: string): Promise<string> {
+    const project = this.requireProject();
+    const [nvidia, openai, doctor] = await Promise.all([
+      this.requireProviders().status('nvidia'),
+      this.requireProviders().status('openai'),
+      this.runEnvironmentDoctor(),
+    ]);
+    const payload = sanitizeDiagnosticValue({
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      projectId: project.manifest.projectId,
+      appState: this.getState(),
+      settings: this.getWorkspaceSettings(),
+      providers: [nvidia, openai],
+      environment: doctor,
+      activities: this.requireActivities().list(200),
+      includesConversationContent: false,
+      includesMemoryContent: false,
+      includesCredentials: false,
+      automaticTelemetry: false,
+    }, [
+      [project.root, '%PROJECT_ROOT%'],
+      [this.userDataDirectory, '%SIMFORGE_DATA%'],
+    ]);
+    const serialized = redactLikelySecrets(`${JSON.stringify(payload, null, 2)}\n`);
+    await writeFile(path.resolve(destination), serialized, { encoding: 'utf8', flag: 'wx' });
+    this.requireActivities().record('privacy', 'diagnostics-exported', 'Exported sanitized diagnostics after explicit request', {
+      includesCredentials: false, includesConversationContent: false, includesMemoryContent: false,
+    });
+    return path.resolve(destination);
+  }
+
+  async prepareProjectDeletion(confirmation: string): Promise<string> {
+    const project = this.requireProject();
+    if (confirmation !== project.manifest.name) {
+      throw new Error(`Project deletion requires the exact project name: ${project.manifest.name}`);
+    }
+    this.requireActivities().record('privacy', 'project-deletion-approved', 'Project deletion confirmed; moving the active project to the Recycle Bin', {
+      projectId: project.manifest.projectId,
+    });
+    await this.bridge?.stop();
+    project.repository.close();
+    this.globalRepository?.unregisterProject(project.manifest.projectId);
+    this.globalRepository?.close();
+    this.closed = true;
+    return project.root;
+  }
+
+  generateScenePreview() {
+    return this.requirePreviews().generate();
+  }
+
+  getScenePreviewData(previewId: string): Promise<string> {
+    return this.requirePreviews().data(previewId);
+  }
+
+  selectSceneObject(previewId: string, objectId: string): Promise<string> {
+    return this.requirePreviews().selectObject(previewId, objectId);
+  }
+
+  sceneFilePath(): string {
+    const project = this.requireProject();
+    const fromScene = this.requireSceneState().current?.blenderFile;
+    return fromScene && path.isAbsolute(fromScene)
+      ? fromScene
+      : path.resolve(project.root, fromScene ?? project.manifest.blenderFile);
+  }
+
+  listVersions(): VersionView[] {
+    return this.requireWorkspace().listVersions();
+  }
+
+  createVersion(name: string, checkpointId: string, branchOf?: string): VersionView {
+    return this.requireWorkspace().createVersion(name, checkpointId, branchOf);
+  }
+
+  getTimeline(): TimelineEventView[] {
+    return this.requireWorkspace().timeline(this.listExports());
   }
 
   providerStatus(providerId: CloudProviderId): Promise<ProviderStatus> {
@@ -656,6 +907,11 @@ export class AppRuntime {
     return this.providers;
   }
 
+  private requireModelRouter(): ModelRouter {
+    if (!this.modelRouter) throw new Error('Model router is not initialized');
+    return this.modelRouter;
+  }
+
   private requireValidation(): ValidationService {
     if (!this.validation) throw new Error('Validation service is not initialized');
     return this.validation;
@@ -669,6 +925,16 @@ export class AppRuntime {
   private requireExports(): ExportService {
     if (!this.exports) throw new Error('Export service is not initialized');
     return this.exports;
+  }
+
+  private requirePreviews(): PreviewService {
+    if (!this.previews) throw new Error('Preview service is not initialized');
+    return this.previews;
+  }
+
+  private requireWorkspace(): WorkspaceService {
+    if (!this.workspace) throw new Error('Workspace service is not initialized');
+    return this.workspace;
   }
 
   private goalView(state: ReturnType<JobOrchestrator['get']>): GoalJobView {
@@ -688,4 +954,23 @@ export class AppRuntime {
       })),
     };
   }
+}
+
+function sanitizeDiagnosticValue(
+  value: unknown,
+  replacements: Array<[string, string]>,
+): unknown {
+  if (typeof value === 'string') {
+    return replacements.reduce((current, [privateValue, replacement]) => (
+      privateValue ? current.replaceAll(privateValue, replacement) : current
+    ), value);
+  }
+  if (Array.isArray(value)) return value.map((entry) => sanitizeDiagnosticValue(entry, replacements));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [
+      key,
+      sanitizeDiagnosticValue(entry, replacements),
+    ]));
+  }
+  return value;
 }

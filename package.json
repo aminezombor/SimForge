@@ -26,11 +26,13 @@
   },
   "dependencies": {
     "@assistant-ui/react": "0.14.27",
+    "@phosphor-icons/react": "2.1.10",
     "@sinclair/typebox": "^0.34.52",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "three": "0.184.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.2",
@@ -42,6 +44,7 @@
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "0.183.1",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.10",
     "electron": "43.1.1",

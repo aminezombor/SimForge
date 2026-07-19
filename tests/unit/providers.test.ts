@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { ActivityService } from '../../src/main/domain/activity-service';
 import { AiToolCoordinator } from '../../src/main/domain/ai-tool-coordinator';
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
+import { ModelRouter } from '../../src/main/providers/model-router';
 import { NvidiaProviderAdapter } from '../../src/main/providers/nvidia-provider';
 import { OpenAIProviderAdapter } from '../../src/main/providers/openai-provider';
 import { ProviderService } from '../../src/main/providers/provider-service';
 import type { FetchLike, ProviderAdapter } from '../../src/main/providers/provider';
 import { MemoryCredentialStore } from '../../src/main/security/credential-store';
 import type { ProviderEvent, ProviderRequest } from '../../src/shared/contracts';
+import type { WorkspaceSettings } from '../../src/shared/desktop-api';
 import { makeTempProject } from '../helpers/temp-project';
 
 function sse(events: unknown[]): Response {
@@ -188,6 +190,51 @@ describe('provider-neutral adapters', () => {
       expect(JSON.stringify(fixture.project.repository.listActivities(fixture.project.manifest.projectId)))
         .not.toContain('secret-value');
       expect((await service.remove('nvidia')).configured).toBe(false);
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+
+  it('routes only to enabled, configured, runtime-probed compatible models with explicit fallback', async () => {
+    const fixture = await makeTempProject('Routing');
+    try {
+      const credentials = new MemoryCredentialStore();
+      const mock = new MockProviderAdapter();
+      const service = new ProviderService(
+        credentials,
+        fixture.project.repository,
+        new ActivityService(fixture.project.manifest.projectId, fixture.project.repository),
+        { nvidia: mock, openai: mock },
+      );
+      const router = new ModelRouter(service);
+      const settings: WorkspaceSettings = {
+        routingMode: 'automatic' as const,
+        activeProvider: 'nvidia' as const,
+        activeModel: 'mock-planner',
+        enabledProviders: { nvidia: true, openai: true },
+        fallbackOrder: ['nvidia', 'openai', 'local'],
+        monthlyBudgetUsd: 20,
+        cloudProcessing: true,
+        visualUploads: false,
+        fileUploads: false,
+        projectMemory: true,
+        globalMemory: false,
+        diagnosticLogging: true,
+      };
+      expect((await router.select(settings, 'conversation', ['text', 'streaming']))).toMatchObject({
+        providerId: 'local', fallback: true,
+      });
+      await service.configure('nvidia', 'routing-secret');
+      await service.discover('nvidia');
+      const cloud = await router.select(settings, 'planning', ['text', 'tools']);
+      expect(cloud).toMatchObject({ providerId: 'nvidia', modelId: 'mock-planner', fallback: false });
+      expect(cloud.reason).toContain('runtime-probed');
+      await expect(router.select({ ...settings, routingMode: 'manual', enabledProviders: { ...settings.enabledProviders, nvidia: false } }, 'conversation', ['text']))
+        .rejects.toThrow('disabled');
+      await expect(router.select({ ...settings, routingMode: 'manual' }, 'vision-review', ['vision']))
+        .rejects.toThrow('lacks required vision');
+      const zeroBudget = await router.select({ ...settings, monthlyBudgetUsd: 0 }, 'conversation', ['text']);
+      expect(zeroBudget).toMatchObject({ providerId: 'local', fallback: true });
     } finally {
       await fixture.cleanup();
     }

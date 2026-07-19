@@ -62,6 +62,10 @@ export class GlobalRepository {
     return row ? JSON.parse(row.value_json) as T : null;
   }
 
+  deleteState(key: string): void {
+    this.database.prepare('DELETE FROM application_state WHERE key = ?').run(key);
+  }
+
   registerProject(project: RegisteredProject): void {
     this.database.prepare(
       `INSERT INTO projects(project_id, name, root, last_opened_at) VALUES (?, ?, ?, ?)
@@ -80,5 +84,9 @@ export class GlobalRepository {
       root: row.root ?? '',
       lastOpenedAt: row.last_opened_at ?? '',
     }));
+  }
+
+  unregisterProject(projectId: string): void {
+    this.database.prepare('DELETE FROM projects WHERE project_id = ?').run(projectId);
   }
 }

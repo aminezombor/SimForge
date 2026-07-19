@@ -4,7 +4,7 @@
 
 SimForge is local-first, data-minimizing, transparent about cloud processing, and usable without a SimForge-hosted account or telemetry service. The user owns project files and controls provider, upload, memory, and logging behavior.
 
-## MS1-MS5 Implementation Status
+## MS1-MS6 Implementation Status
 
 Portable project and global SQLite, local chat, provider capability records, protected
 credentials, per-dispatch probe disclosure, and no-telemetry behavior are implemented.
@@ -14,9 +14,13 @@ USD export remains local and includes only the documented portable project manif
 selected Blender source/geometry, generated scripts when present, activity evidence,
 validation/review results, version/assumption/limitation metadata, and public notices; it
 excludes credentials, global SQLite, provider profiles, and unrelated files.
-Attachment/upload, diagnostics export, advanced memory controls, and project deletion
-are not exposed yet and therefore cannot send or delete data silently; their full
-control/evidence gate remains AT-032/MS6.
+Bounded attachment import records provenance; automatic routing keeps attachments local
+unless a compatible approved cloud route is chosen. Project and global memory are
+separately enabled, inspected, edited, exported, and deleted, with global memory off by
+default. Portable project export excludes global storage and credentials; diagnostics
+use a structural allowlist and redact content/private roots. Project deletion requires the
+exact project name, closes live resources, and moves the project to the Windows Recycle
+Bin. Packaged AT-032 evidence exercises each scope and confirms no telemetry exists.
 
 ## Data Locations
 
@@ -47,7 +51,8 @@ Project and global memory are visibly distinct. Users can inspect, edit, export,
 - Local logs use bounded rotation and configurable retention.
 - Provider credentials are deleted when the user removes them.
 - A project export contains only documented project data and no global memory or provider credential.
-- Project deletion and permanent purge are explicit, scoped, and confirmation-gated.
+- Project deletion is exact-name confirmation-gated and recoverable through the Recycle
+  Bin; permanent purge remains an external explicit operating-system action.
 - Temporary previews, import staging, and failed export directories have visible cleanup behavior.
 
 ## Diagnostics and Submission Media

@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import {
@@ -31,6 +31,7 @@ const smokeArguments = [
   '--smoke-test',
   '--security-smoke-test',
   '--credential-smoke-test',
+  '--privacy-smoke-test',
   '--provider-acceptance-test',
 ] as const;
 const smokeMode = smokeArguments.some((argument) => process.argv.includes(argument));
@@ -113,6 +114,7 @@ async function runSmokeTest(): Promise<void> {
   await mkdir(path.dirname(output), { recursive: true });
   let rendererSecurity: Record<string, unknown> | null = null;
   let credentialSecurity: Record<string, unknown> | null = null;
+  let privacySecurity: Record<string, unknown> | null = null;
   let providerAcceptance: Record<string, unknown> | null = null;
   if (process.argv.includes('--security-smoke-test')) {
     await createWindow(false);
@@ -147,6 +149,34 @@ async function runSmokeTest(): Promise<void> {
       plaintextPresentAfterRemoval,
     };
   }
+  if (process.argv.includes('--privacy-smoke-test')) {
+    const projectSentinel = `project-memory-${randomBytes(12).toString('hex')}`;
+    const globalSentinel = `global-memory-${randomBytes(12).toString('hex')}`;
+    runtime!.saveMemory('project', 'Privacy smoke project memory', projectSentinel);
+    runtime!.saveMemory('global', 'Privacy smoke global memory', globalSentinel);
+    const diagnosticsPath = path.join(app.getPath('userData'), 'privacy-smoke-diagnostics.json');
+    const projectExportPath = path.join(app.getPath('userData'), 'privacy-smoke-project-export');
+    await runtime!.exportDiagnostics(diagnosticsPath);
+    await runtime!.exportProject(projectExportPath);
+    const diagnostics = await readFile(diagnosticsPath, 'utf8');
+    let wrongDeletionConfirmationRejected = false;
+    try {
+      await runtime!.prepareProjectDeletion('incorrect-project-name');
+    } catch {
+      wrongDeletionConfirmationRejected = true;
+    }
+    privacySecurity = {
+      diagnosticsCreated: true,
+      diagnosticsContainsProjectMemory: diagnostics.includes(projectSentinel),
+      diagnosticsContainsGlobalMemory: diagnostics.includes(globalSentinel),
+      diagnosticsContainsPrivateRoot: diagnostics.includes(app.getPath('userData')),
+      projectExportCreated: true,
+      projectExportContainsProjectMemory: await directoryContainsBytes(projectExportPath, Buffer.from(projectSentinel)),
+      projectExportContainsGlobalMemory: await directoryContainsBytes(projectExportPath, Buffer.from(globalSentinel)),
+      projectExportContainsGlobalDatabase: await fileExists(path.join(projectExportPath, 'global.sqlite')),
+      wrongDeletionConfirmationRejected,
+    };
+  }
   if (process.argv.includes('--provider-acceptance-test')) {
     const intendedModel = 'nvidia/nemotron-3-ultra-550b-a55b';
     try {
@@ -177,11 +207,28 @@ async function runSmokeTest(): Promise<void> {
       };
     }
   }
+  if (privacySecurity) {
+    const deletionRoot = await runtime!.prepareProjectDeletion(state.projectName);
+    await shellTrash(deletionRoot);
+    privacySecurity.projectDeletedToRecycleBin = !(await pathExists(deletionRoot));
+  }
+  const privacyOk = !privacySecurity || (
+    privacySecurity.diagnosticsCreated === true &&
+    privacySecurity.diagnosticsContainsProjectMemory === false &&
+    privacySecurity.diagnosticsContainsGlobalMemory === false &&
+    privacySecurity.diagnosticsContainsPrivateRoot === false &&
+    privacySecurity.projectExportCreated === true &&
+    privacySecurity.projectExportContainsProjectMemory === true &&
+    privacySecurity.projectExportContainsGlobalMemory === false &&
+    privacySecurity.projectExportContainsGlobalDatabase === false &&
+    privacySecurity.wrongDeletionConfirmationRejected === true &&
+    privacySecurity.projectDeletedToRecycleBin === true
+  );
   await writeFile(
     output,
     `${JSON.stringify(
       {
-        ok: providerAcceptance ? providerAcceptance.ok === true : true,
+        ok: (providerAcceptance ? providerAcceptance.ok === true : true) && privacyOk,
         appVersion: app.getVersion(),
         packaged: app.isPackaged,
         projectId: state.projectId,
@@ -189,6 +236,7 @@ async function runSmokeTest(): Promise<void> {
         bridgeConnected: state.bridgeConnected,
         rendererSecurity,
         credentialSecurity,
+        privacySecurity,
         providerAcceptance,
       },
       null,
@@ -212,6 +260,29 @@ async function directoryContainsBytes(directory: string, needle: Buffer): Promis
     }
   }
   return false;
+}
+
+async function fileExists(target: string): Promise<boolean> {
+  try {
+    await readFile(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function pathExists(target: string): Promise<boolean> {
+  try {
+    await access(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function shellTrash(target: string): Promise<void> {
+  const { shell } = await import('electron');
+  await shell.trashItem(target);
 }
 
 void app.whenReady().then(async () => {

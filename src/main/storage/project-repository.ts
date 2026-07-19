@@ -87,6 +87,29 @@ export interface ProjectRecord {
   updatedAt: string;
 }
 
+export interface ConversationRecord {
+  id: string;
+  projectId: string;
+  title: string;
+  branchOf: string | null;
+  compactedAt: string | null;
+  contextSummary: string | null;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AttachmentRecord {
+  id: string;
+  conversationId: string;
+  name: string;
+  mediaType: string;
+  bytes: number;
+  sha256: string;
+  relativePath: string;
+  createdAt: string;
+}
+
 export class ProjectRepository {
   readonly root: string;
   readonly databasePath: string;
@@ -252,6 +275,28 @@ export class ProjectRepository {
         ON validation_fixes(project_id, status, created_at DESC);
       INSERT OR IGNORE INTO schema_migrations(version, applied_at)
       VALUES (2, datetime('now'));
+      CREATE TABLE IF NOT EXISTS conversation_metadata (
+        conversation_id TEXT PRIMARY KEY REFERENCES conversations(id) ON DELETE CASCADE,
+        branch_of TEXT REFERENCES conversations(id) ON DELETE SET NULL,
+        compacted_at TEXT,
+        context_summary TEXT
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS attachments (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        media_type TEXT NOT NULL,
+        bytes INTEGER NOT NULL CHECK(bytes >= 0),
+        sha256 TEXT NOT NULL,
+        relative_path TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS conversations_project_updated
+        ON conversations(project_id, updated_at DESC);
+      CREATE INDEX IF NOT EXISTS attachments_conversation
+        ON attachments(conversation_id, created_at, id);
+      INSERT OR IGNORE INTO schema_migrations(version, applied_at)
+      VALUES (3, datetime('now'));
     `);
   }
 
@@ -310,6 +355,13 @@ export class ProjectRepository {
     }));
   }
 
+  deleteProjectRecord(projectId: string, id: string): void {
+    const result = this.database.prepare(
+      'DELETE FROM project_records WHERE project_id = ? AND id = ?',
+    ).run(projectId, id);
+    if (result.changes !== 1) throw new Error('Project record was not found');
+  }
+
   saveConversation(
     conversation: { id: string; projectId: string; title: string; createdAt: string; updatedAt: string },
   ): void {
@@ -364,6 +416,147 @@ export class ProjectRepository {
       parts: JSON.parse(row.parts_json ?? '[]') as unknown[],
       createdAt: row.created_at ?? '',
     }));
+  }
+
+  listConversations(projectId: string, search = ''): ConversationRecord[] {
+    const pattern = `%${search.trim().replaceAll('%', '\\%').replaceAll('_', '\\_')}%`;
+    const rows = this.database.prepare(
+      `SELECT c.*, m.branch_of, m.compacted_at, m.context_summary,
+              COUNT(messages.id) AS message_count
+       FROM conversations c
+       LEFT JOIN conversation_metadata m ON m.conversation_id = c.id
+       LEFT JOIN messages ON messages.conversation_id = c.id
+       WHERE c.project_id = ? AND c.title LIKE ? ESCAPE '\\'
+       GROUP BY c.id
+       ORDER BY c.updated_at DESC, c.id DESC`,
+    ).all(projectId, pattern) as Array<Record<string, string | number | null>>;
+    return rows.map((row) => this.hydrateConversation(row));
+  }
+
+  getConversation(id: string): ConversationRecord | null {
+    const row = this.database.prepare(
+      `SELECT c.*, m.branch_of, m.compacted_at, m.context_summary,
+              COUNT(messages.id) AS message_count
+       FROM conversations c
+       LEFT JOIN conversation_metadata m ON m.conversation_id = c.id
+       LEFT JOIN messages ON messages.conversation_id = c.id
+       WHERE c.id = ? GROUP BY c.id`,
+    ).get(id) as Record<string, string | number | null> | undefined;
+    return row ? this.hydrateConversation(row) : null;
+  }
+
+  renameConversation(id: string, title: string, updatedAt: string): void {
+    const result = this.database.prepare(
+      'UPDATE conversations SET title = ?, updated_at = ? WHERE id = ?',
+    ).run(title, updatedAt, id);
+    if (result.changes !== 1) throw new Error('Conversation was not found');
+  }
+
+  deleteConversation(id: string): void {
+    const result = this.database.prepare('DELETE FROM conversations WHERE id = ?').run(id);
+    if (result.changes !== 1) throw new Error('Conversation was not found');
+  }
+
+  setConversationMetadata(
+    conversationId: string,
+    metadata: { branchOf: string | null; compactedAt: string | null; contextSummary: string | null },
+  ): void {
+    this.database.prepare(
+      `INSERT INTO conversation_metadata(conversation_id, branch_of, compacted_at, context_summary)
+       VALUES (?, ?, ?, ?)
+       ON CONFLICT(conversation_id) DO UPDATE SET
+         branch_of = excluded.branch_of,
+         compacted_at = excluded.compacted_at,
+         context_summary = excluded.context_summary`,
+    ).run(conversationId, metadata.branchOf, metadata.compactedAt, metadata.contextSummary);
+  }
+
+  copyMessages(sourceConversationId: string, destinationConversationId: string, throughMessageId?: string | null): void {
+    const messages = this.listMessages(sourceConversationId);
+    const cutoff = throughMessageId === null
+      ? -1
+      : throughMessageId
+        ? messages.findIndex((message) => message.id === throughMessageId)
+        : messages.length - 1;
+    if (typeof throughMessageId === 'string' && cutoff < 0) throw new Error('Branch message was not found');
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      const insert = this.database.prepare(
+        `INSERT INTO messages(id, conversation_id, role, parts_json, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+      );
+      for (const message of messages.slice(0, cutoff + 1)) {
+        insert.run(randomUUID(), destinationConversationId, message.role, JSON.stringify(message.parts), message.createdAt);
+      }
+      this.database.exec('COMMIT');
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
+    }
+  }
+
+  saveAttachment(attachment: AttachmentRecord): void {
+    this.database.prepare(
+      `INSERT INTO attachments(id, conversation_id, name, media_type, bytes, sha256, relative_path, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      attachment.id,
+      attachment.conversationId,
+      attachment.name,
+      attachment.mediaType,
+      attachment.bytes,
+      attachment.sha256,
+      attachment.relativePath,
+      attachment.createdAt,
+    );
+  }
+
+  listAttachments(conversationId: string): AttachmentRecord[] {
+    const rows = this.database.prepare(
+      'SELECT * FROM attachments WHERE conversation_id = ? ORDER BY created_at, id',
+    ).all(conversationId) as Array<Record<string, string | number>>;
+    return rows.map((row) => ({
+      id: String(row.id),
+      conversationId: String(row.conversation_id),
+      name: String(row.name),
+      mediaType: String(row.media_type),
+      bytes: Number(row.bytes),
+      sha256: String(row.sha256),
+      relativePath: String(row.relative_path),
+      createdAt: String(row.created_at),
+    }));
+  }
+
+  getAttachments(ids: string[]): AttachmentRecord[] {
+    if (ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(',');
+    const rows = this.database.prepare(`SELECT * FROM attachments WHERE id IN (${placeholders})`)
+      .all(...ids) as Array<Record<string, string | number>>;
+    const values = rows.map((row) => ({
+      id: String(row.id),
+      conversationId: String(row.conversation_id),
+      name: String(row.name),
+      mediaType: String(row.media_type),
+      bytes: Number(row.bytes),
+      sha256: String(row.sha256),
+      relativePath: String(row.relative_path),
+      createdAt: String(row.created_at),
+    }));
+    return ids.map((id) => values.find((value) => value.id === id)).filter((value): value is AttachmentRecord => Boolean(value));
+  }
+
+  private hydrateConversation(row: Record<string, string | number | null>): ConversationRecord {
+    return {
+      id: String(row.id),
+      projectId: String(row.project_id),
+      title: String(row.title),
+      branchOf: row.branch_of === null ? null : String(row.branch_of),
+      compactedAt: row.compacted_at === null ? null : String(row.compacted_at),
+      contextSummary: row.context_summary === null ? null : String(row.context_summary),
+      messageCount: Number(row.message_count),
+      createdAt: String(row.created_at),
+      updatedAt: String(row.updated_at),
+    };
   }
 
   backupTo(destination: string): void {
@@ -496,8 +689,22 @@ export class ProjectRepository {
     const escaped = absolute.replaceAll("'", "''");
     this.database.exec(`ATTACH DATABASE '${escaped}' AS checkpoint_restore`);
     try {
+      const hasConversationMetadata = Boolean(this.database.prepare(
+        `SELECT 1 FROM checkpoint_restore.sqlite_master WHERE type = 'table' AND name = 'conversation_metadata'`,
+      ).get());
+      const hasAttachments = Boolean(this.database.prepare(
+        `SELECT 1 FROM checkpoint_restore.sqlite_master WHERE type = 'table' AND name = 'attachments'`,
+      ).get());
+      const restoreConversationMetadata = hasConversationMetadata
+        ? 'INSERT INTO conversation_metadata SELECT * FROM checkpoint_restore.conversation_metadata;'
+        : '';
+      const restoreAttachments = hasAttachments
+        ? 'INSERT INTO attachments SELECT * FROM checkpoint_restore.attachments;'
+        : '';
       this.database.exec(`
         BEGIN IMMEDIATE;
+        DELETE FROM attachments;
+        DELETE FROM conversation_metadata;
         DELETE FROM messages;
         DELETE FROM conversations;
         DELETE FROM job_tasks;
@@ -510,6 +717,8 @@ export class ProjectRepository {
         INSERT INTO messages SELECT * FROM checkpoint_restore.messages;
         INSERT INTO jobs SELECT * FROM checkpoint_restore.jobs;
         INSERT INTO job_tasks SELECT * FROM checkpoint_restore.job_tasks;
+        ${restoreConversationMetadata}
+        ${restoreAttachments}
         COMMIT;
       `);
     } catch (error) {

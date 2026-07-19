@@ -3,7 +3,7 @@
 ## Status and Quality Attributes
 
 - Status: Approved baseline (DEC-004 through DEC-011)
-- Implementation: MS1/MS2 foundation implemented, packaged, and verified
+- Implementation: MS1-MS6 implemented, packaged, and verified; MS7 active
 - Target: Windows 11 x64, separately installed Blender 4.5 LTS
 - Priorities: scene truth, safety, recovery, testability, judge reproducibility, delivery speed, future Linux/Isaac extension
 
@@ -29,8 +29,10 @@ There is no local HTTP server and no remote web UI. The main process is the trus
 
 ### Renderer
 
-React and `@assistant-ui/react` 0.14.27 render local-runtime chat, projects,
-approvals, activity, provider disclosure, jobs, and honest validation state. No
+React, `@assistant-ui/react` 0.14.27, Phosphor icons, and Three.js render the
+owner-approved three-column workspace: project conversations, mode-aware authoring,
+approvals, activity, revision-stamped scene inspection, validation/export context, and
+honest recovery state. At compact widths, rail and inspector become accessible drawers. No
 Assistant Cloud or provider-coupled renderer transport is used. The renderer has no
 Node integration, secret access, raw filesystem access, arbitrary process launch,
 provider credentials after configuration, or direct Blender connection. Packaged
@@ -113,6 +115,17 @@ Nemotron identifier, streamed text, and observed a valid no-op tool call without
 executing it; the endpoint also accepted an explicit `enable_thinking: false` probe.
 Vision remains false and unsupported/unprobed capabilities remain explicitly `unknown`;
 see `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`.
+
+MS6's `ModelRouter` accepts an automatic or explicit route for conversation, planning,
+Blender scripting, visual review, summarization, or validation review. It only selects a
+configured, enabled, runtime-probed model whose observed capabilities match the purpose
+and remaining budget. Every choice records the provider/model and reason. Missing or
+incompatible cloud capability returns an explicit local route; it never guesses support.
+
+Conversation dispatch uses retained source messages, an explicit compaction summary, and
+messages newer than the compaction boundary. At 80% estimated context, compaction reduces
+the dispatch set while preserving every source message. Project memory is included only
+when enabled; global memory is separately controlled and defaults off.
 
 ### Tool and approval model
 
@@ -208,6 +221,19 @@ serves stored integrity-checked images to the renderer. Temporary lights, camera
 ground are removed without advancing the Blender revision. Visual evidence remains
 advisory. MS5 adds the independent OpenUSD channel; channel separation prevents partial
 evidence from claiming complete readiness.
+
+MS6 adds a Blender-generated GLB preview service. Each preview manifest binds project,
+source scene revision, object identities, hierarchy, dimensions, and materials. The main
+process rechecks fresh Blender truth before declaring it current or linking a selection;
+stale previews remain visible but are labeled and cannot drive a silent mutation. Stored
+review manifests provide before/after comparison. Three.js is only an inspector--Blender
+remains the authoritative editor and **Open in Blender** is always available.
+
+Workspace privacy operations stay in the main process. Portable project export copies
+contained data and creates a consistent SQLite backup while excluding global storage and
+credentials. Diagnostics export uses a structural allowlist plus secret/path redaction.
+Exact-name project deletion closes the bridge/databases and uses the Windows Recycle Bin,
+so the default destructive path remains recoverable.
 
 ## USD Export Package
 

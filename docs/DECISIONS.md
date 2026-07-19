@@ -223,6 +223,25 @@ and short-lived.
 debris is removed at the next start. Integration tests cover stale cleanup and fresh-token
 creation without logging descriptor contents.
 
+### DEC-026: Revision-bound embedded workspace and capability routing
+
+**Context.** The owner required a persistent conversation rail, dominant authoring canvas,
+and stacked 3D/activity/export dock. The embedded view and model selector could otherwise
+become false sources of scene or capability truth.
+
+**Decision.** Implement the approved workspace in React with Phosphor icons and a direct
+Three.js GLB inspector. Blender generates every preview and the app binds it to an exact
+scene revision; fresh inspection controls current/stale state and selection linkage.
+Provider routing only considers configured, enabled, runtime-probed capability records,
+respects budgets and purpose, and falls back explicitly to local execution. Project/global
+memory, provider controls, usage, privacy export, diagnostics, and deletion remain in
+Settings. Project deletion uses exact-name confirmation and the Windows Recycle Bin.
+
+**Consequences.** The inspector cannot silently diverge from Blender, and the renderer
+does not gain filesystem/provider authority. No React rendering wrapper was required;
+direct Three.js keeps the preview seam small. Cycle-two content can expand inside the
+approved information architecture without a major architecture change.
+
 ## Approval Record
 
 The project owner approved the full SimForge Documentation and Architecture Baseline

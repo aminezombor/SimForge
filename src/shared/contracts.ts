@@ -336,6 +336,19 @@ export const ReviewManifestSchema = Type.Object({
 });
 export type ReviewManifest = Static<typeof ReviewManifestSchema>;
 
+export const ScenePreviewManifestSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  previewId: Type.String({ minLength: 1 }),
+  projectId: Type.String({ minLength: 1 }),
+  sceneRevision: Type.Integer({ minimum: 0 }),
+  createdAt: Type.String({ format: 'date-time' }),
+  relativePath: Type.String({ minLength: 1 }),
+  sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+  bytes: Type.Integer({ minimum: 1 }),
+  objects: Type.Array(SceneObjectSchema),
+});
+export type ScenePreviewManifest = Static<typeof ScenePreviewManifestSchema>;
+
 export const ExportKindSchema = Type.Union([Type.Literal('quick'), Type.Literal('canonical')]);
 export type ExportKind = Static<typeof ExportKindSchema>;
 

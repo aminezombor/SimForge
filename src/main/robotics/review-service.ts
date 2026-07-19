@@ -121,6 +121,16 @@ export class ReviewService {
     if (digest !== image.sha256) throw new Error('Review image failed integrity verification');
     return `data:image/png;base64,${data.toString('base64')}`;
   }
+
+  list(): ReviewManifest[] {
+    return this.project.repository.listProjectRecords(this.project.manifest.projectId)
+      .filter((entry) => entry.kind === 'validation' && entry.body.type === 'materialized-review')
+      .map((entry) => {
+        assertContract<ReviewManifest>(ReviewManifestSchema, entry.body.manifest, 'stored review manifest');
+        return entry.body.manifest;
+      })
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  }
 }
 
 function record(value: unknown, name: string): Record<string, unknown> {

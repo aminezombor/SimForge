@@ -32,27 +32,27 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-AI-004 | Clear unavailability and fallback behavior | HACKATHON-P0 | MS1 | AT-004, AT-005 | Tested | Missing/undiscovered/failing provider tests and visible status |
 | REQ-AI-005 | Nemotron selected only when discovered and suitable | HACKATHON-P0 | MS1 | AT-004 | Tested | Packaged discovery found intended model before probe; text/stream/tools true and vision false |
 | REQ-AI-006 | Optional OpenAI provider proves independence | HACKATHON-P0 | MS1 | AT-005 | Tested | Direct Responses adapter normalized against NVIDIA fixtures |
-| REQ-AI-007 | Capability-based model routing | HACKATHON-P1 | MS6 | AT-005 | Planned | - |
-| REQ-AI-008 | Manual/automatic provider and model controls | HACKATHON-P1 | MS6 | AT-005, AT-032 | Planned | - |
+| REQ-AI-007 | Capability-based model routing | HACKATHON-P1 | MS6 | AT-005 | Tested | Capability router accepts only configured/enabled/probed compatible models, records selection reason, and falls back locally; unit tests |
+| REQ-AI-008 | Manual/automatic provider and model controls | HACKATHON-P1 | MS6 | AT-005, AT-032 | Tested | Settings enable providers, discover/probe models, validate unique fallback order, and expose Auto/manual routing |
 | REQ-AI-009 | Visible provider/model and selection reason | HACKATHON-P0 | MS2 | AT-005, AT-008 | Tested | Provider settings, model list, reason, capability/disclosure UI |
-| REQ-AI-010 | Usage/cost, budget, and fallback controls | HACKATHON-P1 | MS6 | AT-005 | Planned | - |
+| REQ-AI-010 | Usage/cost, budget, and fallback controls | HACKATHON-P1 | MS6 | AT-005 | Tested | Persisted usage summary, budget gate, fallback ordering, unpriced-request count, and provider-router tests |
 | REQ-AI-011 | Provider-neutral stored project/chat/tool data | HACKATHON-P0 | MS1 | AT-005, AT-006 | Tested | Normalized contracts and SQLite reload tests |
 | REQ-AI-012 | Vision work only reaches probed visual models | HACKATHON-P0 | MS4 | AT-004, AT-022 | In progress | Nemotron is recorded text-only and local review never dispatches images; optional visual-provider dispatch remains to be exercised |
 | REQ-UX-001 | Visible phase/task/tool/action/files/dependencies/results/provider/progress | HACKATHON-P0 | MS2 | AT-008 | Tested | Packaged renderer activity, jobs, Doctor, provider and checkpoint details |
 | REQ-UX-002 | Concise operational rationale without chain-of-thought claims | HACKATHON-P0 | MS2 | AT-008 | Tested | Operational summaries/reasons only; no hidden reasoning field |
-| REQ-UX-003 | Multiple persistent project conversations with lifecycle/search | HACKATHON-P0 | MS6 | AT-007 | Planned | - |
-| REQ-UX-004 | Edit/resend/retry/stop/branch conversation controls | HACKATHON-P1 | MS6 | AT-007 | Planned | - |
-| REQ-UX-005 | Image/reference attachments with provenance and disclosure | HACKATHON-P0 | MS6 | AT-007, AT-032 | Planned | - |
-| REQ-UX-006 | Plan/task/activity/change/action/validation/export views | HACKATHON-P0 | MS6 | AT-008, AT-027 | Planned | - |
-| REQ-UX-007 | Context indication and safe compaction | HACKATHON-P1 | MS6 | AT-007 | Planned | - |
-| REQ-UX-008 | Distinct controllable project/global memory | HACKATHON-P1 | MS6 | AT-007, AT-032 | Planned | - |
-| REQ-UX-009 | Undo/revisions/empty/wait/error/recovery experience | HACKATHON-P0 | MS6 | AT-008, AT-026 | Planned | - |
+| REQ-UX-003 | Multiple persistent project conversations with lifecycle/search | HACKATHON-P0 | MS6 | AT-007 | Tested | SQLite conversation metadata, create/rename/search/delete/branch service and workspace UI; unit tests |
+| REQ-UX-004 | Edit/resend/retry/stop/branch conversation controls | HACKATHON-P1 | MS6 | AT-007 | Tested | Composer retry/resend/stop and exact-cutoff conversation branching persist through the narrow desktop API |
+| REQ-UX-005 | Image/reference attachments with provenance and disclosure | HACKATHON-P0 | MS6 | AT-007, AT-032 | Tested | Bounded contained attachment import records source/provenance; automatic cloud attachment routing fails closed |
+| REQ-UX-006 | Plan/task/activity/change/action/validation/export views | HACKATHON-P0 | MS6 | AT-008, AT-027 | Tested | Mode-aware authoring cards and revision-linked Activity/Changes/Validation/Export dock; browser interaction QA |
+| REQ-UX-007 | Context indication and safe compaction | HACKATHON-P1 | MS6 | AT-007 | Tested | Context meter and 80% auto-compaction retain all source messages and reduce dispatch context below 10%; unit test |
+| REQ-UX-008 | Distinct controllable project/global memory | HACKATHON-P1 | MS6 | AT-007, AT-032 | Tested | Scoped enable/list/edit/export/delete controls; global memory off by default; secret rejection and privacy smoke |
+| REQ-UX-009 | Undo/revisions/empty/wait/error/recovery experience | HACKATHON-P0 | MS6 | AT-008, AT-026 | Tested | Existing recovery retained inside responsive workspace with explicit loading/disconnected/stale/error states and named versions |
 | REQ-UX-010 | No secrets in conversation history | HACKATHON-P0 | MS1 | AT-003, AT-007 | Tested | Secret-like chat rejected; protected configuration path and secret scan |
 | REQ-DATA-001 | Multiple locally owned portable projects | HACKATHON-P0 | MS1 | AT-006 | Tested | Global index plus distinct move/reopen project fixtures |
 | REQ-DATA-002 | Store brief/chat/memory/references/docs/plans/decisions | HACKATHON-P0 | MS1 | AT-006, AT-007 | Tested | Generic typed records and provider-neutral message persistence; advanced controls remain MS6 |
 | REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Dedicated validation run/finding/fix tables, evidence-rich scene snapshots, scripts/actions, and complete checkpoint restore fixture |
 | REQ-DATA-004 | Store dependencies/assets/attribution/physics/sensors/exports/reports/previews | HACKATHON-P0 | MS5 | AT-006, AT-029, AT-030, AT-036 | Tested | RobotGraph, hashed previews, export manifests/results/reports, source actions, and third-party notice persist; release-wide asset audit remains AT-036 |
-| REQ-DATA-005 | Store named versions/branches/checkpoints/job state | HACKATHON-P1 | MS6 | AT-011, AT-026, AT-027 | Planned | - |
+| REQ-DATA-005 | Store named versions/branches/checkpoints/job state | HACKATHON-P1 | MS6 | AT-011, AT-026, AT-027 | Tested | Immutable named versions retain checkpoint/branch ancestry; jobs and checkpoints remain SQLite-backed; unit tests |
 | REQ-DATA-006 | Reusable libraries for robotics authoring resources | POST-HACKATHON-V1 | MS10 | AT-037 | Planned | - |
 | REQ-BLENDER-001 | Collaborate with a real running Blender scene | HACKATHON-P0 | MS1 | AT-012 | Tested | Official Blender 4.5.11 live fixture |
 | REQ-BLENDER-002 | Fresh structured snapshot before scene-dependent work | HACKATHON-P0 | MS1 | AT-012, AT-013 | Tested | SceneState refresh before execution/recovery |
@@ -64,10 +64,10 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-BLENDER-008 | Structured tools for common operations | HACKATHON-P0 | MS1 | AT-012, AT-016 | Tested | Snapshot/checkpoint/restore/primitive/location/scale/delete plus exact robot materialize/link-pose and safe review-render registry tools |
 | REQ-BLENDER-009 | Controlled Blender Python fallback | HACKATHON-P0 | MS2 | AT-015 | Tested | Plan denial, exact approval, hash/path/checkpoint/live success/failure |
 | REQ-BLENDER-010 | Generated Python is explained/logged/gated/scoped/validated/reusable | HACKATHON-P0 | MS2 | AT-015, AT-031 | Tested | Intent/hash/path metadata, secret denial, archive, audit and reinspection |
-| REQ-VIEW-001 | Useful embedded mini 3D inspection workspace | HACKATHON-P1 | MS6 | AT-018 | Planned | - |
-| REQ-VIEW-002 | Orbit/pan/zoom/select/identify/hierarchy controls | HACKATHON-P1 | MS6 | AT-018 | Planned | - |
-| REQ-VIEW-003 | Dimensions/materials/updates/comparison/selection/Blender switch | HACKATHON-P1 | MS6 | AT-018 | Planned | - |
-| REQ-VIEW-004 | Revision freshness and no silent divergence | HACKATHON-P1 | MS6 | AT-018 | Planned | - |
+| REQ-VIEW-001 | Useful embedded mini 3D inspection workspace | HACKATHON-P1 | MS6 | AT-018 | Tested | Blender-generated GLB is rendered through Three.js in the right dock; exact revision and state visible; live acceptance |
+| REQ-VIEW-002 | Orbit/pan/zoom/select/identify/hierarchy controls | HACKATHON-P1 | MS6 | AT-018 | Tested | Three.js orbit/pan/zoom, hierarchy/object picker, identity metadata, and bridge-backed selection linkage |
+| REQ-VIEW-003 | Dimensions/materials/updates/comparison/selection/Blender switch | HACKATHON-P1 | MS6 | AT-018 | Tested | Inspector exposes dimensions/materials, refresh, stored before/after reviews, selection linkage, and Open in Blender |
+| REQ-VIEW-004 | Revision freshness and no silent divergence | HACKATHON-P1 | MS6 | AT-018 | Tested | Preview ID binds source revision; fresh snapshot comparison marks stale and rejects stale selection; real Blender test |
 | REQ-IMPORT-001 | Architecture accommodates full broad import/reference list | POST-HACKATHON-V1 | MS10 | AT-037 | Planned | `docs/ARCHITECTURE.md` extension contract |
 | REQ-IMPORT-002 | Complete guaranteed V1 focus subset with evidence | POST-HACKATHON-V1 | MS10 | AT-019, AT-020, AT-037 | Planned | - |
 | REQ-IMPORT-003 | One licensed external robot import/modify/validate/export path | HACKATHON-P1 | MS8 | AT-020 | Planned | - |
@@ -91,8 +91,8 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-FIX-004 | Log, undo, and revalidate automatic fixes | HACKATHON-P0 | MS3 | AT-024, AT-026 | Tested | Append-only fix/activity record includes inverse/checkpoint/revisions/result run; live inverse and rerun pass |
 | REQ-HISTORY-001 | Undo latest safe action | HACKATHON-P0 | MS3 | AT-024, AT-026 | Tested | Latest applied safe fix persists its typed inverse; unit and real Blender undo restore the original finding |
 | REQ-HISTORY-002 | Complete recoverable project checkpoint | HACKATHON-P0 | MS3 | AT-026 | Tested | Blender save-copy, SQLite backup, hashed portable files/task state, integrity verification, pre-restore checkpoint, and live approved restore |
-| REQ-HISTORY-003 | Named versions and checkpoint branching | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
-| REQ-HISTORY-004 | Actor/tool/model/validation/checkpoint/export timeline | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
+| REQ-HISTORY-003 | Named versions and checkpoint branching | HACKATHON-P1 | MS6 | AT-027 | Tested | Version service creates immutable checkpoint-backed branches with explicit `branchOf`; unit test and UI |
+| REQ-HISTORY-004 | Actor/tool/model/validation/checkpoint/export timeline | HACKATHON-P1 | MS6 | AT-027 | Tested | Unified timeline merges audit activities, providers/models, tools, revisions, validations, checkpoints, and exports |
 | REQ-USD-001 | Explicit export/destination/overwrite/package intent | HACKATHON-P0 | MS5 | AT-028, AT-029 | Tested | Exact proposal binds kind, destination, overwrite, final-package flag, robot, validation run, revision, and plan hash |
 | REQ-USD-002 | Verified single-file quick USD | HACKATHON-P0 | MS5 | AT-028 | Tested | Approved `.usdc` flattened from canonical layers and reopened with convention/robot/hash checks |
 | REQ-USD-003 | Portable modular robotics-ready package | HACKATHON-P0 | MS5 | AT-029 | Tested | Neutral geometry/material/physics/sensor/environment/root layers use contained relative references and reopen after move |
@@ -101,7 +101,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-USD-006 | Preserve/export source/project/scripts/actions/version | HACKATHON-P0 | MS5 | AT-029 | Tested | Canonical source includes Blender copy, portable manifest, generated scripts when present, activity history, and app version |
 | REQ-SECURITY-001 | Local-first portable project storage | HACKATHON-P0 | MS1 | AT-006, AT-032 | Tested | Portable project/global split tests; no telemetry/service |
 | REQ-SECURITY-002 | Accurate cloud payload/provider/purpose disclosure | HACKATHON-P0 | MS1 | AT-032 | Tested | Probe disclosure object and pre-dispatch renderer text |
-| REQ-SECURITY-003 | Project controls for uploads/providers/cloud/memory/logging | HACKATHON-P1 | MS6 | AT-032 | Planned | - |
+| REQ-SECURITY-003 | Project controls for uploads/providers/cloud/memory/logging | HACKATHON-P1 | MS6 | AT-032 | Tested | Persisted settings, local fallback, scoped memory controls, structural diagnostics redaction, portable export, and Recycle Bin deletion smoke |
 | REQ-SECURITY-004 | Never send secrets/unrelated/environment/unneeded private data | HACKATHON-P0 | MS1 | AT-003, AT-032 | Tested | Main-only auth headers, fixed probe payload, secret rejection/plaintext scan |
 | REQ-SECURITY-005 | OS-protected secrets and no secret log/commit | HACKATHON-P0 | MS1 | AT-003 | Tested | Packaged safeStorage + user ACL + repo/plaintext scans |
 | REQ-SECURITY-006 | Restricted local services and loopback Blender bridge | HACKATHON-P0 | MS1 | AT-031 | Tested | Random 127.0.0.1 listener, 256-bit token, ACL, project binding, frame limit |

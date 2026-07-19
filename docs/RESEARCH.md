@@ -33,7 +33,7 @@ Sources: [Electron releases](https://releases.electronjs.org/), [Electron securi
 | UsdPhysics | Neutral robotics physics schemas | Part of OpenUSD | Standard articulation, collision, joint, and mass representation | Does not guarantee Isaac-specific readiness | Adopt neutral P0 layer; add rule parity with Isaac guidance |
 | NVIDIA hosted NIM | Primary inference | Commercial service terms; official NVIDIA API | Hosted Nemotron avoids impractical local hardware; OpenAI-compatible streaming/tool surfaces | Access/model/capabilities vary by endpoint | Discover and probe at runtime; never hard-code success |
 | OpenAI Responses API | Optional secondary provider | Commercial service terms; official SDK/API | Proves provider abstraction; current models can support text/image/tool workflows | Cost, access, and model changes | Optional P0 proof, capability-driven selection |
-| Three.js / React Three Fiber | Embedded inspection | MIT; active | GLB preview, selection, camera controls, wide ecosystem | A separate renderer can become stale | P1 only; display revision-stamped Blender-generated preview, never independent truth |
+| Three.js | Embedded inspection | MIT; active | GLB preview, selection, camera controls, wide ecosystem | A separate renderer can become stale | Adopted directly at 0.184.0; display revision-stamped Blender-generated preview, never independent truth |
 | Urchin | URDF parsing | MIT; release 0.0.30 in 2025 | Maintained fork of urdfpy; neutral Python importer path | Python 3.13/package and asset edge cases unproved | Candidate; map into `RobotGraph`; fallback evaluation is `yourdfpy` |
 | MuJoCo Python | MJCF parsing/compilation | Apache-2.0; Google DeepMind active releases | Official parser and Windows wheels | Native package size; plugins/includes are security-sensitive | Candidate for post-hackathon guaranteed MJCF; reject plugins/external paths |
 | Electron Forge | Installer/portable packaging | MIT; active | Standard Electron packaging hooks | Unsigned installer may trigger SmartScreen | Adopted for portable proof; installer plus ZIP remain MS9 |
@@ -92,3 +92,12 @@ composition layers, flattens a quick file, resolves dependencies after a package
 inspects articulation/physics/material/sensor schemas. No alternate USD library or
 Blender-only composition fallback was required. Release size/notices remain an MS9 audit;
 Isaac-specific validation remains optional V2 work.
+
+## MS6 Research Gate Result
+
+Direct Three.js 0.184.0 proved sufficient for GLB loading, hierarchy/identity inspection,
+orbit/pan/zoom, dimensions/material metadata, and selection without adding React Three
+Fiber. A custom `@assistant-ui/react` local runtime retained project SQLite and provider
+neutrality. Packaged tests prove the renderer remains sandboxed despite the expanded
+workspace API, while exact-revision previews and runtime capability routing fail stale or
+unprobed work closed.

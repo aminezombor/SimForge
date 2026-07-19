@@ -199,6 +199,31 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   regression coverage without retaining the token. Signing and clean-account release work
   remain MS9.
 
+### 2026-07-19 - MS6 embedded workspace and privacy closure
+
+- Phase/milestone: MS6 complete; cycle two workspace foundation complete
+- Requirement/test IDs: `REQ-AI-007/008/010`, `REQ-UX-003` through `REQ-UX-009`,
+  `REQ-DATA-005`, `REQ-VIEW-001` through `REQ-VIEW-004`, `REQ-HISTORY-003/004`,
+  `REQ-SECURITY-003`; `AT-007`, `AT-018`, `AT-027`, `AT-032`
+- What Codex/GPT-5.6 contributed: converted the owner's annotated block layout into a
+  responsive production workspace, then connected conversations, memory, model routing,
+  Blender-derived GLB truth, selection, comparisons, versions, activity, and privacy to
+  the existing safe main-process contracts.
+- Important decisions: Blender stays authoritative; previews and approvals bind exact
+  revisions; routing requires observed capability/configuration; compaction never deletes
+  source messages; project/global data remain separate; default deletion uses Recycle Bin.
+- Time/risk saved: side-by-side visual QA found and repaired dock proportion/export
+  visibility issues; automated real-Blender testing found stale selection behavior before
+  release; packaged privacy smoke proves data-scope claims instead of relying on copy.
+- Human review and verification: `pnpm verify`, real Blender preview/selection/review
+  acceptance, package build, Electron fuse read, packaged renderer/credential/privacy
+  smoke, 1280/980/760 browser interactions, zero console warnings/errors, and final
+  reference comparison pass.
+- Evidence: `docs/evidence/MS6_VERIFICATION.md`, `design-qa.md`, and `artifacts/ms6/`.
+- Limitations or correction made: a fresh QA server started without the repository's Vite
+  renderer config and produced an invalid unstyled capture; it was rejected and recaptured
+  through the production renderer config. Signing and clean-account release remain MS9.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

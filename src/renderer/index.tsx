@@ -1,14 +1,43 @@
-import { StrictMode, useCallback, useEffect, useMemo, useState } from 'react';
+/* React event handlers delegate rejected work to the shared run() error boundary; demo methods intentionally resolve synchronously. */
+/* eslint-disable @typescript-eslint/no-misused-promises, @typescript-eslint/require-await */
+import { StrictMode, useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  AssistantRuntimeProvider,
-  ComposerPrimitive,
-  MessagePrimitive,
-  ThreadPrimitive,
-  useLocalRuntime,
-  type ChatModelAdapter,
-  type ThreadMessageLike,
-} from '@assistant-ui/react';
+  ArrowClockwise,
+  ArrowCounterClockwise,
+  ArrowsClockwise,
+  GitBranch,
+  CaretDown,
+  Check,
+  CheckCircle,
+  ClockCounterClockwise,
+  CubeFocus,
+  Database,
+  Export,
+  FilePlus,
+  GearSix,
+  HardDrives,
+  ImageSquare,
+  ListChecks,
+  MagnifyingGlass,
+  Paperclip,
+  PaperPlaneTilt,
+  Pause,
+  Play,
+  Plus,
+  Robot,
+  SidebarSimple,
+  SlidersHorizontal,
+  Sparkle,
+  Stop,
+  Trash,
+  UserCircle,
+  Warning,
+  X,
+} from '@phosphor-icons/react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type {
   AppState,
   ExportKind,
@@ -16,28 +45,35 @@ import type {
   Mode,
   ModelDescriptor,
   ReviewManifest,
+  SceneObject,
+  ScenePreviewManifest,
   ValidationRun,
 } from '../shared/contracts';
 import type {
+  AttachmentView,
   ChatMessageView,
   CheckpointView,
-  GoalJobView,
-  RobotProposal,
+  ConversationContextView,
+  ConversationSummaryView,
   ExportProposal,
+  GoalJobView,
+  MemoryView,
+  RobotProposal,
+  SimForgeDesktopApi,
+  TimelineEventView,
+  UsageSummaryView,
+  VersionView,
+  WorkspaceSettings,
 } from '../shared/desktop-api';
 import type { DoctorCheck } from '../main/environment-doctor';
-import type {
-  CloudProviderId,
-  ProviderProbeResult,
-  ProviderStatus,
-} from '../main/providers/provider-service';
+import type { CloudProviderId, ProviderStatus } from '../main/providers/provider-service';
 import './styles.css';
 
-const MODES: Array<{ id: Mode; label: string; help: string }> = [
-  { id: 'normal', label: 'Chat', help: 'Discuss and perform permitted small edits.' },
-  { id: 'plan', label: 'Plan', help: 'Inspect and plan. Blender mutation is unavailable.' },
-  { id: 'build', label: 'Build', help: 'Execute approved or permitted actions.' },
-  { id: 'goal', label: 'Goal', help: 'Run a persistent approved task plan.' },
+const MODES: Array<{ id: Mode; label: string; hint: string }> = [
+  { id: 'normal', label: 'Chat', hint: 'Discuss and inspect' },
+  { id: 'plan', label: 'Plan', hint: 'Read-only planning' },
+  { id: 'build', label: 'Build', hint: 'Approved scene work' },
+  { id: 'goal', label: 'Goal', hint: 'Persistent execution' },
 ];
 
 const PLAN_TASKS = [
@@ -47,549 +83,759 @@ const PLAN_TASKS = [
   { id: 'verify', description: 'Refresh scene truth and report the revision.' },
 ];
 
-function UserChatMessage() {
-  return <MessagePrimitive.Root className="chat-message user"><b>user</b><MessagePrimitive.Parts /></MessagePrimitive.Root>;
-}
+type DockTab = 'activity' | 'validation' | 'export' | 'history';
+type SettingsTab = 'providers' | 'privacy' | 'environment';
 
-function AssistantChatMessage() {
-  return <MessagePrimitive.Root className="chat-message assistant"><b>assistant</b><MessagePrimitive.Parts /><MessagePrimitive.Error /></MessagePrimitive.Root>;
-}
-
-function AssistantChat({
-  persisted,
-  onActivity,
-}: {
-  persisted: ChatMessageView[];
-  onActivity: () => Promise<void>;
-}) {
-  const adapter = useMemo<ChatModelAdapter>(() => ({
-    run: async ({ messages }) => {
-      const latest = messages.at(-1);
-      const text = latest?.content
-        .filter((part) => part.type === 'text')
-        .map((part) => part.text)
-        .join('\n') ?? '';
-      const stored = await window.simforge.sendChat(text);
-      const response = [...stored].reverse().find((message) => message.role === 'assistant');
-      await onActivity();
-      return { content: [{ type: 'text', text: response?.text ?? 'No response was stored.' }] };
-    },
-  }), [onActivity]);
-  const initialMessages = useMemo<ThreadMessageLike[]>(() => persisted.map((message) => ({
-    id: message.id,
-    role: message.role === 'assistant' ? 'assistant' : 'user',
-    content: [{ type: 'text', text: message.text }],
-    createdAt: new Date(message.createdAt),
-  })), [persisted]);
-  const runtime = useLocalRuntime(adapter, {
-    initialMessages,
-    unstable_enableMessageQueue: true,
-  });
-  return (
-    <AssistantRuntimeProvider runtime={runtime}>
-      <ThreadPrimitive.Root className="chat-card">
-        <div><p className="eyebrow">NORMAL CHAT</p><h2>Discussion stays usable while goal work is running</h2></div>
-        <ThreadPrimitive.Viewport className="chat-log">
-          <ThreadPrimitive.Empty><p className="muted">No messages yet. Chat has no mutating tools.</p></ThreadPrimitive.Empty>
-          <ThreadPrimitive.Messages components={{
-            UserMessage: UserChatMessage,
-            AssistantMessage: AssistantChatMessage,
-          }} />
-        </ThreadPrimitive.Viewport>
-        <ComposerPrimitive.Root className="inline-form">
-          <ComposerPrimitive.Input aria-label="Chat message" placeholder="Ask about the scene or plan..." />
-          <ComposerPrimitive.Send className="secondary">Send locally</ComposerPrimitive.Send>
-        </ComposerPrimitive.Root>
-      </ThreadPrimitive.Root>
-    </AssistantRuntimeProvider>
-  );
-}
+const demoApi = createDemoApi();
+const desktop: SimForgeDesktopApi = window.simforge ?? demoApi;
 
 function App() {
   const [state, setState] = useState<AppState | null>(null);
-  const [goal, setGoal] = useState('');
-  const [chat, setChat] = useState<ChatMessageView[]>([]);
-  const [chatReady, setChatReady] = useState(false);
+  const [conversations, setConversations] = useState<ConversationSummaryView[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState('');
+  const [messages, setMessages] = useState<ChatMessageView[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentView[]>([]);
+  const [pendingAttachmentIds, setPendingAttachmentIds] = useState<string[]>([]);
+  const [context, setContext] = useState<ConversationContextView | null>(null);
+  const [settings, setSettings] = useState<WorkspaceSettings | null>(null);
+  const [composer, setComposer] = useState('');
+  const [search, setSearch] = useState('');
+  const [leftOpen, setLeftOpen] = useState(() => window.innerWidth > 980);
+  const [inspectionOpen, setInspectionOpen] = useState(false);
+  const [dockTab, setDockTab] = useState<DockTab>('activity');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('providers');
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [goalText, setGoalText] = useState('');
   const [job, setJob] = useState<GoalJobView | null>(null);
-  const [mockProvider, setMockProvider] = useState<ModelDescriptor | null>(null);
-  const [providerId, setProviderId] = useState<CloudProviderId>('nvidia');
-  const [credential, setCredential] = useState('');
-  const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
-  const [models, setModels] = useState<ModelDescriptor[]>([]);
-  const [selectedModel, setSelectedModel] = useState('');
-  const [providerProbe, setProviderProbe] = useState<ProviderProbeResult | null>(null);
-  const [doctor, setDoctor] = useState<DoctorCheck[]>([]);
-  const [validation, setValidation] = useState<ValidationRun | null>(null);
-  const [validationApprovals, setValidationApprovals] = useState<Record<string, string>>({});
-  const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
-  const [restoreApprovals, setRestoreApprovals] = useState<Record<string, string>>({});
   const [robotProposal, setRobotProposal] = useState<RobotProposal | null>(null);
   const [robotApproval, setRobotApproval] = useState<string | null>(null);
-  const [review, setReview] = useState<ReviewManifest | null>(null);
-  const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
-  const [exportKind, setExportKind] = useState<ExportKind>('canonical');
-  const [exportDestination, setExportDestination] = useState('');
-  const [exportOverwrite, setExportOverwrite] = useState(false);
-  const [exportProposal, setExportProposal] = useState<ExportProposal | null>(null);
-  const [exportApproval, setExportApproval] = useState<string | null>(null);
+  const [validation, setValidation] = useState<ValidationRun | null>(null);
+  const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
+  const [versions, setVersions] = useState<VersionView[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEventView[]>([]);
   const [exports, setExports] = useState<ExportResult[]>([]);
-  const robotBuilt = validation?.channels.includes('deterministic-robotics') ?? false;
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<ScenePreviewManifest | null>(null);
+  const [previewData, setPreviewData] = useState<string | null>(null);
+  const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
+  const [viewportMode, setViewportMode] = useState<'live' | 'review'>('live');
+  const [review, setReview] = useState<ReviewManifest | null>(null);
+  const [reviews, setReviews] = useState<ReviewManifest[]>([]);
+  const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
+
+  const run = useCallback(async (name: string, action: () => Promise<void>) => {
+    setBusy(name);
+    setError(null);
+    try {
+      await action();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'The operation could not be completed');
+    } finally {
+      setBusy('');
+    }
+  }, []);
 
   const refreshState = useCallback(async () => {
-    const next = await window.simforge.getState();
+    const next = await desktop.getState();
     setState(next);
     return next;
   }, []);
 
-  const run = useCallback(async (operation: () => Promise<void>) => {
-    setBusy(true);
-    setError(null);
-    try {
-      await operation();
-      await refreshState();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Operation failed');
-    } finally {
-      setBusy(false);
+  const refreshWorkspace = useCallback(async () => {
+    const [nextState, nextConversations, nextValidation, nextCheckpoints, nextVersions, nextTimeline, nextExports, nextSettings, nextReviews] = await Promise.all([
+      desktop.getState(), desktop.listConversations(search), desktop.getLatestValidation(),
+      desktop.listCheckpoints(), desktop.listVersions(), desktop.getTimeline(), desktop.listExports(),
+      desktop.getWorkspaceSettings(), desktop.listReviews(),
+    ]);
+    setState(nextState);
+    setConversations(nextConversations);
+    setValidation(nextValidation);
+    setCheckpoints(nextCheckpoints);
+    setVersions(nextVersions);
+    setTimeline(nextTimeline);
+    setExports(nextExports);
+    setSettings(nextSettings);
+    setReviews(nextReviews);
+    const active = nextConversations.some((entry) => entry.id === activeConversationId)
+      ? activeConversationId
+      : nextConversations[0]?.id ?? '';
+    if (active && active !== activeConversationId) setActiveConversationId(active);
+    if (nextState.activeGoalJobId) {
+      desktop.getGoal(nextState.activeGoalJobId).then(setJob).catch(() => setJob(null));
     }
-  }, [refreshState]);
+    desktop.getPrimitiveRobotProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
+  }, [activeConversationId, search]);
+
+  const loadConversation = useCallback(async (conversationId: string) => {
+    if (!conversationId) return;
+    const [nextMessages, nextAttachments, nextContext] = await Promise.all([
+      desktop.getChat(conversationId),
+      desktop.listAttachments(conversationId),
+      desktop.getConversationContext(conversationId),
+    ]);
+    setMessages(nextMessages);
+    setAttachments(nextAttachments);
+    setContext(nextContext);
+    setPendingAttachmentIds([]);
+  }, []);
 
   useEffect(() => {
-    void refreshState().catch((reason: unknown) => {
-      setError(reason instanceof Error ? reason.message : 'Unable to read application state');
-    });
-  }, [refreshState]);
+    void run('loading', refreshWorkspace);
+  }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      void refreshState().catch(() => {
-        // The next successful poll restores live connection and revision status.
-      });
-    }, 1_000);
+    if (activeConversationId) void run('conversation', () => loadConversation(activeConversationId));
+  }, [activeConversationId, loadConversation, run]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => void refreshState().catch(() => undefined), 1_500);
     return () => window.clearInterval(timer);
   }, [refreshState]);
 
   useEffect(() => {
-    if (!state?.activeGoalJobId || job) return;
-    void window.simforge.getGoal(state.activeGoalJobId).then(setJob).catch((reason: unknown) => {
-      setError(reason instanceof Error ? reason.message : 'Unable to restore goal job');
-    });
-  }, [job, state?.activeGoalJobId]);
+    const timer = window.setTimeout(() => {
+      void desktop.listConversations(search).then(setConversations).catch(() => undefined);
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
-  useEffect(() => {
-    void window.simforge.providerStatus(providerId).then(setProviderStatus).catch((reason: unknown) => {
-      setError(reason instanceof Error ? reason.message : 'Unable to read provider status');
-    });
-    setModels([]);
-    setSelectedModel('');
-    setProviderProbe(null);
-  }, [providerId]);
+  if (!state || !settings) {
+    return <main className="loading-screen"><CubeFocus size={28} weight="duotone" /><span>Preparing your robotics workspace…</span></main>;
+  }
 
-  useEffect(() => {
-    void window.simforge.runEnvironmentDoctor().then(setDoctor).catch(() => setDoctor([]));
-    void window.simforge.getLatestValidation().then(setValidation).catch(() => setValidation(null));
-    void window.simforge.listCheckpoints().then(setCheckpoints).catch(() => setCheckpoints([]));
-    void window.simforge.getPrimitiveRobotProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
-    void window.simforge.listExports().then(setExports).catch(() => setExports([]));
-    void window.simforge.getChat().then((messages) => {
-      setChat(messages);
-      setChatReady(true);
-    }).catch(() => setChatReady(true));
-  }, []);
+  const activeConversation = conversations.find((entry) => entry.id === activeConversationId) ?? null;
+  const previewStale = Boolean(preview && (preview.sceneRevision !== state.sceneRevision || !state.bridgeConnected));
+  const routeLabel = settings.activeProvider === 'local'
+    ? 'Local fixture'
+    : `${settings.activeProvider.toUpperCase()} · ${settings.activeModel.split('/').at(-1)}`;
 
-  const activeModeHelp = useMemo(
-    () => MODES.find((mode) => mode.id === state?.mode)?.help,
-    [state?.mode],
-  );
-
-  if (!state) return <main className="loading">Preparing local project services...</main>;
-
-  const runJobCommand = async (
-    command: 'start' | 'pause' | 'cancel' | 'retry' | 'rewind' | 'branch',
-    taskIndex?: number,
-  ) => {
-    if (!job) return;
-    const result = await window.simforge.commandGoal(job.jobId, command, taskIndex);
-    setJob(await window.simforge.getGoal(result.jobId));
+  const setMode = (mode: Mode) => run('mode', async () => setState(await desktop.setMode(mode)));
+  const selectPreviewObject = (objectId: string | null) => {
+    setSelectedObjectId(objectId);
+    if (!objectId || !preview || previewStale) return;
+    void run('selection-link', async () => { await desktop.selectSceneObject(preview.previewId, objectId); });
   };
+  const selectConversation = (id: string) => setActiveConversationId(id);
+  const createConversation = () => run('new-chat', async () => {
+    const created = await desktop.createConversation();
+    setConversations(await desktop.listConversations(search));
+    setActiveConversationId(created.id);
+  });
+  const renameConversation = (conversation: ConversationSummaryView) => {
+    const title = window.prompt('Rename conversation', conversation.title);
+    if (!title || title.trim() === conversation.title) return;
+    void run('rename-chat', async () => {
+      await desktop.renameConversation(conversation.id, title);
+      setConversations(await desktop.listConversations(search));
+    });
+  };
+  const deleteConversation = (conversation: ConversationSummaryView) => {
+    if (!window.confirm(`Delete “${conversation.title}” and its messages?`)) return;
+    void run('delete-chat', async () => {
+      const next = await desktop.deleteConversation(conversation.id);
+      setConversations(next);
+      setActiveConversationId(next[0]?.id ?? '');
+    });
+  };
+  const branchConversation = (conversationId: string, throughMessageId?: string) => run('branch-chat', async () => {
+    const branch = await desktop.branchConversation(conversationId, throughMessageId);
+    setConversations(await desktop.listConversations(search));
+    setActiveConversationId(branch.id);
+  });
+  const send = () => run('sending', async () => {
+    if (!activeConversationId || !composer.trim()) return;
+    const text = composer;
+    setComposer('');
+    const next = await desktop.sendChat(activeConversationId, text, pendingAttachmentIds);
+    setMessages(next);
+    setPendingAttachmentIds([]);
+    setContext(await desktop.getConversationContext(activeConversationId));
+    setConversations(await desktop.listConversations(search));
+    setTimeline(await desktop.getTimeline());
+  });
+  const attach = () => run('attach', async () => {
+    const imported = await desktop.chooseAttachments(activeConversationId);
+    setAttachments(await desktop.listAttachments(activeConversationId));
+    setPendingAttachmentIds((current) => [...new Set([...current, ...imported.map((entry) => entry.id)])]);
+  });
+  const generatePreview = () => run('preview', async () => {
+    const manifest = await desktop.generateScenePreview();
+    setPreview(manifest);
+    setPreviewData(await desktop.getScenePreviewData(manifest.previewId));
+    setState(await desktop.getState());
+  });
+  const runValidation = () => run('validation', async () => {
+    setValidation(await desktop.runValidation());
+    setDockTab('validation');
+    await refreshWorkspace();
+  });
+  const buildRobot = () => run('robot', async () => {
+    if (!robotProposal) return;
+    if (!robotApproval) {
+      setRobotApproval(await desktop.approveAction({
+        planHash: robotProposal.planHash,
+        toolId: robotProposal.toolId,
+        args: robotProposal.args,
+      }));
+      return;
+    }
+    const result = await desktop.buildPrimitiveRobot(robotApproval);
+    setState(result.state);
+    setValidation(result.validation);
+    setRobotApproval(null);
+    setDockTab('validation');
+    await generatePreview();
+    await refreshWorkspace();
+  });
+  const renderReview = () => run('review', async () => {
+    const manifest = await desktop.renderPrimitiveRobotReview(`Review at scene r${state.sceneRevision ?? 0}`);
+    const pairs: Array<[string, string]> = await Promise.all(manifest.images.map(async (image) => [
+      image.view,
+      await desktop.getReviewImage(manifest.reviewId, image.view),
+    ]));
+    const images: Record<string, string> = Object.fromEntries(pairs);
+    setReview(manifest);
+    setReviews(await desktop.listReviews());
+    setReviewImages(Object.fromEntries(Object.entries(images).map(([view, data]) => [`${manifest.reviewId}:${view}`, data])));
+    setViewportMode('review');
+  });
+  const showReviewComparison = () => run('review-load', async () => {
+    const selected = reviews.slice(0, 2);
+    if (selected.length === 0) return;
+    const pairs: Array<[string, string]> = await Promise.all(selected.map(async (manifest) => [
+      `${manifest.reviewId}:three-quarter`,
+      await desktop.getReviewImage(manifest.reviewId, 'three-quarter'),
+    ]));
+    setReview(selected[0] ?? null);
+    setReviewImages(Object.fromEntries(pairs));
+    setViewportMode('review');
+  });
+  const createPlan = () => run('plan', async () => {
+    if (!goalText.trim()) return;
+    const created = await desktop.createGoal({ goal: goalText, tasks: PLAN_TASKS });
+    await desktop.approveGoal(created.jobId, created.planHash);
+    await desktop.commandGoal(created.jobId, 'start');
+    setJob(await desktop.getGoal(created.jobId));
+    setState(await desktop.setMode('goal'));
+  });
+  const runNextTask = () => run('goal-task', async () => {
+    if (!job) return;
+    setJob(await desktop.runNextGoalTask(job.jobId));
+    setState(await desktop.getState());
+    await refreshWorkspace();
+  });
 
   return (
-    <main className="app-shell">
-      <header className="topbar">
-        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3 + MS4 + MS5</p><h1>{state.projectName}</h1></div>
-        <div className="status-cluster">
-          <span className={state.bridgeConnected ? 'status good' : 'status quiet'}>
-            <i /> Blender {state.bridgeConnected ? 'connected' : 'waiting'}
-          </span>
-          <span className="revision">Scene r{state.sceneRevision ?? '-'}</span>
+    <main className={`app-frame ${leftOpen ? '' : 'rail-closed'} ${inspectionOpen ? 'inspector-open' : ''}`}>
+      <header className="command-bar">
+        <div className="brand-block">
+          <button className="icon-button mobile-rail-toggle" onClick={() => setLeftOpen((value) => !value)} aria-label="Toggle conversation rail"><SidebarSimple size={19} /></button>
+          <span className="brand-mark"><CubeFocus size={24} weight="duotone" /></span>
+          <span><strong>SimForge</strong><small>{state.projectName}</small></span>
+        </div>
+        <div className="connection-strip" aria-label="Connections">
+          <button className="connection-button" onClick={() => { setSettingsTab('environment'); setSettingsOpen(true); }}>
+            <span className={`connection-dot ${state.bridgeConnected ? 'online' : ''}`} />
+            Blender {state.bridgeConnected ? `live · r${state.sceneRevision ?? 0}` : 'waiting'}
+            <CaretDown size={13} />
+          </button>
+          <span className="service-chip"><HardDrives size={14} /> USD local</span>
+        </div>
+        <div className="command-actions">
+          <button className="icon-button mobile-inspector-toggle" onClick={() => setInspectionOpen((value) => !value)} aria-label="Toggle inspection panel"><CubeFocus size={19} /></button>
+          <button className="model-route" onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}>
+            <Sparkle size={15} weight="fill" />
+            <span><small>MODEL ROUTE</small>{routeLabel}</span>
+            <CaretDown size={13} />
+          </button>
+          <button className="icon-button" onClick={() => setSettingsOpen(true)} aria-label="Open settings"><GearSix size={20} /></button>
         </div>
       </header>
 
-      <section className="modebar" aria-label="Operating mode">
-        {MODES.map((mode) => (
-          <button
-            className={state.mode === mode.id ? 'mode active' : 'mode'}
-            key={mode.id}
-            title={mode.help}
-            disabled={busy}
-            onClick={() => void run(async () => setState(await window.simforge.setMode(mode.id)))}
-          >{mode.label}</button>
-        ))}
-        <p>{activeModeHelp}</p>
-      </section>
+      <div className="workspace-grid">
+        <aside className="conversation-rail">
+          <button className="new-chat" onClick={createConversation} disabled={Boolean(busy)}><Plus size={17} weight="bold" /> New conversation</button>
+          <label className="search-field"><MagnifyingGlass size={15} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search history" /></label>
+          <div className="rail-section-title"><span>PROJECT CHATS</span><span>{conversations.length}</span></div>
+          <nav className="conversation-list" aria-label="Conversation history">
+            {conversations.map((conversation) => (
+              <div className={`conversation-item ${conversation.id === activeConversationId ? 'active' : ''}`} key={conversation.id}>
+                <button className="conversation-main" onClick={() => selectConversation(conversation.id)}>
+                  <span>{conversation.title}</span>
+                  <small>{conversation.messageCount} messages · {relativeTime(conversation.updatedAt)}</small>
+                </button>
+                <div className="conversation-tools">
+                  <button onClick={() => void branchConversation(conversation.id)} aria-label="Branch conversation"><GitBranch size={14} /></button>
+                  <button onClick={() => renameConversation(conversation)} aria-label="Rename conversation"><FilePlus size={14} /></button>
+                  <button onClick={() => deleteConversation(conversation)} aria-label="Delete conversation"><Trash size={14} /></button>
+                </div>
+              </div>
+            ))}
+          </nav>
+          <div className="rail-footer">
+            <Database size={16} />
+            <span><strong>Local project memory</strong><small>{settings.projectMemory ? 'Enabled · portable' : 'Disabled'}</small></span>
+          </div>
+        </aside>
 
-      <div className="preview-banner" role="note">
-        <strong>Engineering preview</strong>
-        <span>This milestone harness proves connection, policy, persistence, and deterministic correction. MS6 delivers the final SimForge workspace.</span>
-      </div>
+        <section className="authoring-column">
+          <header className="conversation-header">
+            <div><small>AUTHORING CONVERSATION</small><h1>{activeConversation?.title ?? 'Workspace'}</h1></div>
+            <div className="conversation-header-actions">
+              {activeConversation?.branchOf && <span className="branch-badge"><GitBranch size={13} /> branch</span>}
+              <button className="icon-button" onClick={() => activeConversation && renameConversation(activeConversation)} aria-label="Rename active conversation"><SlidersHorizontal size={18} /></button>
+            </div>
+          </header>
 
-      {error && <div className="error-banner" role="alert">{error}</div>}
-
-      <div className="workspace">
-        <section className="conversation panel">
-          {chatReady && <AssistantChat persisted={chat} onActivity={async () => { await refreshState(); }} />}
-
-          <div className="panel-heading">
-            <div><p className="eyebrow">GOAL</p><h2>Approved, persistent execution</h2></div>
-            <button className="secondary" disabled={busy} onClick={() => void run(async () => {
-              setMockProvider(await window.simforge.probeMockProvider());
-            })}>Probe local fixture</button>
+          <div className="conversation-canvas">
+            {messages.length === 0 && <WelcomePanel connected={state.bridgeConnected} onMode={setMode} />}
+            {messages.map((message, index) => (
+              <article className={`message-row ${message.role}`} key={message.id}>
+                <div className="message-avatar">{message.role === 'assistant' ? <Sparkle size={16} weight="fill" /> : <UserCircle size={17} weight="duotone" />}</div>
+                <div className="message-body">
+                  <div className="message-meta"><strong>{message.role === 'assistant' ? 'SimForge' : 'You'}</strong><time>{formatTime(message.createdAt)}</time></div>
+                  <p>{message.text || 'Attached project context'}</p>
+                  <div className="message-actions">
+                    <button onClick={() => void branchConversation(activeConversationId, message.id)}><GitBranch size={13} /> Branch here</button>
+                    {message.role === 'user' && <button onClick={() => {
+                      const previous = messages[index - 1];
+                      void run('edit-branch', async () => {
+                        const branch = await desktop.branchConversation(activeConversationId, previous?.id ?? null);
+                        setConversations(await desktop.listConversations(search));
+                        setActiveConversationId(branch.id);
+                        setComposer(message.text);
+                      });
+                    }}><ArrowCounterClockwise size={13} /> Edit & resend</button>}
+                    {message.role === 'assistant' && index > 0 && <button onClick={() => setComposer(messages[index - 1]?.text ?? '')}><ArrowClockwise size={13} /> Retry</button>}
+                  </div>
+                </div>
+              </article>
+            ))}
+            {state.mode === 'plan' && <PlanCard goal={goalText} setGoal={setGoalText} onCreate={createPlan} busy={busy === 'plan'} />}
+            {state.mode === 'goal' && <GoalCard job={job} onNext={runNextTask} onCommand={(command) => void run(`goal-${command}`, async () => {
+              if (!job) return;
+              const result = await desktop.commandGoal(job.jobId, command);
+              setJob(await desktop.getGoal(result.jobId));
+            })} />}
+            {state.mode === 'build' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
           </div>
 
-          <textarea
-            value={goal}
-            disabled={busy || Boolean(job)}
-            onChange={(event) => setGoal(event.target.value)}
-            aria-label="Goal description"
-            placeholder="Describe a goal, for example: Create one inspection cube in the current Blender scene."
-          />
-          {!job ? (
-            <button className="primary" disabled={busy || !goal.trim()} onClick={() => void run(async () => {
-              const created = await window.simforge.createGoal({ goal, tasks: PLAN_TASKS });
-              setJob(await window.simforge.getGoal(created.jobId));
-            })}>Create task plan</button>
-          ) : (
-            <div className="plan-card">
-              <div className="plan-title">
-                <strong>Plan: {job.status}</strong><span>{job.planHash.slice(0, 10)}</span>
-              </div>
-              <ol>{job.tasks.map((task) => (
-                <li className={task.status} key={task.taskIndex}>
-                  {task.description} <small>{task.status}{task.attempts ? ` / attempt ${task.attempts}` : ''}</small>
-                </li>
-              ))}</ol>
-              <p className="validation-state">Validation gate: {validation
-                ? `r${validation.sceneRevision} / ${validation.summary.error + validation.summary.blocker} blocking`
-                : 'not run for this project'}.</p>
-              <div className="actions wrap">
-                {job.status === 'awaiting-approval' && <button className="primary" disabled={busy} onClick={() => void run(async () => {
-                  await window.simforge.approveGoal(job.jobId, job.planHash);
-                  setJob(await window.simforge.getGoal(job.jobId));
-                })}>Approve exact plan</button>}
-                {(job.status === 'ready' || job.status === 'paused') && <button className="primary" disabled={busy} onClick={() => void run(() => runJobCommand('start'))}>Start / resume</button>}
-                {job.status === 'running' && <>
-                  <button className="primary" disabled={busy} onClick={() => void run(async () => setJob(await window.simforge.runNextGoalTask(job.jobId)))}>Run next task</button>
-                  <button className="secondary top" disabled={busy} onClick={() => void run(() => runJobCommand('pause'))}>Pause</button>
-                </>}
-                {job.status === 'failed' && <button className="primary" disabled={busy} onClick={() => void run(() => runJobCommand('retry'))}>Retry failed task</button>}
-                {!['completed', 'cancelled'].includes(job.status) && <button className="secondary top" disabled={busy} onClick={() => void run(() => runJobCommand('cancel'))}>Cancel</button>}
-                <button className="secondary top" disabled={busy} onClick={() => void run(() => runJobCommand('rewind', 0))}>Rewind</button>
-                <button className="secondary top" disabled={busy} onClick={() => void run(() => runJobCommand('branch'))}>Branch</button>
-              </div>
-            </div>
-          )}
-
-          <div className="foundation-actions">
-            <button className="secondary" disabled={busy || !state.bridgeConnected} onClick={() => void run(async () => {
-              setState(await window.simforge.refreshScene());
-            })}>Refresh live scene</button>
-            <button className="secondary" disabled={busy || !state.bridgeConnected || state.sceneRevision === null || state.mode === 'plan'} onClick={() => void run(async () => {
-              setState(await window.simforge.executeTool({
-                toolId: 'object.create_primitive',
-                args: { primitive: 'CUBE', name: 'SimForge Cube', location: [0, 0, 1] },
-                planHash: job?.planHash ?? null,
-                planApproved: Boolean(job && job.status !== 'awaiting-approval'),
-                approvalId: null,
-              }));
-            })}>Create checkpointed cube</button>
-            <button className="secondary" disabled={busy || !state.bridgeConnected || state.mode === 'plan' || state.mode === 'goal'} onClick={() => void run(async () => {
-              setState(await window.simforge.runMockThinSlice(goal));
-            })}>Run local AI-to-Blender slice</button>
-          </div>
-
-          <section className="robot-card">
-            <div className="panel-heading compact">
-              <div><p className="eyebrow">ROBOTICS BUILD</p><h2>Versioned primitive wheeled robot</h2></div>
-              <span className="robot-schema">RobotGraph v{robotProposal?.graph.schemaVersion ?? '-'}</span>
-            </div>
-            <p className="muted">{robotProposal?.summary ?? 'Preparing deterministic RobotGraph...'}. Physical values remain labeled assumptions.</p>
-            {robotBuilt && <p className="validation-state">Robot is materialized in Blender and the deterministic robotics channel is active.</p>}
-            {robotProposal && <ul className="robot-facts">
-              <li>{robotProposal.graph.materials.length} assigned materials</li>
-              <li>{robotProposal.graph.links.filter((link) => link.collision).length} collision primitives</li>
-              <li>{robotProposal.graph.assumptions.length} explicit assumptions</li>
-            </ul>}
-            <div className="actions wrap">
-              {!robotBuilt && !robotApproval && <button className="primary" disabled={busy || !robotProposal || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
-                if (!robotProposal) return;
-                setRobotApproval(await window.simforge.approveAction({
-                  planHash: robotProposal.planHash,
-                  toolId: robotProposal.toolId,
-                  args: robotProposal.args,
-                }));
-              })}>Approve exact robot build</button>}
-              {!robotBuilt && robotApproval && <button className="primary" disabled={busy} onClick={() => void run(async () => {
-                const built = await window.simforge.buildPrimitiveRobot(robotApproval);
-                setState(built.state);
-                setValidation(built.validation);
-                setRobotApproval(null);
-                setCheckpoints(await window.simforge.listCheckpoints());
-              })}>Build approved robot</button>}
-              <button className="secondary top" disabled={busy || !state.bridgeConnected || state.mode === 'plan' || !robotBuilt} onClick={() => void run(async () => {
-                const manifest = await window.simforge.renderPrimitiveRobotReview('Primitive robot readiness');
-                setReview(manifest);
-                const entries = await Promise.all(manifest.images.map(async (image) => [
-                  image.view,
-                  await window.simforge.getReviewImage(manifest.reviewId, image.view),
-                ] as const));
-                setReviewImages(Object.fromEntries(entries));
-              })}>Render materialized review</button>
-            </div>
-            {review && <div className="review-result">
-              <div className="review-heading"><b>{review.label}</b><span>scene r{review.sceneRevision} / advisory images</span></div>
-              <div className="review-grid">{review.images.map((image) => <figure key={image.view}>
-                {reviewImages[image.view] && <img src={reviewImages[image.view]} alt={`${image.view} materialized robot review`} />}
-                <figcaption>{image.view}</figcaption>
-              </figure>)}</div>
+          <div className="composer-dock">
+            {pendingAttachmentIds.length > 0 && <div className="attachment-strip">
+              {attachments.filter((entry) => pendingAttachmentIds.includes(entry.id)).map((entry) => (
+                <span key={entry.id}><Paperclip size={12} />{entry.name}<button onClick={() => setPendingAttachmentIds((current) => current.filter((id) => id !== entry.id))}><X size={11} /></button></span>
+              ))}
             </div>}
-          </section>
-
-          <section className="settings-card">
-            <div className="panel-heading compact">
-              <div><p className="eyebrow">AI PROVIDER</p><h2>NVIDIA-first runtime discovery</h2></div>
-              <select value={providerId} onChange={(event) => setProviderId(event.target.value as CloudProviderId)}>
-                <option value="nvidia">NVIDIA</option><option value="openai">OpenAI (optional)</option>
-              </select>
+            <div className="mode-switcher" aria-label="Operating mode">
+              {MODES.map((mode) => <button key={mode.id} className={state.mode === mode.id ? 'active' : ''} onClick={() => void setMode(mode.id)} title={mode.hint}>{mode.label}</button>)}
+              <span className="authority-note">{MODES.find((mode) => mode.id === state.mode)?.hint}</span>
             </div>
-            <p className="muted">Credential: {providerStatus?.configured ? 'stored with Windows protection' : 'not configured'}. It is never returned to this UI.</p>
-            <div className="inline-form">
-              <input type="password" autoComplete="off" value={credential} placeholder={`${providerId} API key`} onChange={(event) => setCredential(event.target.value)} />
-              <button className="secondary" disabled={busy || credential.length < 8} onClick={() => void run(async () => {
-                setProviderStatus(await window.simforge.configureProvider(providerId, credential));
-                setCredential('');
-              })}>Save key</button>
-              <button className="secondary" disabled={busy || !providerStatus?.configured} onClick={() => void run(async () => {
-                setProviderStatus(await window.simforge.removeProvider(providerId));
-                setModels([]);
-              })}>Remove</button>
+            <div className="composer-row">
+              <button className="composer-tool" onClick={attach} disabled={!activeConversationId || Boolean(busy)} aria-label="Attach project files"><Paperclip size={19} /></button>
+              <textarea value={composer} onChange={(event) => setComposer(event.target.value)} onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void send(); }
+              }} placeholder={state.mode === 'plan' ? 'Describe what you want planned…' : 'Ask SimForge to inspect, explain, or prepare scene work…'} />
+              {busy === 'sending'
+                ? <button className="send-button stop" onClick={() => void desktop.stopChat(activeConversationId)} aria-label="Stop response"><Stop size={18} weight="fill" /></button>
+                : <button className="send-button" onClick={send} disabled={!composer.trim() || Boolean(busy)} aria-label="Send message"><PaperPlaneTilt size={19} weight="fill" /></button>}
             </div>
-            <div className="inline-form">
-              <button className="secondary" disabled={busy || !providerStatus?.configured} onClick={() => void run(async () => {
-                const discovered = await window.simforge.discoverProviderModels(providerId);
-                setModels(discovered);
-                setSelectedModel(discovered[0]?.modelId ?? '');
-                setProviderStatus(await window.simforge.providerStatus(providerId));
-              })}>Discover models</button>
-              <select value={selectedModel} disabled={!models.length} onChange={(event) => setSelectedModel(event.target.value)}>
-                <option value="">Select discovered model</option>
-                {models.map((model) => <option value={model.modelId} key={model.modelId}>{model.modelId}</option>)}
-              </select>
-              <button className="secondary" disabled={busy || !selectedModel} onClick={() => void run(async () => {
-                setProviderProbe(await window.simforge.probeProvider(providerId, selectedModel));
-              })}>Send disclosed text probe</button>
+            <div className="composer-footer">
+              <button onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}><Sparkle size={13} /> {routeLabel}</button>
+              <button onClick={() => void run('compact', async () => setContext(await desktop.compactConversation(activeConversationId)))}><ArrowsClockwise size={13} /> Context {context?.percentUsed ?? 0}%</button>
+              <span>{settings.cloudProcessing ? 'Cloud dispatch disclosed before send' : 'Local-only · cloud disabled'}</span>
             </div>
-            <p className="disclosure">Before dispatch: provider <b>{providerId}</b>; model <b>{selectedModel || 'not selected'}</b>; data <b>one probe prompt</b>; attachments <b>none</b>; purpose <b>non-mutating capability test</b>.</p>
-            {providerProbe && <p className="success">{providerProbe.selectionReason}. Vision: {String(providerProbe.model.capabilities.vision)}.</p>}
-          </section>
-
-          <section className="doctor-card">
-            <p className="eyebrow">ENVIRONMENT DOCTOR</p>
-            <ul>{doctor.map((check) => <li key={check.id} className={check.ok ? 'ok' : 'missing'}><b>{check.id}</b>: {check.summary}</li>)}</ul>
-          </section>
-
-          <div className="provider-card">
-            <span className="icon-dot" />
-            <div><strong>{mockProvider ? `${mockProvider.providerId} / ${mockProvider.modelId}` : 'Local deterministic fixture idle'}</strong>
-              <p>No cloud data is sent by the fixture. Cloud dispatches use the disclosure shown above.</p></div>
           </div>
         </section>
 
-        <aside className="activity panel">
-          <section className="validation-dock">
-            <div className="panel-heading">
-              <div><p className="eyebrow">VALIDATION</p><h2>Deterministic scene evidence</h2></div>
-              <button className="icon-button" disabled={busy || !state.bridgeConnected} onClick={() => void run(async () => {
-                setValidation(await window.simforge.runValidation());
-                setValidationApprovals({});
-                setCheckpoints(await window.simforge.listCheckpoints());
-              })}>Run fresh</button>
+        <aside className="inspection-column">
+          <section className="viewport-panel">
+            <header className="panel-header">
+              <div><small>LIVE 3D INSPECTION</small><strong>{preview ? `Scene r${preview.sceneRevision}` : 'No preview yet'}</strong></div>
+              <div><button className={`icon-button ${viewportMode === 'review' ? 'active' : ''}`} onClick={() => viewportMode === 'review' ? setViewportMode('live') : reviews.length ? void showReviewComparison() : void renderReview()} disabled={(!validation && reviews.length === 0) || busy === 'review' || busy === 'review-load'} aria-label="Show before and after materialized reviews"><ImageSquare size={17} /></button><button className="icon-button" onClick={generatePreview} disabled={!state.bridgeConnected || busy === 'preview'} aria-label="Refresh 3D preview"><ArrowsClockwise size={17} /></button><button className="icon-button" onClick={() => void desktop.openSceneInBlender().catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Could not open Blender'))} aria-label="Open scene in Blender"><CubeFocus size={17} /></button></div>
+            </header>
+            <div className="viewport-stage">
+              {viewportMode === 'review' && review
+                ? <div className="review-gallery comparison-gallery">{reviews.slice(0, 2).reverse().map((manifest, index) => <figure key={manifest.reviewId}><img src={reviewImages[`${manifest.reviewId}:three-quarter`]} alt={`${manifest.label} materialized review at scene revision ${manifest.sceneRevision}`} /><figcaption>{reviews.length > 1 ? (index === 0 ? 'Before' : 'After') : manifest.label} · r{manifest.sceneRevision}</figcaption></figure>)}</div>
+                : previewData && preview
+                ? <ThreeViewport dataUrl={previewData} manifest={preview} selectedId={selectedObjectId} onSelect={selectPreviewObject} />
+                : <div className="viewport-empty"><CubeFocus size={40} weight="duotone" /><strong>{state.bridgeConnected ? 'Capture the live Blender scene' : 'Waiting for Blender'}</strong><p>{state.bridgeConnected ? 'Orbit, pan, zoom, and inspect exact scene objects.' : 'Start Blender from the SimForge launcher to connect.'}</p><button onClick={generatePreview} disabled={!state.bridgeConnected}>Generate preview</button></div>}
+              {previewStale && <div className="stale-banner"><Warning size={15} weight="fill" /> Preview is stale. Refresh before trusting it.</div>}
             </div>
-            {!validation ? <p className="validation-empty">No validation run yet. Connect Blender and inspect the current revision.</p> : <>
-              <div className="validation-summary">
-                <span className="blocker">{validation.summary.blocker} blocker</span>
-                <span className="error">{validation.summary.error} errors</span>
-                <span className="warning">{validation.summary.warning} warnings</span>
-                <span>{validation.summary.info} info</span>
-                <small>fresh scene r{validation.sceneRevision}</small>
-              </div>
-              <ul className="finding-list">
-                {validation.findings.length === 0 && <li className="finding-pass">No deterministic geometry findings.</li>}
-                {validation.findings.map((finding) => {
-                  const fix = finding.proposedFix;
-                  const approvalId = validationApprovals[finding.id];
-                  const planHash = `validation:${validation.id}`;
-                  return <li key={finding.id} className={`finding ${finding.severity}`}>
-                    <div className="finding-title"><b>{finding.ruleId}</b><span>{finding.severity}</span></div>
-                    <p>{finding.message}</p>
-                    <small>{finding.entityPath}</small>
-                    {finding.assumptions.map((assumption) => <small key={assumption}>Assumption: {assumption}</small>)}
-                    {fix?.fixClass === 'SAFE_LOCAL' && <button className="finding-action" disabled={busy || state.mode === 'plan'} onClick={() => void run(async () => {
-                      setValidation(await window.simforge.applyValidationFix({
-                        findingId: finding.id,
-                        planHash: null,
-                        approvalId: null,
-                      }));
-                      setCheckpoints(await window.simforge.listCheckpoints());
-                    })}>Apply reversible safe fix</button>}
-                    {fix && fix.fixClass !== 'SAFE_LOCAL' && !approvalId && <button className="finding-action approval" disabled={busy || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
-                      const approved = await window.simforge.approveAction({
-                        planHash,
-                        toolId: fix.toolId,
-                        args: fix.args,
-                      });
-                      setValidationApprovals((current) => ({ ...current, [finding.id]: approved }));
-                    })}>Approve exact {fix.fixClass.toLowerCase()} fix</button>}
-                    {fix && fix.fixClass !== 'SAFE_LOCAL' && approvalId && <button className="finding-action" disabled={busy} onClick={() => void run(async () => {
-                      setValidation(await window.simforge.applyValidationFix({
-                        findingId: finding.id,
-                        planHash,
-                        approvalId,
-                      }));
-                      setValidationApprovals({});
-                      setCheckpoints(await window.simforge.listCheckpoints());
-                    })}>Apply approved fix</button>}
-                  </li>;
-                })}
-              </ul>
-              <button className="secondary validation-undo" disabled={busy || state.mode === 'plan'} onClick={() => void run(async () => {
-                setValidation(await window.simforge.undoLatestValidationFix());
-                setCheckpoints(await window.simforge.listCheckpoints());
-              })}>Undo latest safe fix</button>
-            </>}
-            <details className="checkpoint-history">
-              <summary>Recovery checkpoints ({checkpoints.length})</summary>
-              <ul>{checkpoints.slice(0, 8).map((checkpoint) => {
-                const planHash = `restore:${checkpoint.id}`;
-                const approvalId = restoreApprovals[checkpoint.id];
-                return <li key={checkpoint.id}>
-                  <div><b>{checkpoint.label}</b><small>r{checkpoint.sceneRevision} / {new Date(checkpoint.createdAt).toLocaleTimeString()}</small></div>
-                  {!checkpoint.completeProjectState && <small>Blender-only legacy checkpoint</small>}
-                  {checkpoint.completeProjectState && !approvalId && <button disabled={busy || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
-                    const approved = await window.simforge.approveCheckpointRestore(checkpoint.id, planHash);
-                    setRestoreApprovals((current) => ({ ...current, [checkpoint.id]: approved }));
-                  })}>Approve restore</button>}
-                  {checkpoint.completeProjectState && approvalId && <button disabled={busy} onClick={() => void run(async () => {
-                    setValidation(await window.simforge.restoreCheckpoint(checkpoint.id, planHash, approvalId));
-                    setRestoreApprovals({});
-                    setCheckpoints(await window.simforge.listCheckpoints());
-                  })}>Restore approved checkpoint</button>}
-                </li>;
-              })}</ul>
-            </details>
+            {preview && <ObjectInspector objects={preview.objects} selectedId={selectedObjectId} onSelect={selectPreviewObject} />}
+            <div className="viewport-footer">
+              <span><span className={`connection-dot ${state.bridgeConnected ? 'online' : ''}`} /> {state.bridgeConnected ? 'Blender live' : 'Disconnected'}</span>
+              <span>{preview ? `${preview.objects.length} objects · ${(preview.bytes / 1024).toFixed(0)} KB` : 'GLB preview is generated on demand'}</span>
+            </div>
           </section>
-          <section className="export-dock">
-            <div className="panel-heading">
-              <div><p className="eyebrow">VERIFIED USD</p><h2>Explicit export and reopen</h2></div>
-              <span className="export-ready">{exports[0]?.verified ? 'last verified' : 'not exported'}</span>
+
+          <section className="dock-panel">
+            <nav className="dock-tabs">
+              <DockButton id="activity" label="Activity" icon={<ClockCounterClockwise size={15} />} active={dockTab} set={setDockTab} />
+              <DockButton id="validation" label="Validate" icon={<ListChecks size={15} />} active={dockTab} set={setDockTab} {...(validation ? { badge: validation.summary.blocker + validation.summary.error } : {})} />
+              <DockButton id="export" label="Export" icon={<Export size={15} />} active={dockTab} set={setDockTab} />
+              <DockButton id="history" label="History" icon={<GitBranch size={15} />} active={dockTab} set={setDockTab} />
+            </nav>
+            <div className="dock-content">
+              {dockTab === 'activity' && <ActivityDock timeline={timeline} onRefresh={() => void run('refresh', refreshWorkspace)} />}
+              {dockTab === 'validation' && <ValidationDock validation={validation} busy={busy} onRun={runValidation} onFix={(findingId) => void run('fix', async () => {
+                setValidation(await desktop.applyValidationFix({ findingId, planHash: null, approvalId: null }));
+                await refreshWorkspace();
+              })} onUndo={() => void run('undo', async () => { setValidation(await desktop.undoLatestValidationFix()); await refreshWorkspace(); })} />}
+              {dockTab === 'export' && <ExportDock exports={exports} validation={validation} onComplete={async () => { setExports(await desktop.listExports()); setTimeline(await desktop.getTimeline()); }} run={run} />}
+              {dockTab === 'history' && <HistoryDock checkpoints={checkpoints} versions={versions} timeline={timeline} run={run} onRefresh={refreshWorkspace} />}
             </div>
-            <div className="export-controls">
-              <select value={exportKind} onChange={(event) => {
-                setExportKind(event.target.value as ExportKind);
-                setExportDestination('');
-                setExportProposal(null);
-                setExportApproval(null);
-              }}>
-                <option value="canonical">Canonical package</option>
-                <option value="quick">Quick .usdc</option>
-              </select>
-              <button className="secondary" disabled={busy} onClick={() => void run(async () => {
-                const selected = await window.simforge.chooseExportDestination(exportKind);
-                if (selected) {
-                  setExportDestination(selected);
-                  setExportProposal(null);
-                  setExportApproval(null);
-                }
-              })}>Choose destination</button>
-            </div>
-            <p className="export-path">{exportDestination || 'No destination selected.'}</p>
-            <label className="overwrite-control">
-              <input type="checkbox" checked={exportOverwrite} onChange={(event) => {
-                setExportOverwrite(event.target.checked);
-                setExportProposal(null);
-                setExportApproval(null);
-              }} /> Explicitly approve replacing an existing destination
-            </label>
-            {!exportProposal && <button className="secondary export-action" disabled={
-              busy || !robotBuilt || !exportDestination || !['build', 'goal'].includes(state.mode)
-            } onClick={() => void run(async () => {
-              setExportProposal(await window.simforge.proposeExport(exportKind, exportDestination, exportOverwrite));
-              setExportApproval(null);
-            })}>Review exact export</button>}
-            {exportProposal && <div className="export-proposal">
-              <b>{exportProposal.kind === 'canonical' ? 'Canonical package approval' : 'Quick file approval'}</b>
-              <p>{exportProposal.summary}</p>
-              <small>scene r{exportProposal.sceneRevision} / plan {exportProposal.planHash.slice(0, 16)}</small>
-              <small>Destination: {exportProposal.destination}</small>
-              <small>Overwrite: {exportProposal.overwrite ? 'explicitly allowed' : 'denied'}</small>
-              {!exportApproval ? <button className="primary" disabled={busy} onClick={() => void run(async () => {
-                setExportApproval(await window.simforge.approveAction({
-                  planHash: exportProposal.planHash,
-                  toolId: exportProposal.toolId,
-                  args: exportProposal.args,
-                }));
-              })}>Approve destination and {exportProposal.kind === 'canonical' ? 'final package' : 'quick file'}</button> :
-                <button className="primary" disabled={busy} onClick={() => void run(async () => {
-                  const result = await window.simforge.executeExport(exportProposal, exportApproval);
-                  const history = await window.simforge.listExports();
-                  setExports([result, ...history.filter((entry) => entry.exportId !== result.exportId)]);
-                  setExportProposal(null);
-                  setExportApproval(null);
-                })}>Export, reopen, and verify</button>}
-              <button className="secondary" disabled={busy} onClick={() => {
-                setExportProposal(null);
-                setExportApproval(null);
-              }}>Cancel proposal</button>
-            </div>}
-            {exports[0] && <div className="export-result">
-              <div><b>{exports[0].kind} export verified</b><span>scene r{exports[0].sceneRevision}</span></div>
-              <p>{exports[0].destination}</p>
-              <small>{exports[0].checks.filter((check) => check.status === 'PASS').length}/{exports[0].checks.length} deterministic checks passed</small>
-              <small>Machine: {exports[0].machineResultsPath}</small>
-              <small>Report: {exports[0].readinessReportPath}</small>
-            </div>}
           </section>
-          <div className="panel-heading">
-            <div><p className="eyebrow">ACTIVITY</p><h2>Auditable state changes</h2></div>
-            <button className="icon-button" onClick={() => void refreshState()} aria-label="Refresh activity">Refresh</button>
-          </div>
-          <ul className="activity-list">
-            {state.activities.length === 0 && <li className="empty">No activity yet.</li>}
-            {state.activities.map((item) => (
-              <li key={item.id}><span className="activity-mark" /><div>
-                <div className="activity-meta"><b>{item.phase}</b><time>{new Date(item.createdAt).toLocaleTimeString()}</time></div>
-                <p>{item.summary}</p>
-                {item.details && <small>{Object.entries(item.details).map(([key, value]) => `${key}: ${String(value)}`).join(' / ')}</small>}
-              </div></li>
-            ))}
-          </ul>
+
+          <section className="review-strip">
+            <div><small>VERIFIED USD DELIVERY</small><strong>{exports[0] ? `${exports[0].kind} package · scene r${exports[0].sceneRevision}` : 'Choose destination, approve, export, reopen'}</strong><span>{exports[0]?.verified ? 'Latest package passed deterministic reopen checks' : 'Validation evidence is required before delivery'}</span></div>
+            <button onClick={() => setDockTab('export')}><Export size={16} /> {exports[0] ? 'Export again' : 'Open export'}</button>
+          </section>
         </aside>
       </div>
+
+      {error && <div className="error-toast" role="alert"><Warning size={18} weight="fill" /><span>{error}</span><button onClick={() => setError(null)} aria-label="Dismiss error"><X size={16} /></button></div>}
+      {settingsOpen && <SettingsModal settings={settings} setSettings={setSettings} tab={settingsTab} setTab={setSettingsTab} close={() => setSettingsOpen(false)} run={run} />}
     </main>
   );
 }
 
-const root = document.getElementById('root');
-if (!root) throw new Error('Renderer root is missing');
-createRoot(root).render(<StrictMode><App /></StrictMode>);
+function WelcomePanel({ connected, onMode }: { connected: boolean; onMode: (mode: Mode) => void }) {
+  return <section className="welcome-panel">
+    <span className="welcome-icon"><Robot size={30} weight="duotone" /></span>
+    <small>AI-DRIVEN BLENDER ROBOTICS</small>
+    <h2>What should we build?</h2>
+    <p>Describe a robot or scene goal. SimForge will inspect Blender, prepare a reviewable plan, checkpoint changes, validate deterministic evidence, and export verified USD.</p>
+    <div className="welcome-actions">
+      <button onClick={() => onMode('plan')}><ListChecks size={16} /> Start with a plan</button>
+      <button onClick={() => onMode('build')}><Robot size={16} /> Open build tools</button>
+    </div>
+    <span className={`welcome-status ${connected ? 'ready' : ''}`}><span className="connection-dot online" />{connected ? 'Blender is connected and ready' : 'Blender will connect automatically when available'}</span>
+  </section>;
+}
+
+function PlanCard({ goal, setGoal, onCreate, busy }: { goal: string; setGoal: (value: string) => void; onCreate: () => void; busy: boolean }) {
+  return <section className="workflow-card"><header><span><ListChecks size={19} weight="duotone" /></span><div><small>PLAN MODE · READ ONLY</small><h3>Prepare a reviewable task plan</h3></div></header><textarea value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="Describe the robot, scene, or correction you want to create…" /><ol>{PLAN_TASKS.map((task) => <li key={task.id}><Check size={13} />{task.description}</li>)}</ol><button className="primary-action" onClick={onCreate} disabled={!goal.trim() || busy}>{busy ? 'Preparing…' : 'Create and approve plan'}</button></section>;
+}
+
+function GoalCard({ job, onNext, onCommand }: { job: GoalJobView | null; onNext: () => void; onCommand: (command: 'pause' | 'start' | 'cancel' | 'retry' | 'branch') => void }) {
+  if (!job) return <section className="workflow-card"><p>No active goal. Switch to Plan to create one.</p></section>;
+  return <section className="workflow-card"><header><span><Play size={19} weight="fill" /></span><div><small>GOAL MODE · PERSISTENT</small><h3>{job.status === 'completed' ? 'Goal completed' : 'Approved execution plan'}</h3></div><span className={`job-status ${job.status}`}>{job.status}</span></header><ol className="task-list">{job.tasks.map((task) => <li className={task.status} key={`${task.taskIndex}-${task.id}`}><span>{task.status === 'completed' ? <Check size={13} /> : task.taskIndex + 1}</span><div>{task.description}<small>{task.status}{task.error ? ` · ${task.error}` : ''}</small></div></li>)}</ol><div className="card-actions"><button className="primary-action" onClick={onNext} disabled={!['running', 'approved'].includes(job.status)}><Play size={15} /> Run next task</button>{job.status === 'running' ? <button onClick={() => onCommand('pause')}><Pause size={15} /> Pause</button> : <button onClick={() => onCommand('start')}><Play size={15} /> Resume</button>}<button onClick={() => onCommand('branch')}><GitBranch size={15} /> Branch</button></div></section>;
+}
+
+function BuildCard({ proposal, approved, validation, onBuild, onValidate, onPreview, busy }: { proposal: RobotProposal | null; approved: boolean; validation: ValidationRun | null; onBuild: () => void; onValidate: () => void; onPreview: () => void; busy: string }) {
+  return <section className="workflow-card"><header><span><Robot size={20} weight="duotone" /></span><div><small>BUILD MODE · CHECKPOINTED</small><h3>Primitive wheeled robot</h3></div>{validation?.channels.includes('deterministic-robotics') && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> built</span>}</header><p>{proposal?.summary ?? 'Loading deterministic RobotGraph…'}</p><div className="card-actions"><button className="primary-action" onClick={onBuild} disabled={!proposal || busy === 'robot'}>{approved ? <><Robot size={15} /> Build checkpointed robot</> : <><Check size={15} /> Review & approve build</>}</button><button onClick={onValidate}><ListChecks size={15} /> Validate</button><button onClick={onPreview}><CubeFocus size={15} /> Preview</button></div></section>;
+}
+
+function ThreeViewport({ dataUrl, manifest, selectedId, onSelect }: { dataUrl: string; manifest: ScenePreviewManifest; selectedId: string | null; onSelect: (id: string | null) => void }) {
+  const host = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = host.current;
+    if (!container) return;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#071019');
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 1000);
+    camera.position.set(4.2, -5.2, 3.2);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.screenSpacePanning = true;
+    scene.add(new THREE.HemisphereLight(0xc9f8ff, 0x14202b, 2.4));
+    const key = new THREE.DirectionalLight(0xffffff, 2.8);
+    key.position.set(5, -3, 7);
+    key.castShadow = true;
+    scene.add(key);
+    const grid = new THREE.GridHelper(12, 24, 0x24515d, 0x142a34);
+    grid.rotation.x = Math.PI / 2;
+    scene.add(grid);
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let root: THREE.Object3D | null = null;
+    let selectionHelper: THREE.BoxHelper | null = null;
+    let frame = 0;
+    new GLTFLoader().load(dataUrl, (gltf) => {
+      root = gltf.scene;
+      scene.add(root);
+      root.traverse((object) => { if ((object as THREE.Mesh).isMesh) { (object as THREE.Mesh).castShadow = true; (object as THREE.Mesh).receiveShadow = true; } });
+      const box = new THREE.Box3().setFromObject(root);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const radius = Math.max(size.length() * 0.75, 1);
+      controls.target.copy(center);
+      camera.position.copy(center).add(new THREE.Vector3(radius, -radius * 1.25, radius * 0.8));
+      camera.near = Math.max(radius / 1000, 0.01);
+      camera.far = radius * 100;
+      camera.updateProjectionMatrix();
+      controls.update();
+    });
+    const click = (event: PointerEvent) => {
+      if (!root) return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObject(root, true)[0]?.object;
+      if (selectionHelper) { scene.remove(selectionHelper); selectionHelper.dispose(); selectionHelper = null; }
+      if (!hit) { onSelect(null); return; }
+      let candidate: THREE.Object3D | null = hit;
+      while (candidate?.parent && candidate.parent !== root && !manifest.objects.some((entry) => entry.name === candidate?.name)) candidate = candidate.parent;
+      const record = manifest.objects.find((entry) => entry.name === candidate?.name || entry.name === hit.name);
+      onSelect(record?.id ?? null);
+      selectionHelper = new THREE.BoxHelper(candidate ?? hit, 0x68ead0);
+      scene.add(selectionHelper);
+    };
+    renderer.domElement.addEventListener('pointerdown', click);
+    const resize = () => {
+      const width = Math.max(container.clientWidth, 1);
+      const height = Math.max(container.clientHeight, 1);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+    resize();
+    const animate = () => { controls.update(); renderer.render(scene, camera); frame = requestAnimationFrame(animate); };
+    animate();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      renderer.domElement.removeEventListener('pointerdown', click);
+      controls.dispose();
+      renderer.dispose();
+      scene.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        mesh.geometry?.dispose?.();
+        const materials = Array.isArray(mesh.material) ? mesh.material : mesh.material ? [mesh.material] : [];
+        materials.forEach((material) => material.dispose());
+      });
+      if (renderer.domElement.parentElement === container) container.removeChild(renderer.domElement);
+    };
+  }, [dataUrl, manifest, onSelect]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    // Selection from the hierarchy remains visible in the inspector even when the GLB has flattened names.
+  }, [selectedId]);
+  return <div className="three-viewport" ref={host} aria-label="Interactive exact-revision 3D scene preview" />;
+}
+
+function ObjectInspector({ objects, selectedId, onSelect }: { objects: SceneObject[]; selectedId: string | null; onSelect: (id: string) => void }) {
+  const selected = objects.find((entry) => entry.id === selectedId) ?? null;
+  return <div className="object-inspector"><div className="hierarchy-list">{objects.slice(0, 14).map((object) => <button key={object.id} className={object.id === selectedId ? 'active' : ''} style={{ paddingLeft: `${8 + depthOf(object, objects) * 12}px` }} onClick={() => onSelect(object.id)}><CubeFocus size={12} />{object.name}</button>)}</div>{selected && <div className="object-details"><strong>{selected.name}</strong><span>{selected.type} · {selected.materialNames.join(', ') || 'No material'}</span><span>{selected.dimensions.map((value) => value.toFixed(2)).join(' × ')} m</span></div>}</div>;
+}
+
+function DockButton({ id, label, icon, active, set, badge }: { id: DockTab; label: string; icon: React.ReactNode; active: DockTab; set: (id: DockTab) => void; badge?: number }) {
+  return <button className={active === id ? 'active' : ''} onClick={() => set(id)}>{icon}<span>{label}</span>{badge ? <b>{badge}</b> : null}</button>;
+}
+
+function ActivityDock({ timeline, onRefresh }: { timeline: TimelineEventView[]; onRefresh: () => void }) {
+  return <><div className="dock-heading"><div><small>AUDITABLE ACTIVITY</small><strong>What changed, and why</strong></div><button className="icon-button" onClick={onRefresh} aria-label="Refresh activity"><ArrowsClockwise size={15} /></button></div><div className="timeline-list">{timeline.filter((entry) => entry.kind === 'activity').slice(0, 20).map((entry) => <div className="timeline-item" key={entry.id}><span className="timeline-dot" /><div><strong>{entry.title}</strong><small>{entry.detail}{entry.sceneRevision !== null ? ` · r${entry.sceneRevision}` : ''}</small></div><time>{formatTime(entry.createdAt)}</time></div>)}</div></>;
+}
+
+function ValidationDock({ validation, busy, onRun, onFix, onUndo }: { validation: ValidationRun | null; busy: string; onRun: () => void; onFix: (id: string) => void; onUndo: () => void }) {
+  return <><div className="dock-heading"><div><small>DETERMINISTIC VALIDATION</small><strong>{validation ? `Scene r${validation.sceneRevision}` : 'Not run yet'}</strong></div><button onClick={onRun} disabled={busy === 'validation'}><ListChecks size={15} /> Run</button></div>{validation && <div className="severity-grid"><span><b>{validation.summary.blocker}</b> blocker</span><span><b>{validation.summary.error}</b> errors</span><span><b>{validation.summary.warning}</b> warnings</span><span><b>{validation.summary.info}</b> info</span></div>}<div className="finding-list">{validation?.findings.slice(0, 18).map((finding) => <article className={`finding ${finding.severity}`} key={finding.id}><div><span>{finding.ruleId}</span><b>{finding.severity}</b></div><p>{finding.message}</p><small>{finding.entityPath}</small>{finding.proposedFix && <button onClick={() => onFix(finding.id)} disabled={finding.proposedFix.approvalRequired}>Apply {finding.proposedFix.label}</button>}</article>) ?? <div className="dock-empty"><ListChecks size={26} /><p>Run checks to inspect geometry, robotics, physics, and metadata.</p></div>}</div><button className="text-action" onClick={onUndo}><ArrowCounterClockwise size={14} /> Undo latest safe fix</button></>;
+}
+
+function ExportDock({ exports, validation, onComplete, run }: { exports: ExportResult[]; validation: ValidationRun | null; onComplete: () => Promise<void>; run: (name: string, action: () => Promise<void>) => Promise<void> }) {
+  const [kind, setKind] = useState<ExportKind>('canonical');
+  const [destination, setDestination] = useState('');
+  const [overwrite, setOverwrite] = useState(false);
+  const [proposal, setProposal] = useState<ExportProposal | null>(null);
+  const [approval, setApproval] = useState<string | null>(null);
+  const choose = () => run('export-path', async () => { const selected = await desktop.chooseExportDestination(kind); if (selected) { setDestination(selected); setProposal(null); setApproval(null); } });
+  const prepare = () => run('export-proposal', async () => { const next = await desktop.proposeExport(kind, destination, overwrite); setProposal(next); setApproval(null); });
+  const approve = () => run('export-approval', async () => {
+    if (!proposal) return;
+    setApproval(await desktop.approveAction({ planHash: proposal.planHash, toolId: proposal.toolId, args: proposal.args }));
+  });
+  const execute = () => run('export', async () => { if (!proposal || !approval) return; await desktop.executeExport(proposal, approval); setProposal(null); setApproval(null); await onComplete(); });
+  return <><div className="dock-heading"><div><small>VERIFIED OPENUSD</small><strong>Export scene package</strong></div>{validation && <span className={validation.summary.blocker + validation.summary.error === 0 ? 'verified-pill' : 'warning-pill'}>{validation.summary.blocker + validation.summary.error === 0 ? 'ready' : 'blocked'}</span>}</div><div className="segmented"><button className={kind === 'quick' ? 'active' : ''} onClick={() => setKind('quick')}>Quick USD</button><button className={kind === 'canonical' ? 'active' : ''} onClick={() => setKind('canonical')}>Canonical package</button></div><label className="path-field"><span>Destination</span><button onClick={choose}>{destination ? shortenPath(destination) : 'Choose…'}</button></label><label className="toggle-row"><input type="checkbox" checked={overwrite} onChange={(event) => { setOverwrite(event.target.checked); setProposal(null); }} /><span>Allow replacing the exact destination</span></label><div className="export-steps"><button className={proposal ? 'done' : ''} onClick={prepare} disabled={!destination}><span>{proposal ? <Check size={13} /> : '1'}</span>Review exact export</button><button className={approval ? 'done' : ''} onClick={approve} disabled={!proposal}><span>{approval ? <Check size={13} /> : '2'}</span>Approve destination</button><button onClick={execute} disabled={!proposal || !approval}><span>3</span>Export and reopen</button></div><div className="recent-exports">{exports.slice(0, 3).map((entry) => <div key={entry.exportId}><CheckCircle size={15} weight="fill" /><span><strong>{entry.kind} · scene r{entry.sceneRevision}</strong><small>{shortenPath(entry.destination)}</small></span></div>)}</div></>;
+}
+
+function HistoryDock({ checkpoints, versions, timeline, run, onRefresh }: { checkpoints: CheckpointView[]; versions: VersionView[]; timeline: TimelineEventView[]; run: (name: string, action: () => Promise<void>) => Promise<void>; onRefresh: () => Promise<void> }) {
+  const createVersion = (checkpoint: CheckpointView) => {
+    const name = window.prompt('Name this version', checkpoint.label);
+    if (!name) return;
+    void run('version', async () => { await desktop.createVersion(name, checkpoint.id); await onRefresh(); });
+  };
+  const restore = (checkpoint: CheckpointView) => {
+    if (!window.confirm(`Restore checkpoint “${checkpoint.label}”? Current project state will be replaced after approval.`)) return;
+    void run('restore', async () => {
+      const planHash = `restore:${checkpoint.id}`;
+      const approvalId = await desktop.approveCheckpointRestore(checkpoint.id, planHash);
+      await desktop.restoreCheckpoint(checkpoint.id, planHash, approvalId);
+      await onRefresh();
+    });
+  };
+  const branchVersion = (version: VersionView) => {
+    const name = window.prompt('Name this branch', `${version.name} branch`);
+    if (!name) return;
+    void run('version-branch', async () => {
+      await desktop.createVersion(name, version.checkpointId, version.id);
+      await onRefresh();
+    });
+  };
+  return <><div className="dock-heading"><div><small>VERSIONS & BRANCHES</small><strong>Recoverable project history</strong></div></div><div className="history-section"><h4>Named versions</h4>{versions.slice(0, 6).map((version) => <div className="history-row" key={version.id}><GitBranch size={15} /><span><strong>{version.name}</strong><small>r{version.sceneRevision}{version.branchOf ? ' · branch' : ''}</small></span><button onClick={() => branchVersion(version)}>Branch</button></div>)}{versions.length === 0 && <p className="muted-copy">Create a named version from any checkpoint below.</p>}</div><div className="history-section"><h4>Checkpoints</h4>{checkpoints.slice(0, 8).map((checkpoint) => <div className="history-row" key={checkpoint.id}><ClockCounterClockwise size={15} /><span><strong>{checkpoint.label}</strong><small>scene r{checkpoint.sceneRevision} · {relativeTime(checkpoint.createdAt)}</small></span><button onClick={() => createVersion(checkpoint)}>Name</button><button onClick={() => restore(checkpoint)}>Restore</button></div>)}</div><div className="history-section"><h4>Recent evidence</h4>{timeline.filter((entry) => entry.kind !== 'activity').slice(0, 6).map((entry) => <div className="history-row" key={`${entry.kind}-${entry.id}`}><CheckCircle size={14} /><span><strong>{entry.title}</strong><small>{entry.kind} · {relativeTime(entry.createdAt)}</small></span></div>)}</div></>;
+}
+
+function SettingsModal({ settings, setSettings, tab, setTab, close, run }: { settings: WorkspaceSettings; setSettings: (settings: WorkspaceSettings) => void; tab: SettingsTab; setTab: (tab: SettingsTab) => void; close: () => void; run: (name: string, action: () => Promise<void>) => Promise<void> }) {
+  const [draft, setDraft] = useState(settings);
+  const [providerId, setProviderId] = useState<CloudProviderId>('nvidia');
+  const [credential, setCredential] = useState('');
+  const [status, setStatus] = useState<ProviderStatus | null>(null);
+  const [models, setModels] = useState<ModelDescriptor[]>([]);
+  const [doctor, setDoctor] = useState<DoctorCheck[]>([]);
+  const [memoryScope, setMemoryScope] = useState<'project' | 'global'>('project');
+  const [memories, setMemories] = useState<MemoryView[]>([]);
+  const [usage, setUsage] = useState<UsageSummaryView | null>(null);
+  useEffect(() => { void desktop.providerStatus(providerId).then(setStatus); }, [providerId]);
+  useEffect(() => { if (tab === 'environment') void desktop.runEnvironmentDoctor().then(setDoctor); }, [tab]);
+  useEffect(() => {
+    if (tab !== 'privacy') return;
+    void Promise.all([desktop.listMemories(memoryScope), desktop.getUsageSummary()]).then(([nextMemories, nextUsage]) => {
+      setMemories(nextMemories);
+      setUsage(nextUsage);
+    });
+  }, [tab, memoryScope]);
+  const save = () => run('settings-save', async () => {
+    const normalizedFallback = [...new Set([...draft.fallbackOrder, 'nvidia', 'openai', 'local'])]
+      .slice(0, 3) as WorkspaceSettings['fallbackOrder'];
+    const normalizedDraft = { ...draft, fallbackOrder: normalizedFallback };
+    if (normalizedDraft.routingMode === 'manual' && normalizedDraft.activeProvider !== 'local') {
+      await desktop.probeProvider(normalizedDraft.activeProvider, normalizedDraft.activeModel);
+    }
+    const next = await desktop.updateWorkspaceSettings(normalizedDraft);
+    setSettings(next);
+    close();
+  });
+  const discover = () => run('discover', async () => {
+    const discovered = await desktop.discoverProviderModels(providerId);
+    const sorted = [...discovered].sort((left, right) => modelRank(right, providerId) - modelRank(left, providerId));
+    const recommended = sorted[0];
+    if (!recommended) { setModels([]); return; }
+    const probed = await desktop.probeProvider(providerId, recommended.modelId);
+    setModels([probed.model, ...sorted.filter((model) => model.modelId !== recommended.modelId)]);
+    setDraft((current) => ({ ...current, activeProvider: providerId, activeModel: probed.model.modelId }));
+  });
+  const addMemory = () => {
+    const title = window.prompt(`New ${memoryScope} memory title`);
+    if (!title) return;
+    const content = window.prompt('Memory content');
+    if (!content) return;
+    void run('memory-add', async () => {
+      await desktop.saveMemory(memoryScope, title, content);
+      setMemories(await desktop.listMemories(memoryScope));
+    });
+  };
+  const editMemory = (memory: MemoryView) => {
+    if (memory.source !== 'user') return;
+    const title = window.prompt('Memory title', memory.title);
+    if (!title) return;
+    const content = window.prompt('Memory content', memory.content);
+    if (!content) return;
+    void run('memory-edit', async () => {
+      await desktop.saveMemory(memoryScope, title, content, memory.id);
+      setMemories(await desktop.listMemories(memoryScope));
+    });
+  };
+  const deleteMemory = (memory: MemoryView) => {
+    if (!window.confirm(`Delete memory “${memory.title}”?`)) return;
+    void run('memory-delete', async () => setMemories(await desktop.deleteMemory(memoryScope, memory.id)));
+  };
+  return <div className="modal-backdrop" onMouseDown={(event) => { if (event.currentTarget === event.target) close(); }}><section className="settings-modal" role="dialog" aria-modal="true" aria-label="SimForge settings"><header><div><small>SIMFORGE SETTINGS</small><h2>Connections, models, and privacy</h2></div><button className="icon-button" onClick={close} aria-label="Close settings"><X size={19} /></button></header><nav><button className={tab === 'providers' ? 'active' : ''} onClick={() => setTab('providers')}><Sparkle size={16} />AI providers</button><button className={tab === 'privacy' ? 'active' : ''} onClick={() => setTab('privacy')}><SlidersHorizontal size={16} />Privacy & memory</button><button className={tab === 'environment' ? 'active' : ''} onClick={() => setTab('environment')}><HardDrives size={16} />Environment</button></nav><div className="settings-body">
+    {tab === 'providers' && <><div className="settings-section"><h3>Routing</h3><div className="form-grid"><label>Routing mode<select value={draft.routingMode} onChange={(event) => setDraft({ ...draft, routingMode: event.target.value as WorkspaceSettings['routingMode'] })}><option value="automatic">Automatic · capability matched</option><option value="manual">Manual selection</option></select></label><label>Active provider<select value={draft.activeProvider} onChange={(event) => setDraft({ ...draft, activeProvider: event.target.value as WorkspaceSettings['activeProvider'], activeModel: event.target.value === 'local' ? 'mock-planner' : draft.activeModel })}><option value="local">Local fixture</option><option value="nvidia">NVIDIA NIM</option><option value="openai">OpenAI</option></select></label><label className="wide">Active model<select value={draft.activeModel} onChange={(event) => setDraft({ ...draft, activeModel: event.target.value })}><option value="mock-planner">Local deterministic fixture</option>{draft.activeModel !== 'mock-planner' && !models.some((model) => model.modelId === draft.activeModel) && <option value={draft.activeModel}>{draft.activeModel} · saved route</option>}{models.map((model) => <option key={`${model.providerId}-${model.modelId}`} value={model.modelId}>{model.displayName} · {capabilities(model)}</option>)}</select></label></div><div className="provider-enable-row"><Toggle label="Enable NVIDIA" detail="Allow NVIDIA to participate in automatic or manual routing." checked={draft.enabledProviders.nvidia} set={(checked) => setDraft({ ...draft, enabledProviders: { ...draft.enabledProviders, nvidia: checked } })} /><Toggle label="Enable OpenAI" detail="Optional secondary provider; NVIDIA remains the preferred cloud route." checked={draft.enabledProviders.openai} set={(checked) => setDraft({ ...draft, enabledProviders: { ...draft.enabledProviders, openai: checked } })} /></div></div><div className="settings-section"><div className="section-heading"><div><h3>Provider credentials</h3><p>Stored with Windows protection; credentials never enter the renderer after save.</p></div><select value={providerId} onChange={(event) => setProviderId(event.target.value as CloudProviderId)}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option></select></div><div className="credential-row"><input type="password" value={credential} onChange={(event) => setCredential(event.target.value)} placeholder={`${providerId} API key`} /><button onClick={() => void run('credential', async () => { setStatus(await desktop.configureProvider(providerId, credential)); setCredential(''); })}>Save securely</button><button onClick={() => void run('remove-credential', async () => setStatus(await desktop.removeProvider(providerId)))}>Remove</button></div><div className="provider-status"><span className={`connection-dot ${status?.configured ? 'online' : ''}`} />{status?.configured ? 'Credential configured' : 'Not configured'} · {status?.discoveredModels ?? 0} discovered models<button onClick={discover} disabled={!status?.configured}>Discover models</button></div></div><div className="settings-section"><h3>Budget and fallback</h3><div className="form-grid"><label>Monthly limit (USD)<input type="number" min="0" placeholder="No limit" value={draft.monthlyBudgetUsd ?? ''} onChange={(event) => setDraft({ ...draft, monthlyBudgetUsd: event.target.value ? Number(event.target.value) : null })} /></label><label>First fallback<select value={draft.fallbackOrder[0]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [event.target.value as WorkspaceSettings['fallbackOrder'][number], ...draft.fallbackOrder.slice(1)] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label><label>Second fallback<select value={draft.fallbackOrder[1]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [draft.fallbackOrder[0] ?? 'nvidia', event.target.value as WorkspaceSettings['fallbackOrder'][number], draft.fallbackOrder[2] ?? 'local'] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label><label>Final fallback<select value={draft.fallbackOrder[2]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [draft.fallbackOrder[0] ?? 'nvidia', draft.fallbackOrder[1] ?? 'openai', event.target.value as WorkspaceSettings['fallbackOrder'][number]] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label></div></div></>}
+    {tab === 'privacy' && <><div className="settings-section privacy-list"><h3>Explicit data controls</h3><p>Cloud dispatch identifies the provider, model, data classes, purpose, and attached files before sending.</p><Toggle label="Allow cloud processing" detail="Required before NVIDIA or OpenAI can receive conversation text." checked={draft.cloudProcessing} set={(checked) => setDraft({ ...draft, cloudProcessing: checked })} /><Toggle label="Allow visual uploads" detail="Images remain local unless this is enabled and a vision route is selected." checked={draft.visualUploads} set={(checked) => setDraft({ ...draft, visualUploads: checked })} /><Toggle label="Allow file uploads" detail="Project files stay local by default." checked={draft.fileUploads} set={(checked) => setDraft({ ...draft, fileUploads: checked })} /><Toggle label="Project memory" detail="Portable summaries are stored in this project." checked={draft.projectMemory} set={(checked) => setDraft({ ...draft, projectMemory: checked })} /><Toggle label="Global memory" detail="Disabled by default; applies across projects on this machine." checked={draft.globalMemory} set={(checked) => setDraft({ ...draft, globalMemory: checked })} /><Toggle label="Diagnostic logging" detail="Sanitized technical events only; secrets are redacted." checked={draft.diagnosticLogging} set={(checked) => setDraft({ ...draft, diagnosticLogging: checked })} /></div><MemoryPanel scope={memoryScope} setScope={setMemoryScope} memories={memories} usage={usage} add={addMemory} edit={editMemory} remove={deleteMemory} exportScope={() => void run('memory-export', async () => { await desktop.exportMemories(memoryScope); })} /></>}
+    {tab === 'environment' && <div className="settings-section"><div className="section-heading"><div><h3>Environment Doctor</h3><p>Local dependencies are checked without exposing credentials.</p></div><button onClick={() => void run('doctor', async () => setDoctor(await desktop.runEnvironmentDoctor()))}><ArrowsClockwise size={15} /> Recheck</button></div><div className="doctor-list">{doctor.map((check) => <div key={check.id}><span className={`doctor-icon ${check.ok ? 'pass' : 'fail'}`}>{check.ok ? <Check size={13} /> : <Warning size={13} />}</span><span><strong>{check.id === 'blender' ? 'Blender 4.5 LTS' : check.id === 'python' ? 'Python 3.13' : 'OpenUSD sidecar'}</strong><small>{check.summary}{check.path ? ` · ${check.path}` : ''}</small></span></div>)}</div></div>}
+  </div><footer><button onClick={close}>Cancel</button><button className="primary-action" onClick={save}>Save settings</button></footer></section></div>;
+}
+
+function Toggle({ label, detail, checked, set }: { label: string; detail: string; checked: boolean; set: (checked: boolean) => void }) {
+  return <label className="privacy-toggle"><span><strong>{label}</strong><small>{detail}</small></span><input type="checkbox" checked={checked} onChange={(event) => set(event.target.checked)} /><i /></label>;
+}
+
+function MemoryPanel({ scope, setScope, memories, usage, add, edit, remove, exportScope }: { scope: 'project' | 'global'; setScope: (scope: 'project' | 'global') => void; memories: MemoryView[]; usage: UsageSummaryView | null; add: () => void; edit: (memory: MemoryView) => void; remove: (memory: MemoryView) => void; exportScope: () => void }) {
+  const deleteProject = async () => {
+    const state = await desktop.getState();
+    const confirmation = window.prompt(`Type “${state.projectName}” to move this project to the Recycle Bin.`);
+    if (!confirmation) return;
+    await desktop.deleteCurrentProject(confirmation);
+  };
+  const reportFailure = (error: unknown) => window.alert(error instanceof Error ? error.message : 'Data operation failed');
+  return <><div className="settings-section memory-manager"><div className="section-heading"><div><h3>Inspectable memory</h3><p>Edit, export, disable above, or delete each memory explicitly.</p></div><div className="memory-actions"><button onClick={add}><Plus size={14} /> Add</button><button onClick={exportScope}><Export size={14} /> Export</button></div></div><div className="segmented"><button className={scope === 'project' ? 'active' : ''} onClick={() => setScope('project')}>Project memory</button><button className={scope === 'global' ? 'active' : ''} onClick={() => setScope('global')}>Global memory</button></div><div className="memory-list">{memories.map((memory) => <div className="memory-row" key={memory.id}><span><strong>{memory.title}</strong><small>{memory.content}</small><em>{memory.source} · {relativeTime(memory.updatedAt)}</em></span>{memory.source === 'user' && <button onClick={() => edit(memory)} aria-label={`Edit ${memory.title}`}><FilePlus size={14} /></button>}<button onClick={() => remove(memory)} aria-label={`Delete ${memory.title}`}><Trash size={14} /></button></div>)}{memories.length === 0 && <p className="muted-copy">No {scope} memories are stored.</p>}</div><div className="usage-summary"><span><strong>{usage?.requestCount ?? 0}</strong><small>provider requests</small></span><span><strong>{(usage?.inputTokens ?? 0) + (usage?.outputTokens ?? 0)}</strong><small>observed tokens</small></span><span><strong>${(usage?.knownCostUsd ?? 0).toFixed(2)}</strong><small>{usage?.unpricedRequests ? `${usage.unpricedRequests} unpriced` : 'known usage'}</small></span></div></div><div className="settings-section data-manager"><h3>Project data</h3><p>Exports exclude provider credentials and global memory. Diagnostics exclude conversation and memory content and are structurally redacted.</p><div><button onClick={() => void desktop.exportProjectData().catch(reportFailure)}><Export size={14} /> Export project copy</button><button onClick={() => void desktop.exportDiagnostics().catch(reportFailure)}><HardDrives size={14} /> Export diagnostics</button><button className="danger-action" onClick={() => void deleteProject().catch(reportFailure)}><Trash size={14} /> Delete current project</button></div></div></>;
+}
+
+function depthOf(object: SceneObject, objects: SceneObject[]): number {
+  let depth = 0;
+  let current = object;
+  while (current.parentId && depth < 4) {
+    const parent = objects.find((entry) => entry.id === current.parentId);
+    if (!parent) break;
+    current = parent;
+    depth += 1;
+  }
+  return depth;
+}
+
+function formatTime(value: string): string { return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+function relativeTime(value: string): string { const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60_000)); return minutes < 1 ? 'now' : minutes < 60 ? `${minutes}m` : minutes < 1440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1440)}d`; }
+function shortenPath(value: string): string { return value.length > 36 ? `…${value.slice(-35)}` : value; }
+function capabilities(model: ModelDescriptor): string { return [model.capabilities.text === true ? 'text' : null, model.capabilities.vision === true ? 'vision' : null, model.capabilities.tools === true ? 'tools' : null].filter(Boolean).join(' + ') || 'unprobed'; }
+function modelRank(model: ModelDescriptor, provider: CloudProviderId): number { const id = model.modelId.toLowerCase(); return (provider === 'nvidia' && id.includes('nemotron-3-ultra') ? 100 : 0) + (provider === 'openai' && id.includes('gpt-5') ? 90 : 0) + (model.capabilities.tools === true ? 20 : 0) + (model.capabilities.vision === true ? 10 : 0); }
+
+function createDemoApi(): SimForgeDesktopApi {
+  const now = new Date().toISOString();
+  let mode: Mode = 'normal';
+  let demoMessages: ChatMessageView[] = [{ id: 'demo-a', role: 'assistant', text: 'Blender is connected. I can inspect the current scene, prepare a checkpointed plan, and validate each change before export.', createdAt: now }];
+  let demoConversations: ConversationSummaryView[] = [{ id: 'demo-conversation', title: 'Warehouse rover concept', branchOf: null, messageCount: 1, createdAt: now, updatedAt: now }, { id: 'demo-history', title: 'Sensor mast exploration', branchOf: null, messageCount: 6, createdAt: now, updatedAt: new Date(Date.now() - 3_600_000).toISOString() }];
+  let demoSettings: WorkspaceSettings = { routingMode: 'automatic', activeProvider: 'nvidia', activeModel: 'nvidia/nemotron-3-ultra-550b-a55b', enabledProviders: { nvidia: true, openai: true }, fallbackOrder: ['nvidia', 'openai', 'local'], monthlyBudgetUsd: 20, cloudProcessing: true, visualUploads: false, fileUploads: false, projectMemory: true, globalMemory: false, diagnosticLogging: true };
+  const state = (): AppState => ({ projectId: 'demo-project', projectName: 'Warehouse Robotics Project', mode, bridgeConnected: true, sceneRevision: 12, activeGoalJobId: null, activities: [] });
+  const timeline: TimelineEventView[] = [
+    { id: 't1', kind: 'activity', title: 'Fresh Blender scene captured', detail: 'scene · scene-refreshed', sceneRevision: 12, actor: 'SimForge', createdAt: now },
+    { id: 't2', kind: 'activity', title: 'Robot hierarchy validated', detail: 'validation · completed', sceneRevision: 12, actor: 'SimForge', createdAt: new Date(Date.now() - 80_000).toISOString() },
+    { id: 't3', kind: 'checkpoint', title: 'Before wheel correction', detail: 'Recoverable checkpoint', sceneRevision: 11, actor: 'SimForge', createdAt: new Date(Date.now() - 180_000).toISOString() },
+  ];
+  const handler: ProxyHandler<Record<string, unknown>> = { get: (_target, property) => {
+    const methods: Record<string, (...args: never[]) => unknown> = {
+      getState: async () => state(),
+      setMode: async (next: Mode) => { mode = next; return state(); },
+      listConversations: async () => demoConversations,
+      createConversation: async () => { const entry = { id: `demo-${Date.now()}`, title: 'New conversation', branchOf: null, messageCount: 0, createdAt: now, updatedAt: now }; demoConversations = [entry, ...demoConversations]; return entry; },
+      renameConversation: async (id: string, title: string) => { demoConversations = demoConversations.map((entry) => entry.id === id ? { ...entry, title } : entry); return demoConversations.find((entry) => entry.id === id); },
+      deleteConversation: async (id: string) => { demoConversations = demoConversations.filter((entry) => entry.id !== id); return demoConversations; },
+      branchConversation: async (id: string) => { const source = demoConversations.find((entry) => entry.id === id)!; const entry = { ...source, id: `branch-${Date.now()}`, title: `${source.title} — branch`, branchOf: id }; demoConversations = [entry, ...demoConversations]; return entry; },
+      getChat: async () => demoMessages,
+      sendChat: async (_id: string, text: string) => { demoMessages = [...demoMessages, { id: `u-${Date.now()}`, role: 'user', text, createdAt: now }, { id: `a-${Date.now()}`, role: 'assistant', text: 'I will inspect the current Blender revision and prepare a checkpointed plan before any structural change.', createdAt: now }]; return demoMessages; },
+      stopChat: async () => undefined,
+      getConversationContext: async () => ({ estimatedTokens: 820, contextLimit: 32_000, percentUsed: 3, compactedAt: null, summary: null }),
+      compactConversation: async () => ({ estimatedTokens: 410, contextLimit: 32_000, percentUsed: 1, compactedAt: now, summary: 'Conversation compacted.' }),
+      chooseAttachments: async () => [], listAttachments: async () => [],
+      getWorkspaceSettings: async () => demoSettings, updateWorkspaceSettings: async (next: WorkspaceSettings) => (demoSettings = next),
+      listMemories: async (scope: 'project' | 'global') => scope === 'project' ? [{ id: 'demo-memory', scope, title: 'Robot conventions', content: 'Use Z-up, meters, and X-forward for generated robots.', source: 'user', updatedAt: now }] : [],
+      saveMemory: async (scope: 'project' | 'global', title: string, content: string) => ({ id: `demo-memory-${Date.now()}`, scope, title, content, source: 'user', updatedAt: now }),
+      deleteMemory: async () => [], exportMemories: async () => 'simforge-project-memory.json',
+      getUsageSummary: async () => ({ inputTokens: 1240, outputTokens: 380, knownCostUsd: 0, unpricedRequests: 2, requestCount: 2 }),
+      exportProjectData: async () => 'Warehouse-Robotics-Project-SimForge-Project',
+      exportDiagnostics: async () => 'simforge-diagnostics.json', deleteCurrentProject: async () => undefined,
+      getLatestValidation: async () => null, listCheckpoints: async () => [], listVersions: async () => [], getTimeline: async () => timeline, listExports: async () => [],
+      listReviews: async () => [],
+      getPrimitiveRobotProposal: async () => ({ planHash: 'demo', toolId: 'robot.materialize', args: { graph: {} }, graph: {}, summary: '6 links / 5 joints / 2 sensor frames' }),
+      runEnvironmentDoctor: async () => [
+        { id: 'blender', ok: true, summary: 'Detected and compatible', path: 'C:\\Program Files\\Blender Foundation\\Blender 4.5' },
+        { id: 'python', ok: true, summary: 'Python 3.13 runtime is ready', path: null },
+        { id: 'usd', ok: true, summary: 'usd-core 26.5 is ready', path: null },
+      ],
+      providerStatus: async (id: string) => ({ providerId: id, configured: true, discoveredModels: 4, lastError: null }),
+      discoverProviderModels: async () => [],
+      refreshScene: async () => state(),
+    };
+    return methods[String(property)] ?? (async () => { throw new Error(`${String(property)} is unavailable in browser design preview`); });
+  }};
+  return new Proxy({}, handler) as unknown as SimForgeDesktopApi;
+}
+
+createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>);

@@ -15,6 +15,7 @@ import { ToolExecutor } from '../../src/main/domain/tool-executor';
 import { ExportService } from '../../src/main/export/export-service';
 import { locateUsdRuntime, runUsdWorker } from '../../src/main/export/usd-runtime';
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
+import { PreviewService } from '../../src/main/preview/preview-service';
 import { primitiveWheeledRobotGraph } from '../../src/main/robotics/primitive-wheeled-robot';
 import { ReviewService } from '../../src/main/robotics/review-service';
 import { ProjectManager, type ProjectHandle } from '../../src/main/storage/project-repository';
@@ -318,6 +319,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
       activities,
     );
     const reviews = new ReviewService(project, scene, executor, activities);
+    const previews = new PreviewService(project, server, scene, activities);
     const initial = await scene.refresh();
     expect(initial.snapshot.objects).toEqual([]);
     expect(initial.snapshot.unitSystem).toBe('METRIC');
@@ -359,6 +361,14 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'collision')).toHaveLength(4);
     expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'sensor')).toHaveLength(2);
 
+    const builtPreview = await previews.generate();
+    expect(builtPreview.sceneRevision).toBe(passing.sceneRevision);
+    expect(builtPreview.objects.length).toBeGreaterThan(0);
+    expect(builtPreview.relativePath).toMatch(/^previews\/live\/scene-r\d+-[a-f0-9-]+\.glb$/);
+    expect(await previews.data(builtPreview.previewId)).toMatch(/^data:model\/gltf-binary;base64,/);
+    expect(await previews.selectObject(builtPreview.previewId, builtPreview.objects[0]!.id))
+      .toBe(builtPreview.objects[0]!.id);
+
     const rightWheel = graph.links.find((link) => link.id === 'right_wheel_link')!;
     const defectArgs = {
       robotId: graph.robotId,
@@ -385,6 +395,9 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
       approvalId: defectApproval,
     });
     const defective = await validation.run();
+    expect(defective.sceneRevision).toBeGreaterThan(builtPreview.sceneRevision);
+    await expect(previews.selectObject(builtPreview.previewId, builtPreview.objects[0]!.id))
+      .rejects.toThrow('stale');
     expect(defective.findings).toEqual(expect.arrayContaining([
       expect.objectContaining({ ruleId: 'ROB-LINK-POSE-001', severity: 'error' }),
     ]));
@@ -420,11 +433,17 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const corrected = await validation.run();
     expect(corrected.findings.some((finding) => finding.ruleId === 'ROB-LINK-POSE-001')).toBe(false);
     const afterReview = await reviews.render(graph.robotId, 'After wheel correction');
+    expect(reviews.list().slice(0, 2).map((entry) => entry.label)).toEqual([
+      'After wheel correction', 'Before wheel correction',
+    ]);
     expect(afterReview.images.map((image) => image.view)).toEqual([
       'three-quarter', 'front', 'side', 'close-up', 'sensor',
     ]);
     expect(await reviews.imageData(afterReview.reviewId, 'three-quarter'))
       .toMatch(/^data:image\/png;base64,/);
+    const correctedPreview = await previews.generate();
+    expect(correctedPreview.sceneRevision).toBe(corrected.sceneRevision);
+    expect(correctedPreview.sha256).toMatch(/^[a-f0-9]{64}$/);
     const evidenceDirectory = process.env.SIMFORGE_MS4_EVIDENCE_DIR;
     if (evidenceDirectory) {
       await mkdir(evidenceDirectory, { recursive: true });

@@ -3,9 +3,9 @@
 ## Status and Scope
 
 Owner-approved product direction, recorded 2026-07-19 from the annotated MS1/MS2
-screenshots and proposed layout. This document consolidates existing requirements; it
-does not change their priority or milestone. The current MS1/MS2 screen is an
-engineering test harness, not the final product UI.
+screenshots and proposed layout. MS6 now implements and verifies this contract; see
+`docs/evidence/MS6_VERIFICATION.md` and `design-qa.md`. This document consolidates
+existing requirements and does not change their priority or milestone.
 
 ## Desktop Workspace
 

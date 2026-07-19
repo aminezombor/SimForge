@@ -1,25 +1,29 @@
 # SimForge
 
 SimForge is a Windows-first, local-first desktop tool for conversational robotics
-authoring in a real Blender scene. MS1 through MS5 establish the complete first cycle:
+authoring in a real Blender scene. MS1 through MS6 establish the complete first cycle
+and the final workspace foundation:
 chat or an approved goal produces a structured Blender operation, the app captures
 fresh scene truth, checkpoints before mutation, rejects stale work, and records an
 auditable activity trail. Deterministic geometry findings can drive a preconditioned
 safe correction, exact-approved structural correction, inverse undo, and full recovery.
 
-Current milestone state: MS1 through MS4 are complete with deterministic, packaged,
+Current milestone state: MS1 through MS6 are complete with deterministic, packaged,
 real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nemotron
 3 Ultra model and proved streamed text plus a non-executed no-op tool call. Eighteen
 stable geometry/scene rules and approved complete checkpoint restore pass in Blender
 4.5.11. A versioned primitive wheeled robot, robotics/physics/sensor rules, exact-approved
 defect correction, and five lit revision/hash-stamped review views now pass. Exact-approved
 quick and canonical USD exports include neutral physics/sensor layers, source/provenance,
-machine and human reports, hashes, and deep relocated OpenUSD reopen evidence. MS6 now
-integrates the owner-approved product workspace.
+machine and human reports, hashes, and deep relocated OpenUSD reopen evidence. The
+owner-approved three-column workspace now adds persistent conversations, scoped memory,
+capability-aware routing, an exact-revision Three.js/GLB inspector with Blender selection
+linkage, responsive context drawers, named history, and packaged privacy controls. MS7
+adds the generated warehouse mobile manipulator inside this stable architecture.
 
-The current screen is an engineering preview, not the final product UI. The approved
-three-column product direction is documented in [the workspace contract](docs/UX_WORKSPACE.md)
-and is integrated fully in MS6 as earlier milestones populate its validation and export panels.
+The product information architecture is documented in
+[the workspace contract](docs/UX_WORKSPACE.md) and its MS6 implementation has passed
+[visual and functional verification](docs/evidence/MS6_VERIFICATION.md).
 
 ## Repository Map
 
