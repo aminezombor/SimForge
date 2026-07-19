@@ -58,6 +58,12 @@ DPAPI protects against other OS users, not malicious processes running as the sa
 
 Mode permissions are checked twice: when tools are offered to a provider and when any tool request is executed. Plan Mode rejects every mutating tool ID regardless of prompt content. Approval records bind plan hash, scope, risk, project, scene revision, and expiry. Stale revisions or changed plans invalidate approval.
 
+Action authority is separate from workflow mode and defaults to Guided. The main process
+binds any Autonomous continuation to the persisted authority, current scene revision,
+exact plan hash, tool, arguments, and structural risk. Automatic destructive or
+privileged work and export/Python hard gates are denied even when the renderer requests
+Autonomous authority. Goal Mode cannot change or expand authority.
+
 ## Files, Imports, and Sidecars
 
 All paths are absolute after canonicalization and checked against approved roots. Archive extraction rejects absolute paths, drive changes, `..`, symlink escapes, and excessive sizes/counts. Sidecars are launched without a shell, with fixed executable/script paths and contained JSON request files. Blender opens untrusted files with automatic script execution disabled.
@@ -68,6 +74,13 @@ staging. OpenUSD rejects absolute/up-level dependencies, inventories every artif
 deeply reopens the promoted output; an existing destination requires a new explicit
 overwrite proposal. Graceful app exit awaits bridge shutdown, and startup removes
 dead/expired/malformed session descriptors before generating a fresh token.
+
+Isaac experiments use the same containment rule. The app selects a configured runtime;
+the renderer cannot supply an executable or script. A fixed worker receives a contained
+JSON request without shell interpolation, copies the verified package into a unique
+experiment, rejects symlinks/path escape, and hashes every request/result/log/image.
+Generated Python is never executed in Isaac. Native view opens only a retained request
+whose hash still matches its experiment manifest.
 
 ## Network Policy
 

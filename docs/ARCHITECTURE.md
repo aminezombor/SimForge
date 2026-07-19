@@ -143,6 +143,13 @@ Each tool declares ID/version, input/output schema, read/write class, supported 
 
 Approvals bind the actor, project, plan hash, task/action scope, risk summary, scene revision, expiry, and decision. A changed plan, expired approval, different project, or stale scene invalidates it.
 
+Workflow mode and action authority are independent. The globally persisted authority is
+`guided` (default), `balanced`, or `autonomous`. Guided exposes each mutation as a user
+step. Balanced may continue only safe-local, preconditioned, reversible work. Autonomous
+may continue a structural action only inside an exact approved scope and current scene
+revision; main-process policy rejects automatic destructive/privileged work and the
+export/Python hard gates. Providers and Goal jobs cannot raise this setting.
+
 ## Blender Integration
 
 The app opens a random `127.0.0.1` TCP listener and writes a short-lived descriptor containing protocol version, port, app PID, expiry, and 256-bit token to a user-only runtime file. The installed GPL Blender extension reads an explicitly selected descriptor and connects outbound. It never listens on the LAN.
@@ -170,7 +177,7 @@ refresh and replanning rather than overwrite.
 The MS1-MS8 operation set covers evidence-rich snapshot, complete checkpoint
 copy/restore, primitive creation, exact object location, approved scale application,
 object deletion, controlled Python fallback, exact-approved robot and robot/environment
-assembly materialization, link-pose and sensor correction, native-format stage/decision,
+assembly materialization, link-pose, sensor, and simulation-derived subtree correction, native-format stage/decision,
 and revision-stamped materialized review rendering. Python
 fallback is disabled in Plan Mode and requires displayed intent, exact approval,
 pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
@@ -293,28 +300,33 @@ P0 checks stage open, default prim, units/up axis, relative reference resolution
 
 ## Isaac Sim Feedback Adapter
 
-DEC-028 promotes the existing adapter seam into pre-submission implementation without
-turning Isaac Sim into a core startup dependency. The Electron main process discovers and
-probes a separately installed, pinned Isaac Sim 6.0.1 runtime. It invokes a fixed
+DEC-028/DEC-030 implement the adapter seam before submission without turning Isaac Sim
+into a core startup dependency. The Electron main process discovers and probes an
+optional pinned Isaac Sim 6.0.1 Python 3.12 runtime. It invokes a fixed
 repository-owned standalone Python script with an argument array and a project-contained,
 schema-validated request file; no shell interpolation, arbitrary user script, remote stage,
 or renderer-supplied executable path is allowed.
 
-Each experiment copies the exact verified canonical package into a contained run
+Each implemented experiment copies the exact verified canonical package into a contained run
 directory and records application/export/runtime versions and hashes, task configuration,
 seed, timestep, duration, termination rules, stdout/stderr redaction, structured metrics,
-images/video, failure conditions, and completion status. The first task is deliberately
-bounded: load the warehouse package, step physics deterministically, measure articulation
-and rigid-body stability/contact behavior, and expose a real seeded defect. Results are
-evidence, not authority.
+five images, failure conditions, and completion status. The fixed `static-settle-v1`
+task opens the warehouse package, runs a collision-isolated rigid-body health probe, and
+evaluates mass-weighted robot center of mass against wheel/caster support evidence inside
+the live Isaac stage. A forward-loaded arm produces a real deterministic failure. Results
+are evidence, not authority.
 
 AI analysis receives only the disclosed experiment summary and selected evidence through
-the existing capability router. It may propose a correction but cannot mutate Isaac,
+the implemented capability router. It may propose a correction but cannot mutate Isaac,
 Blender, USD, or files. The user approves an exact plan bound to experiment/export/scene
 revisions; correction executes through the existing Blender tool/checkpoint policy,
 followed by validation, canonical re-export, a child experiment, and deterministic
-before/after comparison. Project SQLite retains experiment lineage and artifact hashes so
-the result can be reloaded and audited after restart.
+before/after comparison. The approved structured Blender tool translates the exact arm
+subtree, records a checkpoint, updates the RobotGraph, and revalidates before export.
+Project SQLite retains experiment lineage and artifact hashes so the result can be
+reloaded and audited after restart. A native-view action opens the retained copied stage
+in Isaac Sim's complete viewport; the SimForge dock shows five real captured frames,
+metrics, check status, recommendation, analysis, approval, and experiment lineage.
 
 ## Failure and Recovery Model
 

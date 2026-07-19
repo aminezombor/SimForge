@@ -8,11 +8,12 @@
     "Z=0 is the support plane; stacked cargo support is visually and deterministically reviewed.",
     "Static collision geometry approximates shelving, pallets, cargo, floor, and safety structures."
   ],
-  "exportId": "bca43e2f-f15d-4186-8c01-c5d503f0607a",
+  "exportId": "cd98d7bd-5cb7-4099-baa8-6cbe62235229",
+  "importReport": null,
   "limitations": [
     "Physical values marked ASSUMED are not measured hardware data.",
     "Primitive collision/contact checks are not simulator proof.",
-    "Isaac Sim execution is a V2 extension and is not required for this export."
+    "Isaac Sim execution evidence is recorded separately and is never inferred from package validation."
   ],
   "modelAssertionUsedAsEvidence": false,
   "sceneRevision": 3,
@@ -24,13 +25,13 @@
       "deterministic-robotics",
       "deterministic-environment"
     ],
-    "completedAt": "2026-07-19T12:42:26.509Z",
+    "completedAt": "2026-07-19T15:34:21.856Z",
     "findings": [
       {
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -52,11 +53,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:left-cargo",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:f5ad51e514f3",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:f5ad51e514f3",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -64,7 +65,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -86,11 +87,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:left-pallet",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:ac13dc3926dd",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:ac13dc3926dd",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -98,7 +99,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -120,11 +121,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:right-cargo",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:ef3754ba3b61",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:ef3754ba3b61",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -132,7 +133,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -154,11 +155,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:right-pallet",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:06140a0ab922",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:06140a0ab922",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -166,7 +167,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -188,11 +189,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:safety-bollard-left",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:ed44e7825f11",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:ed44e7825f11",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -200,7 +201,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -222,11 +223,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:safety-bollard-right",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:cbae201818e8",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:cbae201818e8",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -234,7 +235,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -256,11 +257,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-deck-high",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:596c6c94096a",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:596c6c94096a",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -268,7 +269,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -290,11 +291,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-deck-low",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:c2be5020faa7",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:c2be5020faa7",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -302,7 +303,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -324,11 +325,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-upright-a",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:08dbce1af857",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:08dbce1af857",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -336,7 +337,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -358,11 +359,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-upright-b",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:02e6e711b699",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:02e6e711b699",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -370,7 +371,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -392,11 +393,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-deck-high",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:1f8d147d55fe",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:1f8d147d55fe",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -404,7 +405,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -426,11 +427,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-deck-low",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:191a4f92ccd3",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:191a4f92ccd3",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -438,7 +439,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -460,11 +461,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-upright-a",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:bbe375bab292",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:bbe375bab292",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -472,7 +473,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -494,11 +495,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-upright-b",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:2ff2e9e35fe6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:2ff2e9e35fe6",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -506,7 +507,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -528,11 +529,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:arm_column_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:ec6bcc7a6516",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:ec6bcc7a6516",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -540,7 +541,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -562,11 +563,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:base_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:f3c8807bce80",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:f3c8807bce80",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -574,7 +575,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -596,11 +597,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:forearm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:eca4ede3a034",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:eca4ede3a034",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -608,7 +609,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -630,11 +631,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:gripper_palm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:c16debbd9462",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:c16debbd9462",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -642,7 +643,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -664,11 +665,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:left_finger_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:566a0b635734",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:566a0b635734",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -676,7 +677,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -698,11 +699,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:left_wheel_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:86a0865dab1d",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:86a0865dab1d",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -710,7 +711,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -732,11 +733,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:rear_caster_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:a29011e7f6c8",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:a29011e7f6c8",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -744,7 +745,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -766,11 +767,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:right_finger_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:5825a42d69f6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:5825a42d69f6",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -778,7 +779,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -800,11 +801,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:right_wheel_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:5187e5bac151",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:5187e5bac151",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -812,7 +813,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -834,11 +835,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:sensor_mast_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:6cbe72bf070b",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:6cbe72bf070b",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -846,7 +847,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -868,11 +869,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:upper_arm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:6cbb9481e073",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:6cbb9481e073",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -880,7 +881,7 @@
         "assumptions": [
           "An external origin can be intentional and requires human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "origin": [
             0,
@@ -902,11 +903,11 @@
         },
         "domain": "geometry",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:wrist_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-ORIGIN-001:35872819c166",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-ORIGIN-001:35872819c166",
         "message": "Object origin lies outside its world-space bounds.",
         "proposedFix": null,
         "ruleId": "GEO-ORIGIN-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -914,17 +915,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:floor",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:c75547dfd5f5",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:c75547dfd5f5",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -932,17 +933,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:left-cargo",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:f5ad51e514f3",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:f5ad51e514f3",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -950,17 +951,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:left-pallet",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:ac13dc3926dd",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:ac13dc3926dd",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -968,17 +969,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:right-cargo",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:ef3754ba3b61",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:ef3754ba3b61",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -986,17 +987,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:right-pallet",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:06140a0ab922",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:06140a0ab922",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1004,17 +1005,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:safety-bollard-left",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:ed44e7825f11",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:ed44e7825f11",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1022,17 +1023,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:safety-bollard-right",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:cbae201818e8",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:cbae201818e8",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1040,17 +1041,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-deck-high",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:596c6c94096a",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:596c6c94096a",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1058,17 +1059,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-deck-low",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:c2be5020faa7",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:c2be5020faa7",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1076,17 +1077,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-upright-a",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:08dbce1af857",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:08dbce1af857",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1094,17 +1095,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-left-upright-b",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:02e6e711b699",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:02e6e711b699",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1112,17 +1113,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-deck-high",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:1f8d147d55fe",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:1f8d147d55fe",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1130,17 +1131,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-deck-low",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:191a4f92ccd3",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:191a4f92ccd3",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1148,17 +1149,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-upright-a",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:bbe375bab292",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:bbe375bab292",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1166,17 +1167,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-demo-v1:collision:shelf-right-upright-b",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:2ff2e9e35fe6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:2ff2e9e35fe6",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1184,17 +1185,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:arm_column_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:ec6bcc7a6516",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:ec6bcc7a6516",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1202,17 +1203,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:base_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:f3c8807bce80",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:f3c8807bce80",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1220,17 +1221,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:forearm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:eca4ede3a034",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:eca4ede3a034",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1238,17 +1239,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:gripper_palm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:c16debbd9462",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:c16debbd9462",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1256,17 +1257,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:left_finger_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:566a0b635734",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:566a0b635734",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1274,17 +1275,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:left_wheel_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:86a0865dab1d",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:86a0865dab1d",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1292,17 +1293,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:rear_caster_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:a29011e7f6c8",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:a29011e7f6c8",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1310,17 +1311,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:right_finger_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:5825a42d69f6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:5825a42d69f6",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1328,17 +1329,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:right_wheel_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:5187e5bac151",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:5187e5bac151",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1346,17 +1347,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:sensor_mast_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:6cbe72bf070b",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:6cbe72bf070b",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1364,17 +1365,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:upper_arm_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:6cbb9481e073",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:6cbb9481e073",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1382,17 +1383,17 @@
         "assumptions": [
           "Hidden objects may be intentional and require human review."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "visible": false
         },
         "domain": "scene",
         "entityPath": "/objects/simforge-warehouse-manipulator-v1:collision:wrist_link",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:GEO-VISIBILITY-001:35872819c166",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:GEO-VISIBILITY-001:35872819c166",
         "message": "Object is hidden from the active view layer or render.",
         "proposedFix": null,
         "ruleId": "GEO-VISIBILITY-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1400,18 +1401,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 7.5 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 7.5 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/arm_column_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:354ad5117871",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:354ad5117871",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1419,18 +1420,18 @@
         "assumptions": [
           "Demonstration mass for Arm Pedestal; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Arm Pedestal; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/arm_column_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:81ba2a7e8cc6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:81ba2a7e8cc6",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1438,18 +1439,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 24 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 24 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/base_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:798029a01842",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:798029a01842",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1457,18 +1458,18 @@
         "assumptions": [
           "Demonstration mass for Mobile Base; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Mobile Base; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/base_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:e8e998a19389",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:e8e998a19389",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1476,18 +1477,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 3.1 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 3.1 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/forearm_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:3023a3596fcd",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:3023a3596fcd",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1495,18 +1496,18 @@
         "assumptions": [
           "Demonstration mass for Forearm; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Forearm; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/forearm_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:b4b6aa5f3753",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:b4b6aa5f3753",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1514,18 +1515,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 0.9 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 0.9 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/gripper_palm_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:38a2cf81b96d",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:38a2cf81b96d",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1533,18 +1534,18 @@
         "assumptions": [
           "Demonstration mass for Gripper Palm; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Gripper Palm; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/gripper_palm_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:2597da6388ca",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:2597da6388ca",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1552,18 +1553,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 0.25 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 0.25 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/left_finger_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:531959caa77b",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:531959caa77b",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1571,18 +1572,18 @@
         "assumptions": [
           "Demonstration mass for Left Gripper Finger; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Left Gripper Finger; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/left_finger_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:0584c1842bb1",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:0584c1842bb1",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1590,18 +1591,18 @@
         "assumptions": [
           "Uniform-cylinder inertia approximation."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-cylinder inertia approximation.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/left_wheel_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:8632891aba21",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:8632891aba21",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1609,18 +1610,18 @@
         "assumptions": [
           "Demonstration wheel mass for Left Drive Wheel."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration wheel mass for Left Drive Wheel.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/left_wheel_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:06124921d472",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:06124921d472",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1628,18 +1629,18 @@
         "assumptions": [
           "Uniform-sphere inertia approximation."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-sphere inertia approximation.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/rear_caster_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:987335013a61",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:987335013a61",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1647,18 +1648,18 @@
         "assumptions": [
           "Demonstration mass for Rear Caster; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Rear Caster; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/rear_caster_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:e3322101b2c7",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:e3322101b2c7",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1666,18 +1667,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 0.25 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 0.25 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/right_finger_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:e74a568075c7",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:e74a568075c7",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1685,18 +1686,18 @@
         "assumptions": [
           "Demonstration mass for Right Gripper Finger; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Right Gripper Finger; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/right_finger_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:1f3ec0edbba0",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:1f3ec0edbba0",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1704,18 +1705,18 @@
         "assumptions": [
           "Uniform-cylinder inertia approximation."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-cylinder inertia approximation.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/right_wheel_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:5da57ec249f6",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:5da57ec249f6",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1723,18 +1724,18 @@
         "assumptions": [
           "Demonstration wheel mass for Right Drive Wheel."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration wheel mass for Right Drive Wheel.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/right_wheel_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:d3530a42c450",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:d3530a42c450",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1742,18 +1743,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 1.1 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 1.1 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/sensor_mast_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:f0bd7edac68c",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:f0bd7edac68c",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1761,18 +1762,18 @@
         "assumptions": [
           "Demonstration mass for Sensor Mast; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Sensor Mast; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/sensor_mast_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:075e4688a33d",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:075e4688a33d",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1780,18 +1781,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 4.2 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 4.2 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/upper_arm_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:874c4db96896",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:874c4db96896",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1799,18 +1800,18 @@
         "assumptions": [
           "Demonstration mass for Upper Arm; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Upper Arm; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/upper_arm_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:d45e7c859232",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:d45e7c859232",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1818,18 +1819,18 @@
         "assumptions": [
           "Uniform-box inertia derived from the assumed 1.2 kg mass."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Uniform-box inertia derived from the assumed 1.2 kg mass.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/wrist_link/inertia",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:ed1355db4c3b",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:ed1355db4c3b",
         "message": "Physical inertia is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       },
@@ -1837,26 +1838,26 @@
         "assumptions": [
           "Demonstration mass for Wrist; replace with measured hardware data."
         ],
-        "createdAt": "2026-07-19T12:42:26.509Z",
+        "createdAt": "2026-07-19T15:34:21.856Z",
         "deterministicEvidence": {
           "note": "Demonstration mass for Wrist; replace with measured hardware data.",
           "source": "ASSUMED"
         },
         "domain": "physics",
         "entityPath": "/robots/simforge-warehouse-manipulator-v1/links/wrist_link/mass",
-        "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad:ROB-ASSUMPTION-001:c0a9336a665f",
+        "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6:ROB-ASSUMPTION-001:c0a9336a665f",
         "message": "Physical mass is explicitly marked as an assumption.",
         "proposedFix": null,
         "ruleId": "ROB-ASSUMPTION-001",
-        "runId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+        "runId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
         "severity": "info",
         "status": "OPEN"
       }
     ],
-    "id": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
-    "projectId": "d1566a48-e4f5-4428-ba41-b4a413ecd31d",
+    "id": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
+    "projectId": "230e3b1a-22a3-42ab-9155-47317d2e4532",
     "sceneRevision": 3,
-    "startedAt": "2026-07-19T12:42:26.509Z",
+    "startedAt": "2026-07-19T15:34:21.856Z",
     "status": "COMPLETED",
     "summary": {
       "blocker": 0,

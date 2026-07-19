@@ -37,6 +37,8 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-027 | 2026-07-19 | Generated environment | Use a versioned `EnvironmentGraph` and atomic exact-approved assembly operation; author real environment geometry into the neutral USD package. | Approved | REQ-PROD-004, REQ-PROD-005, REQ-VALIDATION-009, REQ-USD-003 |
 | DEC-028 | 2026-07-19 | Scope and delivery | Promote the optional Omniverse/Isaac Sim feedback loop from post-submission V2 planning into active pre-submission implementation, while keeping the core Blender authoring product usable when Isaac Sim is absent. Stop for owner validation before final documentation, demo-video recording, and submission. | Approved | REQ-PROD-008, REQ-PLATFORM-005, REQ-PLATFORM-006, REQ-V2-001 through REQ-V2-004 |
 | DEC-029 | 2026-07-19 | Import security and provenance | Use a pinned BSD-3-Clause ROS URDF fixture, direct contained TypeScript conversion to `RobotGraph`, and exact-approved native Blender staging with external references rejected. | Approved | REQ-IMPORT-003 through REQ-IMPORT-005, REQ-VALIDATION-009 |
+| DEC-030 | 2026-07-19 | Isaac runtime | Use an optional isolated Isaac Sim 6.0.1 Python runtime, fixed project-owned workers, copied canonical packages, deterministic experiment contracts, and native-view handoff; report below-minimum hardware without disabling the runtime. | Approved | REQ-PROD-008, REQ-PLATFORM-005, REQ-PLATFORM-006, REQ-V2-001 through REQ-V2-004 |
+| DEC-031 | 2026-07-19 | Action authority | Add persistent Guided, Balanced, and Autonomous authority independent of Chat/Plan/Build/Goal; default to Guided, bind autonomous continuation to an exact approved plan, and preserve permanent human gates. | Approved | REQ-MODE-011, REQ-MODE-012 |
 
 ## Architecture Decision Details
 
@@ -307,6 +309,45 @@ history, and USD export pipeline as generated robots. Original source, license, 
 conversion report, and meaningful approved sensor modification travel with the project
 and canonical package. Complete MJCF/Xacro and multi-file native dependency support stay
 mapped to post-hackathon V1 rather than being implied by the proven matrix.
+
+### DEC-030: Isolated optional Isaac execution and evidence
+
+**Context.** The owner required the full pre-submission simulation loop, the machine had
+an existing Omniverse installation but no callable Isaac standalone runtime, and its
+27.4 GiB RAM / 11.9 GiB VRAM are below NVIDIA's published 32/16 GiB minimums.
+
+**Decision.** Keep the existing Omniverse installation untouched. Install Isaac Sim
+6.0.1 plus its official CUDA-matched PyTorch dependency in an ignored repository-local
+Python 3.12 environment after explicit EULA acceptance, and record only the runtime path
+and acceptance timestamp under local app data. The main process invokes a fixed worker
+without a shell. Each run copies one verified canonical package, hashes the request and
+artifacts, executes a fixed 240-step physics task, captures five frames and deterministic
+stage/physics/stability checks, and stores an immutable parent-linked experiment. The
+full native Isaac viewport opens the retained experiment on explicit request.
+
+**Consequences.** Blender authoring and USD export remain usable when Isaac is absent.
+Environment Doctor reports this machine as `BELOW_PUBLISHED_MINIMUM` while still allowing
+proven bounded runs. The worker's health probe is isolated from authored geometry; robot
+stability is evaluated from mass-authored links and wheel/caster support evidence inside
+the opened Isaac stage. Runtime binaries are neither committed nor bundled.
+
+### DEC-031: Separate workflow mode from action authority
+
+**Context.** The owner clarified that SimForge should keep suggesting and planning across
+the complete loop, but should wait for user validation unless the user explicitly chooses
+more autonomy. Chat/Plan/Build/Goal describe workflow intent, not execution authority.
+
+**Decision.** Persist three explicit authority modes. `Guided` is the default and makes
+each proposed mutation a visible user step. `Balanced` permits only preconditioned local
+reversible safe fixes without another gate. `Autonomous` may continue structural work
+inside an exact approved scope and current scene revision. Goal Mode cannot raise the
+stored authority. Export/overwrite, destructive, privacy-sensitive, and privileged
+fallback actions remain human gates in every authority mode. Every automatic continuation
+records the configured authority and exact approval evidence.
+
+**Consequences.** The app can recommend the next step without conflating recommendation
+with permission. Users can choose speed versus control, stale or changed plans still fail
+closed, and Autonomous never means unbounded autonomy.
 
 ## Approval Record
 

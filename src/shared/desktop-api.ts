@@ -3,6 +3,8 @@ import type {
   EnvironmentGraph,
   ExportKind,
   ExportResult,
+  IsaacEnvironmentStatus,
+  IsaacExperiment,
   ImportReport,
   Mode,
   ModelDescriptor,
@@ -25,8 +27,14 @@ import type {
   NativeImportDecisionProposal,
   NativeImportProposal,
 } from '../main/import/native-import-service';
+import type {
+  IsaacCorrectionProposal,
+  IsaacExperimentAnalysis,
+  IsaacExperimentProposal,
+} from '../main/isaac/isaac-service';
 export type { ExportProposal };
 export type { NativeImportDecisionProposal, NativeImportProposal };
+export type { IsaacCorrectionProposal, IsaacExperimentAnalysis, IsaacExperimentProposal };
 
 export interface ToolExecutionInput {
   toolId: string;
@@ -40,6 +48,7 @@ export interface ApprovalInput {
   planHash: string;
   toolId: string;
   args: Record<string, unknown>;
+  authority?: WorkspaceSettings['actionMode'];
 }
 
 export interface GoalPlanInput {
@@ -99,6 +108,7 @@ export interface ConversationContextView {
 }
 
 export interface WorkspaceSettings {
+  actionMode: 'guided' | 'balanced' | 'autonomous';
   routingMode: 'automatic' | 'manual';
   activeProvider: 'local' | CloudProviderId;
   activeModel: string;
@@ -262,6 +272,22 @@ export interface SimForgeDesktopApi {
   proposeExport(kind: ExportKind, destination: string, overwrite: boolean): Promise<ExportProposal>;
   executeExport(proposal: ExportProposal, approvalId: string): Promise<ExportResult>;
   listExports(): Promise<ExportResult[]>;
+  getIsaacEnvironment(): Promise<IsaacEnvironmentStatus>;
+  getIsaacExperimentProposal(): Promise<IsaacExperimentProposal>;
+  runIsaacExperiment(
+    proposal: IsaacExperimentProposal,
+    approvalId: string,
+  ): Promise<IsaacExperiment>;
+  listIsaacExperiments(): Promise<IsaacExperiment[]>;
+  getIsaacExperimentImage(experimentId: string): Promise<string>;
+  getIsaacExperimentImages(experimentId: string): Promise<string[]>;
+  openIsaacExperiment(experimentId: string): Promise<{ opened: true; processId: number }>;
+  analyzeIsaacExperiment(experimentId: string): Promise<IsaacExperimentAnalysis>;
+  getIsaacCorrectionProposal(experimentId: string): Promise<IsaacCorrectionProposal>;
+  applyIsaacCorrection(proposal: IsaacCorrectionProposal, approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+  }>;
   executeTool(input: ToolExecutionInput): Promise<AppState>;
   approveAction(input: ApprovalInput): Promise<string>;
   createGoal(input: GoalPlanInput): Promise<{ jobId: string; planHash: string }>;

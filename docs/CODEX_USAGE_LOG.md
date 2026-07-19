@@ -269,6 +269,33 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   boxes in RobotGraph v1; this is reported, not hidden. General package mappings, MJCF,
   Xacro, and multi-file native dependency workflows remain post-hackathon V1.
 
+### 2026-07-19 - MS11 real Isaac feedback-loop closure
+
+- Phase/milestone: MS11A/MS11B complete; MS9A next
+- Requirement/test IDs: `REQ-PROD-008`, `REQ-MODE-011`, `REQ-MODE-012`,
+  `REQ-V2-001` through `REQ-V2-004`; `AT-038`, `AT-040`
+- What Codex/GPT-5.6 contributed: researched current official Isaac workflows and hardware
+  limits, installed an isolated runtime without disturbing Omniverse, designed the
+  experiment contract/worker/UI, derived a deterministic support-polygon failure and
+  bounded RobotGraph correction, and added user-selectable execution authority.
+- Important decisions: simulation evidence never grants Blender authority; workflow mode
+  and action authority are independent; Isaac stays optional and external; a fixed health
+  probe is collision-isolated from project geometry; native view opens retained evidence.
+- Time/risk saved: one repeatable 42-second Blender-plus-Isaac test built and exported the
+  warehouse, found a real center-of-mass failure, proved no-approval denial, shifted the
+  nine-link arm subtree -0.124770 m after a checkpoint, revalidated/re-exported, and
+  produced a passing parent-linked rerun.
+- Human review and verification: 48 default tests, real isolated Isaac acceptance, real
+  Blender+Isaac feedback-loop acceptance, five hashed frames, native GUI inspection,
+  TypeScript, ESLint, Python compilation, and hardware disclosure pass.
+- Evidence: `docs/evidence/ms11a/`, `docs/evidence/ms11b/feedback-loop.json`, DEC-030,
+  DEC-031, and the live acceptance tests.
+- Limitations or correction made: the first project-adjacent probe collided with authored
+  warehouse geometry and invalidated its sanity metric. Codex diagnosed the observed
+  lateral drift, isolated the probe outside project bounds, enlarged only the session
+  ground, and kept robot stability as a separate deterministic stage check. This machine
+  remains below NVIDIA's published RAM/VRAM minimum.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

@@ -10,6 +10,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "package:extension": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/package-blender-extension.ps1",
+    "configure:isaac": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/configure-isaac-runtime.ps1",
     "make": "electron-forge make",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

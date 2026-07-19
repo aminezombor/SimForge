@@ -14,6 +14,10 @@ import { CheckpointService } from '../../src/main/domain/checkpoint-service';
 import { ToolExecutor } from '../../src/main/domain/tool-executor';
 import { ExportService } from '../../src/main/export/export-service';
 import { locateUsdRuntime, runUsdWorker } from '../../src/main/export/usd-runtime';
+import {
+  createIsaacStabilityCorrectionProposal,
+  IsaacExperimentService,
+} from '../../src/main/isaac/isaac-service';
 import { UrdfImportService } from '../../src/main/import/urdf-import-service';
 import { NativeImportService } from '../../src/main/import/native-import-service';
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
@@ -736,6 +740,141 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     ]));
     await expect(access(path.join(canonicalDestination, 'environment', 'environment_geometry.usdc')))
       .resolves.toBeUndefined();
+
+    let isaacFeedback: Record<string, unknown> | null = null;
+    if (process.env.SIMFORGE_ISAAC_LIVE === '1' && process.env.SIMFORGE_ISAAC_PYTHON) {
+      const isaac = new IsaacExperimentService(
+        project,
+        exportService,
+        approvals,
+        activities,
+        process.cwd(),
+        localAppData,
+      );
+      const beforeProposal = isaac.proposal();
+      const beforeApproval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: beforeProposal.planHash,
+        toolId: beforeProposal.toolId,
+        args: beforeProposal.args,
+        sceneRevision: beforeProposal.sceneRevision,
+        risk: beforeProposal.risk,
+      });
+      const beforeExperiment = await isaac.execute(beforeProposal, beforeApproval);
+      expect(beforeExperiment.status).toBe('FAILED');
+      expect(beforeExperiment.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: 'ISAAC-STABILITY-001', status: 'FAIL' }),
+      ]));
+      const analysis = isaac.analysis(beforeExperiment.experimentId);
+      expect(analysis.status).toBe('CORRECTION_PROPOSED');
+      const correctionProposal = createIsaacStabilityCorrectionProposal(
+        robot,
+        environment,
+        analysis,
+        scene.current!.sceneRevision,
+      );
+      await expect(executor.execute(correctionProposal.toolId, correctionProposal.args, {
+        projectId: project.manifest.projectId,
+        mode: 'build',
+        planHash: correctionProposal.planHash,
+        planApproved: true,
+        sceneRevision: correctionProposal.sceneRevision,
+        approvalId: null,
+      })).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED' });
+      const simulationCorrectionApproval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: correctionProposal.planHash,
+        toolId: correctionProposal.toolId,
+        args: correctionProposal.args,
+        sceneRevision: correctionProposal.sceneRevision,
+        risk: correctionProposal.risk,
+      });
+      const simulationCorrection = await executor.execute(
+        correctionProposal.toolId,
+        correctionProposal.args,
+        {
+          projectId: project.manifest.projectId,
+          mode: 'build',
+          planHash: correctionProposal.planHash,
+          planApproved: true,
+          sceneRevision: correctionProposal.sceneRevision,
+          approvalId: simulationCorrectionApproval,
+        },
+      );
+      const correctionTime = new Date().toISOString();
+      project.repository.saveProjectRecord({
+        id: `robot-graph:${robot.robotId}:${simulationCorrection.postRevision}`,
+        projectId: project.manifest.projectId,
+        kind: 'asset',
+        body: { type: 'robot-graph', graph: correctionProposal.args.robotGraph, materialization: simulationCorrection.result },
+        createdAt: correctionTime,
+        updatedAt: correctionTime,
+      });
+      project.repository.saveProjectRecord({
+        id: `environment-graph:${environment.environmentId}:${simulationCorrection.postRevision}`,
+        projectId: project.manifest.projectId,
+        kind: 'asset',
+        body: { type: 'environment-graph', graph: environment, materialization: simulationCorrection.result },
+        createdAt: correctionTime,
+        updatedAt: correctionTime,
+      });
+      const simulationCorrectedValidation = await validation.run();
+      expect(simulationCorrectedValidation.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
+      await reviews.render(robot.robotId, 'After Isaac stability correction', environment.environmentId);
+
+      const correctedDestination = path.join(sandbox, 'warehouse-canonical-corrected');
+      const correctedExportProposal = await exportService.propose('canonical', correctedDestination, false);
+      const correctedExportApproval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: correctedExportProposal.planHash,
+        toolId: correctedExportProposal.toolId,
+        args: correctedExportProposal.args,
+        sceneRevision: correctedExportProposal.sceneRevision,
+        risk: 'structural',
+      });
+      const correctedExport = await exportService.execute(correctedExportProposal, correctedExportApproval);
+      const afterProposal = isaac.proposal();
+      expect(afterProposal.args.parentExperimentId).toBe(beforeExperiment.experimentId);
+      expect(afterProposal.args.sourceExportId).toBe(correctedExport.exportId);
+      const afterApproval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: afterProposal.planHash,
+        toolId: afterProposal.toolId,
+        args: afterProposal.args,
+        sceneRevision: afterProposal.sceneRevision,
+        risk: afterProposal.risk,
+      });
+      const afterExperiment = await isaac.execute(afterProposal, afterApproval);
+      expect(afterExperiment.checks.filter((check) => check.status === 'FAIL')).toEqual([]);
+      expect(afterExperiment.parentExperimentId).toBe(beforeExperiment.experimentId);
+      expect(afterExperiment.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: 'ISAAC-STABILITY-001', status: 'PASS' }),
+      ]));
+      isaacFeedback = {
+        beforeExperimentId: beforeExperiment.experimentId,
+        beforeStatus: beforeExperiment.status,
+        analysisStatus: analysis.status,
+        correction: {
+          rootLinkId: correctionProposal.args.rootLinkId,
+          deltaXM: correctionProposal.args.deltaXM,
+          checkpointId: simulationCorrection.checkpointId,
+          sceneRevision: simulationCorrection.postRevision,
+        },
+        correctedExportId: correctedExport.exportId,
+        afterExperimentId: afterExperiment.experimentId,
+        afterStatus: afterExperiment.status,
+        parentExperimentId: afterExperiment.parentExperimentId,
+      };
+      const evidenceDirectory = process.env.SIMFORGE_MS11B_EVIDENCE_DIR;
+      if (evidenceDirectory) {
+        await mkdir(evidenceDirectory, { recursive: true });
+        await writeFile(path.join(evidenceDirectory, 'feedback-loop.json'), `${JSON.stringify(isaacFeedback, null, 2)}\n`, 'utf8');
+        const beforeFinal = beforeExperiment.artifacts.filter((entry) => entry.role === 'image').at(-1);
+        const afterFinal = afterExperiment.artifacts.filter((entry) => entry.role === 'image').at(-1);
+        if (beforeFinal) await copyFile(path.join(project.root, ...beforeFinal.relativePath.split('/')), path.join(evidenceDirectory, 'before-simulation.png'));
+        if (afterFinal) await copyFile(path.join(project.root, ...afterFinal.relativePath.split('/')), path.join(evidenceDirectory, 'after-simulation.png'));
+      }
+    }
     const movedDestination = path.join(sandbox, 'moved-warehouse-package');
     await rename(canonicalDestination, movedDestination);
     const usdRuntime = await locateUsdRuntime(process.cwd());
@@ -763,6 +902,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
           correctedSceneRevision: corrected.sceneRevision,
           review: { before: beforeImage.sha256, after: afterImage.sha256, overview: overviewImage.sha256 },
           export: { exportId: exported.exportId, checks: exported.checks, movedReopen: movedVerification.ok },
+          isaacFeedback,
         }, null, 2)}\n`, 'utf8'),
       ]);
     }
@@ -770,7 +910,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const exit = once(blender, 'exit');
     await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
     await withTimeout(exit, 20_000, 'warehouse Blender exit');
-  }, 180_000);
+  }, 360_000);
 
   it('imports, meaningfully modifies, validates, reviews, and exports the licensed URDF robot', async () => {
     sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-real-import-'));

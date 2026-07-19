@@ -1,7 +1,7 @@
 # SimForge USD Readiness Report
 
-- Export ID: `bca43e2f-f15d-4186-8c01-c5d503f0607a`
-- Project: Warehouse Manipulator (`d1566a48-e4f5-4428-ba41-b4a413ecd31d`)
+- Export ID: `cd98d7bd-5cb7-4099-baa8-6cbe62235229`
+- Project: Warehouse Manipulator (`230e3b1a-22a3-42ab-9155-47317d2e4532`)
 - Robot: `simforge-warehouse-manipulator-v1`
 - Environment: `simforge-warehouse-demo-v1`
 - Blender scene revision: `3`
@@ -41,7 +41,7 @@
 
 - Physical values marked ASSUMED are not measured hardware data.
 - Primitive collision/contact checks are not simulator proof.
-- Isaac Sim execution is a V2 extension and is not required for this export.
+- Isaac Sim execution evidence is recorded separately and is never inferred from package validation.
 
 Visual review is advisory. Deterministic Blender and OpenUSD checks are the evidence source.
-Isaac Sim execution is not required for this package.
+Isaac Sim execution evidence is recorded separately and is never inferred from package validation.

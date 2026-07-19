@@ -1065,6 +1065,7 @@ export class ProjectManager {
         'checkpoints',
         'previews',
         'exports',
+        'experiments',
         'reports',
       ].map((directory) => mkdir(path.join(absoluteRoot, directory), { recursive: true })),
     );

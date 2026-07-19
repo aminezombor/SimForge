@@ -67,12 +67,14 @@ describe('MS6 project workspace', () => {
     service.ensureInitialConversation();
     const settings = service.updateSettings({
       ...service.settings(),
+      actionMode: 'autonomous',
       activeProvider: 'nvidia',
       activeModel: 'nvidia/nemotron-test',
       cloudProcessing: true,
       monthlyBudgetUsd: 15,
     });
-    expect(settings).toMatchObject({ activeProvider: 'nvidia', cloudProcessing: true, monthlyBudgetUsd: 15 });
+    expect(settings).toMatchObject({ actionMode: 'autonomous', activeProvider: 'nvidia', cloudProcessing: true, monthlyBudgetUsd: 15 });
+    expect(() => service.updateSettings({ ...settings, actionMode: 'unbounded' as never })).toThrow('action mode');
     await mkdir(path.join(project.root, 'checkpoints', 'cp'), { recursive: true });
     project.repository.saveCheckpoint({
       id: 'cp', projectId: project.manifest.projectId, label: 'Before correction', sceneRevision: 9,

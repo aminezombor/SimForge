@@ -10,6 +10,7 @@ import type {
 import type { AppRuntime } from './app-runtime';
 import type { ExportProposal } from './export/export-service';
 import type { NativeImportDecisionProposal, NativeImportProposal } from './import/native-import-service';
+import type { IsaacCorrectionProposal, IsaacExperimentProposal } from './isaac/isaac-service';
 
 const ALLOWED_MODES = new Set<Mode>(['normal', 'plan', 'build', 'goal']);
 const ALLOWED_PROVIDERS = new Set(['nvidia', 'openai'] as const);
@@ -189,6 +190,43 @@ export function registerIpc(runtime: AppRuntime): void {
     return runtime.executeExport(proposal as unknown as ExportProposal, approvalId);
   });
   handle('export:list', () => runtime.listExports());
+  handle('isaac:environment', () => runtime.getIsaacEnvironment());
+  handle('isaac:proposal', () => runtime.getIsaacExperimentProposal());
+  handle('isaac:run', (_event, rawProposal: unknown, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid Isaac simulation approval');
+    return runtime.runIsaacExperiment(
+      record(rawProposal, 'Isaac experiment proposal') as unknown as IsaacExperimentProposal,
+      approvalId,
+    );
+  });
+  handle('isaac:list', () => runtime.listIsaacExperiments());
+  handle('isaac:image', (_event, experimentId: unknown) => {
+    if (typeof experimentId !== 'string' || !experimentId) throw new Error('Invalid Isaac experiment ID');
+    return runtime.getIsaacExperimentImage(experimentId);
+  });
+  handle('isaac:images', (_event, experimentId: unknown) => {
+    if (typeof experimentId !== 'string' || !experimentId) throw new Error('Invalid Isaac experiment ID');
+    return runtime.getIsaacExperimentImages(experimentId);
+  });
+  handle('isaac:open', (_event, experimentId: unknown) => {
+    if (typeof experimentId !== 'string' || !experimentId) throw new Error('Invalid Isaac experiment ID');
+    return runtime.openIsaacExperiment(experimentId);
+  });
+  handle('isaac:analyze', (_event, experimentId: unknown) => {
+    if (typeof experimentId !== 'string' || !experimentId) throw new Error('Invalid Isaac experiment ID');
+    return runtime.analyzeIsaacExperiment(experimentId);
+  });
+  handle('isaac:correction-proposal', (_event, experimentId: unknown) => {
+    if (typeof experimentId !== 'string' || !experimentId) throw new Error('Invalid Isaac experiment ID');
+    return runtime.getIsaacCorrectionProposal(experimentId);
+  });
+  handle('isaac:correction-apply', (_event, rawProposal: unknown, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid Isaac correction approval');
+    return runtime.applyIsaacCorrection(
+      record(rawProposal, 'Isaac correction proposal') as unknown as IsaacCorrectionProposal,
+      approvalId,
+    );
+  });
   handle('tool:execute', (_event, rawInput: unknown) => {
     const input = record(rawInput, 'tool execution') as unknown as ToolExecutionInput;
     if (typeof input.toolId !== 'string') throw new Error('Invalid tool ID');

@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -211,7 +212,7 @@ def _axis_token(axis: list[float]) -> str:
 
 
 def _author_physics(path: Path, graph: dict[str, Any]) -> dict[str, str]:
-    from pxr import Gf, Usd, UsdPhysics
+    from pxr import Gf, Usd, UsdGeom, UsdPhysics
 
     stage = Usd.Stage.CreateNew(str(path))
     _set_conventions(stage)
@@ -221,6 +222,8 @@ def _author_physics(path: Path, graph: dict[str, Any]) -> dict[str, str]:
     root.SetCustomDataByKey("simforge:selfCollisionPolicy", graph["selfCollision"]["policy"])
     root.SetCustomDataByKey("simforge:selfCollisionNote", graph["selfCollision"]["note"])
     link_paths = _link_paths(graph)
+    links_by_id = {link["id"]: link for link in graph["links"]}
+    parent_by_child = {joint["childLinkId"]: joint["parentLinkId"] for joint in graph["joints"]}
     for link in graph["links"]:
         link_prim = stage.DefinePrim(link_paths[link["id"]], "Xform")
         link_prim.SetCustomDataByKey("simforge:linkId", link["id"])
@@ -228,6 +231,26 @@ def _author_physics(path: Path, graph: dict[str, Any]) -> dict[str, str]:
         link_prim.SetCustomDataByKey("simforge:materialId", link["materialId"])
         link_prim.SetCustomDataByKey("simforge:massSource", link["massKg"]["source"])
         link_prim.SetCustomDataByKey("simforge:massNote", link["massKg"]["note"])
+        world_position = [float(value) for value in link["pose"]["position"]]
+        world_rotation = [float(value) for value in link["pose"]["rotationEuler"]]
+        parent = links_by_id.get(parent_by_child.get(link["id"]))
+        if parent:
+            local_position = [
+                world_position[index] - float(parent["pose"]["position"][index])
+                for index in range(3)
+            ]
+            local_rotation = [
+                world_rotation[index] - float(parent["pose"]["rotationEuler"][index])
+                for index in range(3)
+            ]
+        else:
+            local_position = world_position
+            local_rotation = world_rotation
+        xform = UsdGeom.Xformable(link_prim)
+        xform.AddTranslateOp().Set(Gf.Vec3d(*local_position))
+        xform.AddRotateXYZOp().Set(Gf.Vec3f(*(math.degrees(value) for value in local_rotation)))
+        link_prim.SetCustomDataByKey("simforge:worldPositionM", Gf.Vec3d(*world_position))
+        link_prim.SetCustomDataByKey("simforge:worldRotationRadians", Gf.Vec3d(*world_rotation))
         if link["dynamic"]:
             UsdPhysics.RigidBodyAPI.Apply(link_prim)
         mass_api = UsdPhysics.MassAPI.Apply(link_prim)

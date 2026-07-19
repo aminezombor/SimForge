@@ -6,6 +6,7 @@ import {
   ArrowClockwise,
   ArrowCounterClockwise,
   ArrowsClockwise,
+  Atom,
   GitBranch,
   CaretDown,
   Check,
@@ -42,6 +43,8 @@ import type {
   AppState,
   ExportKind,
   ExportResult,
+  IsaacEnvironmentStatus,
+  IsaacExperiment,
   ImportReport,
   Mode,
   ModelDescriptor,
@@ -61,6 +64,9 @@ import type {
   GoalJobView,
   ImportedRobotModificationProposal,
   ImportedRobotProposal,
+  IsaacCorrectionProposal,
+  IsaacExperimentAnalysis,
+  IsaacExperimentProposal,
   NativeImportDecisionProposal,
   NativeImportProposal,
   MemoryView,
@@ -91,7 +97,7 @@ const PLAN_TASKS = [
   { id: 'verify', description: 'Refresh scene truth and report the revision.' },
 ];
 
-type DockTab = 'activity' | 'validation' | 'export' | 'history';
+type DockTab = 'activity' | 'validation' | 'simulation' | 'export' | 'history';
 type SettingsTab = 'providers' | 'privacy' | 'environment';
 
 const demoApi = createDemoApi();
@@ -134,6 +140,15 @@ function App() {
   const [versions, setVersions] = useState<VersionView[]>([]);
   const [timeline, setTimeline] = useState<TimelineEventView[]>([]);
   const [exports, setExports] = useState<ExportResult[]>([]);
+  const [isaacEnvironment, setIsaacEnvironment] = useState<IsaacEnvironmentStatus | null>(null);
+  const [isaacExperiments, setIsaacExperiments] = useState<IsaacExperiment[]>([]);
+  const [isaacProposal, setIsaacProposal] = useState<IsaacExperimentProposal | null>(null);
+  const [isaacApproval, setIsaacApproval] = useState<string | null>(null);
+  const [isaacAnalysis, setIsaacAnalysis] = useState<IsaacExperimentAnalysis | null>(null);
+  const [isaacCorrection, setIsaacCorrection] = useState<IsaacCorrectionProposal | null>(null);
+  const [isaacCorrectionApproval, setIsaacCorrectionApproval] = useState<string | null>(null);
+  const [isaacNotice, setIsaacNotice] = useState<string | null>(null);
+  const [isaacImages, setIsaacImages] = useState<string[]>([]);
   const [preview, setPreview] = useState<ScenePreviewManifest | null>(null);
   const [previewData, setPreviewData] = useState<string | null>(null);
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
@@ -161,10 +176,11 @@ function App() {
   }, []);
 
   const refreshWorkspace = useCallback(async () => {
-    const [nextState, nextConversations, nextValidation, nextCheckpoints, nextVersions, nextTimeline, nextExports, nextSettings, nextReviews, nextImport, nextNativeImports] = await Promise.all([
+    const [nextState, nextConversations, nextValidation, nextCheckpoints, nextVersions, nextTimeline, nextExports, nextSettings, nextReviews, nextImport, nextNativeImports, nextIsaacEnvironment, nextIsaacExperiments] = await Promise.all([
       desktop.getState(), desktop.listConversations(search), desktop.getLatestValidation(),
       desktop.listCheckpoints(), desktop.listVersions(), desktop.getTimeline(), desktop.listExports(),
       desktop.getWorkspaceSettings(), desktop.listReviews(), desktop.getLatestImportReport(), desktop.listNativeImports(),
+      desktop.getIsaacEnvironment(), desktop.listIsaacExperiments(),
     ]);
     setState(nextState);
     setConversations(nextConversations);
@@ -177,6 +193,8 @@ function App() {
     setReviews(nextReviews);
     setImportReport(nextImport);
     setNativeImports(nextNativeImports);
+    setIsaacEnvironment(nextIsaacEnvironment);
+    setIsaacExperiments(nextIsaacExperiments);
     const active = nextConversations.some((entry) => entry.id === activeConversationId)
       ? activeConversationId
       : nextConversations[0]?.id ?? '';
@@ -229,6 +247,15 @@ function App() {
     }, 180);
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    const latest = isaacExperiments[0];
+    if (dockTab !== 'simulation' || !latest) {
+      if (!latest) setIsaacImages([]);
+      return;
+    }
+    void desktop.getIsaacExperimentImages(latest.experimentId).then(setIsaacImages).catch(() => setIsaacImages([]));
+  }, [dockTab, isaacExperiments]);
 
   if (!state || !settings) {
     return <main className="loading-screen"><CubeFocus size={28} weight="duotone" /><span>Preparing your robotics workspace…</span></main>;
@@ -458,6 +485,82 @@ function App() {
     setState(await desktop.getState());
     await refreshWorkspace();
   });
+  const runIsaacSimulation = () => run('isaac', async () => {
+    if (!isaacProposal) {
+      setIsaacProposal(await desktop.getIsaacExperimentProposal());
+      setIsaacApproval(null);
+      setDockTab('simulation');
+      return;
+    }
+    if (!isaacApproval) {
+      setIsaacApproval(await desktop.approveAction({
+        planHash: isaacProposal.planHash,
+        toolId: isaacProposal.toolId,
+        args: isaacProposal.args,
+      }));
+      return;
+    }
+    const experiment = await desktop.runIsaacExperiment(isaacProposal, isaacApproval);
+    setIsaacExperiments(await desktop.listIsaacExperiments());
+    setIsaacImages(await desktop.getIsaacExperimentImages(experiment.experimentId));
+    setTimeline(await desktop.getTimeline());
+    setIsaacProposal(null);
+    setIsaacApproval(null);
+    setIsaacAnalysis(null);
+    setIsaacCorrection(null);
+    setIsaacCorrectionApproval(null);
+    setIsaacNotice(experiment.status === 'PASSED'
+      ? 'Rerun passed. The experiment lineage and evidence are retained.'
+      : 'A deterministic check failed. Analyze the evidence before proposing any Blender correction.');
+    setDockTab('simulation');
+  });
+  const analyzeIsaacSimulation = () => run('isaac-analyze', async () => {
+    const latest = isaacExperiments[0];
+    if (!latest) return;
+    setIsaacAnalysis(await desktop.analyzeIsaacExperiment(latest.experimentId));
+    setIsaacCorrection(null);
+    setIsaacCorrectionApproval(null);
+    setIsaacNotice(null);
+  });
+  const advanceIsaacCorrection = () => run('isaac-correct', async () => {
+    const latest = isaacExperiments[0];
+    if (!latest || !isaacAnalysis) return;
+    const apply = async (proposal: IsaacCorrectionProposal, approvalId: string) => {
+      const result = await desktop.applyIsaacCorrection(proposal, approvalId);
+      setState(result.state);
+      setValidation(result.validation);
+      setIsaacCorrection(null);
+      setIsaacCorrectionApproval(null);
+      setIsaacNotice('Correction applied after a recoverable checkpoint. Export the corrected scene, then rerun Isaac Sim to close the loop.');
+      await refreshWorkspace();
+      setDockTab('export');
+    };
+    if (!isaacCorrection) {
+      const next = await desktop.getIsaacCorrectionProposal(latest.experimentId);
+      if (settings.actionMode === 'autonomous') {
+        const approvalId = await desktop.approveAction({
+          planHash: next.planHash,
+          toolId: next.toolId,
+          args: next.args,
+          authority: 'autonomous',
+        });
+        await apply(next, approvalId);
+        return;
+      }
+      setIsaacCorrection(next);
+      setIsaacCorrectionApproval(null);
+      return;
+    }
+    if (!isaacCorrectionApproval) {
+      setIsaacCorrectionApproval(await desktop.approveAction({
+        planHash: isaacCorrection.planHash,
+        toolId: isaacCorrection.toolId,
+        args: isaacCorrection.args,
+      }));
+      return;
+    }
+    await apply(isaacCorrection, isaacCorrectionApproval);
+  });
 
   return (
     <main className={`app-frame ${leftOpen ? '' : 'rail-closed'} ${inspectionOpen ? 'inspector-open' : ''}`}>
@@ -474,6 +577,9 @@ function App() {
             <CaretDown size={13} />
           </button>
           <span className="service-chip"><HardDrives size={14} /> USD local</span>
+          <button className={`service-chip service-button ${isaacEnvironment?.runtimeReady ? 'ready' : 'unavailable'}`} onClick={() => setDockTab('simulation')} title={isaacEnvironment?.issues.join(' ') || 'Inspect the local Isaac Sim runtime'}>
+            <Atom size={14} /> Isaac {isaacEnvironment?.runtimeReady ? (isaacEnvironment.compatibility === 'SUPPORTED' ? 'ready' : 'limited') : 'unavailable'}
+          </button>
         </div>
         <div className="command-actions">
           <button className="icon-button mobile-inspector-toggle" onClick={() => setInspectionOpen((value) => !value)} aria-label="Toggle inspection panel"><CubeFocus size={19} /></button>
@@ -600,6 +706,7 @@ function App() {
                 : <button className="send-button" onClick={send} disabled={!composer.trim() || Boolean(busy)} aria-label="Send message"><PaperPlaneTilt size={19} weight="fill" /></button>}
             </div>
             <div className="composer-footer">
+              <button onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}><SlidersHorizontal size={13} /> {settings.actionMode.toUpperCase()} authority</button>
               <button onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}><Sparkle size={13} /> {routeLabel}</button>
               <button onClick={() => void run('compact', async () => setContext(await desktop.compactConversation(activeConversationId)))}><ArrowsClockwise size={13} /> Context {context?.percentUsed ?? 0}%</button>
               <span>{settings.cloudProcessing ? 'Cloud dispatch disclosed before send' : 'Local-only · cloud disabled'}</span>
@@ -632,6 +739,7 @@ function App() {
             <nav className="dock-tabs">
               <DockButton id="activity" label="Activity" icon={<ClockCounterClockwise size={15} />} active={dockTab} set={setDockTab} />
               <DockButton id="validation" label="Validate" icon={<ListChecks size={15} />} active={dockTab} set={setDockTab} {...(validation ? { badge: validation.summary.blocker + validation.summary.error } : {})} />
+              <DockButton id="simulation" label="Simulate" icon={<Atom size={15} />} active={dockTab} set={setDockTab} {...(isaacExperiments[0]?.status === 'FAILED' ? { badge: 1 } : {})} />
               <DockButton id="export" label="Export" icon={<Export size={15} />} active={dockTab} set={setDockTab} />
               <DockButton id="history" label="History" icon={<GitBranch size={15} />} active={dockTab} set={setDockTab} />
             </nav>
@@ -641,6 +749,7 @@ function App() {
                 setValidation(await desktop.applyValidationFix({ findingId, planHash: null, approvalId: null }));
                 await refreshWorkspace();
               })} onUndo={() => void run('undo', async () => { setValidation(await desktop.undoLatestValidationFix()); await refreshWorkspace(); })} />}
+              {dockTab === 'simulation' && <SimulationDock environment={isaacEnvironment} experiments={isaacExperiments} images={isaacImages} proposal={isaacProposal} approved={Boolean(isaacApproval)} analysis={isaacAnalysis} correction={isaacCorrection} correctionApproved={Boolean(isaacCorrectionApproval)} notice={isaacNotice} actionMode={settings.actionMode} busy={busy} onRun={runIsaacSimulation} onAnalyze={analyzeIsaacSimulation} onCorrect={advanceIsaacCorrection} onOpen={(experimentId) => void run('isaac-open', async () => { await desktop.openIsaacExperiment(experimentId); })} />}
               {dockTab === 'export' && <ExportDock exports={exports} validation={validation} onComplete={async () => { setExports(await desktop.listExports()); setTimeline(await desktop.getTimeline()); }} run={run} />}
               {dockTab === 'history' && <HistoryDock checkpoints={checkpoints} versions={versions} timeline={timeline} run={run} onRefresh={refreshWorkspace} />}
             </div>
@@ -863,6 +972,90 @@ function ValidationDock({ validation, busy, onRun, onFix, onUndo }: { validation
   return <><div className="dock-heading"><div><small>DETERMINISTIC VALIDATION</small><strong>{validation ? `Scene r${validation.sceneRevision}` : 'Not run yet'}</strong></div><button onClick={onRun} disabled={busy === 'validation'}><ListChecks size={15} /> Run</button></div>{validation && <div className="severity-grid"><span><b>{validation.summary.blocker}</b> blocker</span><span><b>{validation.summary.error}</b> errors</span><span><b>{validation.summary.warning}</b> warnings</span><span><b>{validation.summary.info}</b> info</span></div>}<div className="finding-list">{validation?.findings.slice(0, 18).map((finding) => <article className={`finding ${finding.severity}`} key={finding.id}><div><span>{finding.ruleId}</span><b>{finding.severity}</b></div><p>{finding.message}</p><small>{finding.entityPath}</small>{finding.proposedFix && <button onClick={() => onFix(finding.id)} disabled={finding.proposedFix.approvalRequired}>Apply {finding.proposedFix.label}</button>}</article>) ?? <div className="dock-empty"><ListChecks size={26} /><p>Run checks to inspect geometry, robotics, physics, and metadata.</p></div>}</div><button className="text-action" onClick={onUndo}><ArrowCounterClockwise size={14} /> Undo latest safe fix</button></>;
 }
 
+function SimulationDock({ environment, experiments, images, proposal, approved, analysis, correction, correctionApproved, notice, actionMode, busy, onRun, onAnalyze, onCorrect, onOpen }: {
+  environment: IsaacEnvironmentStatus | null;
+  experiments: IsaacExperiment[];
+  images: string[];
+  proposal: IsaacExperimentProposal | null;
+  approved: boolean;
+  analysis: IsaacExperimentAnalysis | null;
+  correction: IsaacCorrectionProposal | null;
+  correctionApproved: boolean;
+  notice: string | null;
+  actionMode: WorkspaceSettings['actionMode'];
+  busy: string;
+  onRun: () => void;
+  onAnalyze: () => void;
+  onCorrect: () => void;
+  onOpen: (experimentId: string) => void;
+}) {
+  const latest = experiments[0] ?? null;
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    setFrameIndex(0);
+    setPlaying(false);
+  }, [latest?.experimentId, images.length]);
+  useEffect(() => {
+    if (!playing || images.length < 2) return;
+    const timer = window.setInterval(() => setFrameIndex((current) => (current + 1) % images.length), 650);
+    return () => window.clearInterval(timer);
+  }, [images.length, playing]);
+  const metric = (name: string): string => {
+    const value = latest?.metrics[name];
+    return typeof value === 'number' ? `${value.toFixed(3)} m` : '—';
+  };
+  const actionLabel = !proposal ? 'Review local simulation' : !approved ? 'Approve exact run' : 'Run in Isaac Sim';
+  const nextRecommendation = !latest
+    ? 'Next: create and reopen a verified canonical USD export.'
+    : latest.status === 'PASSED'
+      ? 'Next: inspect retained evidence or open the exact experiment in native Isaac Sim.'
+      : !analysis
+        ? 'Next: ask the selected model to review the deterministic failure evidence.'
+        : analysis.status !== 'CORRECTION_PROPOSED'
+          ? 'Next: review the finding manually; SimForge will not invent a correction.'
+          : !correction
+            ? actionMode === 'autonomous' ? 'Next: continue the approved loop with a bounded checkpointed correction.' : 'Next: review the exact checkpointed Blender correction.'
+            : !correctionApproved ? 'Next: validate the exact correction scope.' : 'Next: apply in Blender, re-export, and rerun.';
+  return <>
+    <div className="dock-heading simulation-heading">
+      <div><small>NVIDIA ISAAC SIM · {actionMode.toUpperCase()} AUTHORITY</small><strong>{latest ? `${latest.status.toLowerCase()} · scene r${latest.sourceExport.sceneRevision}` : 'Canonical USD feedback loop'}</strong></div>
+      <span className={`runtime-pill ${environment?.runtimeReady ? environment.compatibility.toLowerCase() : 'unavailable'}`}>{environment?.runtimeReady ? (environment.compatibility === 'SUPPORTED' ? 'ready' : 'limited') : 'unavailable'}</span>
+    </div>
+    <div className="simulation-guidance"><Sparkle size={14} weight="duotone" /><span><small>RECOMMENDED PLAN</small><strong>{nextRecommendation}</strong></span></div>
+    {images.length > 0 && latest
+      ? <figure className="simulation-media"><img src={images[Math.min(frameIndex, images.length - 1)]} alt={`Isaac Sim deterministic frame ${frameIndex + 1} for scene revision ${latest.sourceExport.sceneRevision}`} /><figcaption><button onClick={() => setPlaying((current) => !current)} disabled={images.length < 2}>{playing ? <Pause size={13} weight="fill" /> : <Play size={13} weight="fill" />} {playing ? 'Pause' : 'Play evidence'}</button><input type="range" min="0" max={Math.max(images.length - 1, 0)} value={frameIndex} onChange={(event) => { setPlaying(false); setFrameIndex(Number(event.target.value)); }} aria-label="Simulation evidence frame" /><span>step {images.length > 1 ? Math.round(frameIndex * latest.task.steps / (images.length - 1)) : latest.task.steps} / {latest.task.steps}</span></figcaption></figure>
+      : <div className="simulation-empty"><Atom size={30} weight="duotone" /><strong>No project experiment yet</strong><p>Export a verified canonical USD package, then run the fixed local physics task.</p></div>}
+    {latest && <>
+      <div className="simulation-metrics">
+        <span><b>{metric('verticalDropM')}</b><small>vertical drop</small></span>
+        <span><b>{metric('settledHeightErrorM')}</b><small>settle error</small></span>
+        <span><b>{metric('lateralDriftM')}</b><small>lateral drift</small></span>
+      </div>
+      <div className="simulation-checks">{latest.checks.map((check) => <div key={check.id}><span className={`check-dot ${check.status.toLowerCase()}`}>{check.status === 'PASS' ? <Check size={11} /> : <Warning size={11} />}</span><span><strong>{check.id}</strong><small>{check.status.toLowerCase()} · deterministic evidence retained</small></span></div>)}</div>
+    </>}
+    {analysis && latest?.experimentId === analysis.experimentId && <div className={`simulation-analysis ${analysis.status.toLowerCase()}`}>
+      <span><Sparkle size={15} weight="duotone" /></span>
+      <div><strong>{analysis.status === 'CORRECTION_PROPOSED' ? 'Bounded correction available' : analysis.status === 'NO_ACTION' ? 'No correction required' : 'Manual review required'}</strong><p>{analysis.deterministicSummary}</p>{analysis.model && <><p className="advisory-copy">{analysis.model.narrative}</p><small>{analysis.model.providerId}/{analysis.model.modelId} · advisory narrative only</small></>}</div>
+    </div>}
+    {correction && <div className="simulation-correction">
+      <div><strong>Checkpointed Blender correction</strong><span>{correctionApproved ? 'approved' : 'review'}</span></div>
+      <p>{correction.summary}</p>
+      <small>Source experiment {correction.sourceExperimentId.slice(0, 8)} · exact scene r{correction.sceneRevision} · reversible structural action</small>
+    </div>}
+    {notice && <div className="simulation-notice"><CheckCircle size={15} weight="fill" /><span>{notice}</span></div>}
+    {proposal && <div className="simulation-proposal"><strong>Exact task</strong><p>{proposal.summary}</p><small>Local process · no cloud dispatch · privileged runtime · source locked to scene r{proposal.sceneRevision}</small></div>}
+    {environment?.issues.map((issue) => <p className="runtime-warning" key={issue}><Warning size={13} />{issue}</p>)}
+    <div className="simulation-actions"><button className="primary-action" onClick={onRun} disabled={!environment?.runtimeReady || busy === 'isaac'}>{busy === 'isaac' ? <><ArrowsClockwise size={15} className="spin" /> Running local simulation…</> : <><Atom size={15} /> {actionLabel}</>}</button>{latest && <button onClick={() => onOpen(latest.experimentId)} disabled={busy === 'isaac-open'}><CubeFocus size={14} /> Open native view</button>}{proposal && <span>Step {approved ? '3' : '2'} of 3</span>}</div>
+    {latest?.status === 'FAILED' && <div className="simulation-feedback-actions">
+      <button onClick={onAnalyze} disabled={busy === 'isaac-analyze' || busy === 'isaac-correct'}>{busy === 'isaac-analyze' ? <ArrowsClockwise size={14} className="spin" /> : <Sparkle size={14} />} {analysis ? 'Re-analyze evidence' : 'Analyze evidence'}</button>
+      {analysis?.status === 'CORRECTION_PROPOSED' && <button className="primary-action" onClick={onCorrect} disabled={busy === 'isaac-correct'}>{busy === 'isaac-correct' ? <ArrowsClockwise size={14} className="spin" /> : <ArrowClockwise size={14} />} {!correction ? (actionMode === 'autonomous' ? 'Continue approved loop' : 'Review Blender correction') : !correctionApproved ? 'Approve checkpointed fix' : 'Apply in Blender'}</button>}
+      {correction && <small>Correction step {correctionApproved ? '3' : '2'} of 3</small>}
+    </div>}
+    {experiments.length > 1 && <div className="experiment-history"><small>RECENT EXPERIMENTS</small>{experiments.slice(1, 4).map((entry) => <div key={entry.experimentId}><span className={`check-dot ${entry.status.toLowerCase()}`}>{entry.status === 'PASSED' ? <Check size={11} /> : <Warning size={11} />}</span><span>r{entry.sourceExport.sceneRevision} · {formatTime(entry.completedAt)}</span></div>)}</div>}
+  </>;
+}
+
 function ExportDock({ exports, validation, onComplete, run }: { exports: ExportResult[]; validation: ValidationRun | null; onComplete: () => Promise<void>; run: (name: string, action: () => Promise<void>) => Promise<void> }) {
   const [kind, setKind] = useState<ExportKind>('canonical');
   const [destination, setDestination] = useState('');
@@ -970,10 +1163,20 @@ function SettingsModal({ settings, setSettings, tab, setTab, close, run }: { set
     void run('memory-delete', async () => setMemories(await desktop.deleteMemory(memoryScope, memory.id)));
   };
   return <div className="modal-backdrop" onMouseDown={(event) => { if (event.currentTarget === event.target) close(); }}><section className="settings-modal" role="dialog" aria-modal="true" aria-label="SimForge settings"><header><div><small>SIMFORGE SETTINGS</small><h2>Connections, models, and privacy</h2></div><button className="icon-button" onClick={close} aria-label="Close settings"><X size={19} /></button></header><nav><button className={tab === 'providers' ? 'active' : ''} onClick={() => setTab('providers')}><Sparkle size={16} />AI providers</button><button className={tab === 'privacy' ? 'active' : ''} onClick={() => setTab('privacy')}><SlidersHorizontal size={16} />Privacy & memory</button><button className={tab === 'environment' ? 'active' : ''} onClick={() => setTab('environment')}><HardDrives size={16} />Environment</button></nav><div className="settings-body">
+    {tab === 'providers' && <ActionAuthoritySettings draft={draft} setDraft={setDraft} />}
     {tab === 'providers' && <><div className="settings-section"><h3>Routing</h3><div className="form-grid"><label>Routing mode<select value={draft.routingMode} onChange={(event) => setDraft({ ...draft, routingMode: event.target.value as WorkspaceSettings['routingMode'] })}><option value="automatic">Automatic · capability matched</option><option value="manual">Manual selection</option></select></label><label>Active provider<select value={draft.activeProvider} onChange={(event) => setDraft({ ...draft, activeProvider: event.target.value as WorkspaceSettings['activeProvider'], activeModel: event.target.value === 'local' ? 'mock-planner' : draft.activeModel })}><option value="local">Local fixture</option><option value="nvidia">NVIDIA NIM</option><option value="openai">OpenAI</option></select></label><label className="wide">Active model<select value={draft.activeModel} onChange={(event) => setDraft({ ...draft, activeModel: event.target.value })}><option value="mock-planner">Local deterministic fixture</option>{draft.activeModel !== 'mock-planner' && !models.some((model) => model.modelId === draft.activeModel) && <option value={draft.activeModel}>{draft.activeModel} · saved route</option>}{models.map((model) => <option key={`${model.providerId}-${model.modelId}`} value={model.modelId}>{model.displayName} · {capabilities(model)}</option>)}</select></label></div><div className="provider-enable-row"><Toggle label="Enable NVIDIA" detail="Allow NVIDIA to participate in automatic or manual routing." checked={draft.enabledProviders.nvidia} set={(checked) => setDraft({ ...draft, enabledProviders: { ...draft.enabledProviders, nvidia: checked } })} /><Toggle label="Enable OpenAI" detail="Optional secondary provider; NVIDIA remains the preferred cloud route." checked={draft.enabledProviders.openai} set={(checked) => setDraft({ ...draft, enabledProviders: { ...draft.enabledProviders, openai: checked } })} /></div></div><div className="settings-section"><div className="section-heading"><div><h3>Provider credentials</h3><p>Stored with Windows protection; credentials never enter the renderer after save.</p></div><select value={providerId} onChange={(event) => setProviderId(event.target.value as CloudProviderId)}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option></select></div><div className="credential-row"><input type="password" value={credential} onChange={(event) => setCredential(event.target.value)} placeholder={`${providerId} API key`} /><button onClick={() => void run('credential', async () => { setStatus(await desktop.configureProvider(providerId, credential)); setCredential(''); })}>Save securely</button><button onClick={() => void run('remove-credential', async () => setStatus(await desktop.removeProvider(providerId)))}>Remove</button></div><div className="provider-status"><span className={`connection-dot ${status?.configured ? 'online' : ''}`} />{status?.configured ? 'Credential configured' : 'Not configured'} · {status?.discoveredModels ?? 0} discovered models<button onClick={discover} disabled={!status?.configured}>Discover models</button></div></div><div className="settings-section"><h3>Budget and fallback</h3><div className="form-grid"><label>Monthly limit (USD)<input type="number" min="0" placeholder="No limit" value={draft.monthlyBudgetUsd ?? ''} onChange={(event) => setDraft({ ...draft, monthlyBudgetUsd: event.target.value ? Number(event.target.value) : null })} /></label><label>First fallback<select value={draft.fallbackOrder[0]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [event.target.value as WorkspaceSettings['fallbackOrder'][number], ...draft.fallbackOrder.slice(1)] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label><label>Second fallback<select value={draft.fallbackOrder[1]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [draft.fallbackOrder[0] ?? 'nvidia', event.target.value as WorkspaceSettings['fallbackOrder'][number], draft.fallbackOrder[2] ?? 'local'] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label><label>Final fallback<select value={draft.fallbackOrder[2]} onChange={(event) => setDraft({ ...draft, fallbackOrder: [draft.fallbackOrder[0] ?? 'nvidia', draft.fallbackOrder[1] ?? 'openai', event.target.value as WorkspaceSettings['fallbackOrder'][number]] })}><option value="nvidia">NVIDIA</option><option value="openai">OpenAI</option><option value="local">Local</option></select></label></div></div></>}
     {tab === 'privacy' && <><div className="settings-section privacy-list"><h3>Explicit data controls</h3><p>Cloud dispatch identifies the provider, model, data classes, purpose, and attached files before sending.</p><Toggle label="Allow cloud processing" detail="Required before NVIDIA or OpenAI can receive conversation text." checked={draft.cloudProcessing} set={(checked) => setDraft({ ...draft, cloudProcessing: checked })} /><Toggle label="Allow visual uploads" detail="Images remain local unless this is enabled and a vision route is selected." checked={draft.visualUploads} set={(checked) => setDraft({ ...draft, visualUploads: checked })} /><Toggle label="Allow file uploads" detail="Project files stay local by default." checked={draft.fileUploads} set={(checked) => setDraft({ ...draft, fileUploads: checked })} /><Toggle label="Project memory" detail="Portable summaries are stored in this project." checked={draft.projectMemory} set={(checked) => setDraft({ ...draft, projectMemory: checked })} /><Toggle label="Global memory" detail="Disabled by default; applies across projects on this machine." checked={draft.globalMemory} set={(checked) => setDraft({ ...draft, globalMemory: checked })} /><Toggle label="Diagnostic logging" detail="Sanitized technical events only; secrets are redacted." checked={draft.diagnosticLogging} set={(checked) => setDraft({ ...draft, diagnosticLogging: checked })} /></div><MemoryPanel scope={memoryScope} setScope={setMemoryScope} memories={memories} usage={usage} add={addMemory} edit={editMemory} remove={deleteMemory} exportScope={() => void run('memory-export', async () => { await desktop.exportMemories(memoryScope); })} /></>}
-    {tab === 'environment' && <div className="settings-section"><div className="section-heading"><div><h3>Environment Doctor</h3><p>Local dependencies are checked without exposing credentials.</p></div><button onClick={() => void run('doctor', async () => setDoctor(await desktop.runEnvironmentDoctor()))}><ArrowsClockwise size={15} /> Recheck</button></div><div className="doctor-list">{doctor.map((check) => <div key={check.id}><span className={`doctor-icon ${check.ok ? 'pass' : 'fail'}`}>{check.ok ? <Check size={13} /> : <Warning size={13} />}</span><span><strong>{check.id === 'blender' ? 'Blender 4.5 LTS' : check.id === 'python' ? 'Python 3.13' : 'OpenUSD sidecar'}</strong><small>{check.summary}{check.path ? ` · ${check.path}` : ''}</small></span></div>)}</div></div>}
+    {tab === 'environment' && <div className="settings-section"><div className="section-heading"><div><h3>Environment Doctor</h3><p>Local dependencies are checked without exposing credentials.</p></div><button onClick={() => void run('doctor', async () => setDoctor(await desktop.runEnvironmentDoctor()))}><ArrowsClockwise size={15} /> Recheck</button></div><div className="doctor-list">{doctor.map((check) => <div key={check.id}><span className={`doctor-icon ${check.severity}`}>{check.severity === 'pass' ? <Check size={13} /> : <Warning size={13} />}</span><span><strong>{check.id === 'blender' ? 'Blender 4.5 LTS' : check.id === 'python' ? 'Python 3.13' : check.id === 'usd' ? 'OpenUSD sidecar' : 'NVIDIA Isaac Sim'}</strong><small>{check.summary}{check.path ? ` · ${check.path}` : ''}</small></span></div>)}</div></div>}
   </div><footer><button onClick={close}>Cancel</button><button className="primary-action" onClick={save}>Save settings</button></footer></section></div>;
+}
+
+function ActionAuthoritySettings({ draft, setDraft }: { draft: WorkspaceSettings; setDraft: (settings: WorkspaceSettings) => void }) {
+  const descriptions: Record<WorkspaceSettings['actionMode'], string> = {
+    guided: 'Validate every scene mutation',
+    balanced: 'Auto-run only safe reversible fixes',
+    autonomous: 'Continue inside approved boundaries',
+  };
+  return <div className="settings-section"><h3>Action authority</h3><p>SimForge always suggests and plans. This setting controls when an approved plan may continue without another confirmation.</p><div className="authority-options">{(['guided', 'balanced', 'autonomous'] as const).map((value) => <button key={value} className={draft.actionMode === value ? 'active' : ''} onClick={() => setDraft({ ...draft, actionMode: value })}><strong>{value}</strong><small>{descriptions[value]}</small></button>)}</div><p className="authority-hard-gates"><Warning size={13} /> Export/overwrite, destructive, privacy-sensitive, and privileged fallback gates always require you.</p></div>;
 }
 
 function Toggle({ label, detail, checked, set }: { label: string; detail: string; checked: boolean; set: (checked: boolean) => void }) {
@@ -1014,7 +1217,7 @@ function createDemoApi(): SimForgeDesktopApi {
   let mode: Mode = 'normal';
   let demoMessages: ChatMessageView[] = [{ id: 'demo-a', role: 'assistant', text: 'Blender is connected. I can inspect the current scene, prepare a checkpointed plan, and validate each change before export.', createdAt: now }];
   let demoConversations: ConversationSummaryView[] = [{ id: 'demo-conversation', title: 'Warehouse rover concept', branchOf: null, messageCount: 1, createdAt: now, updatedAt: now }, { id: 'demo-history', title: 'Sensor mast exploration', branchOf: null, messageCount: 6, createdAt: now, updatedAt: new Date(Date.now() - 3_600_000).toISOString() }];
-  let demoSettings: WorkspaceSettings = { routingMode: 'automatic', activeProvider: 'nvidia', activeModel: 'nvidia/nemotron-3-ultra-550b-a55b', enabledProviders: { nvidia: true, openai: true }, fallbackOrder: ['nvidia', 'openai', 'local'], monthlyBudgetUsd: 20, cloudProcessing: true, visualUploads: false, fileUploads: false, projectMemory: true, globalMemory: false, diagnosticLogging: true };
+  let demoSettings: WorkspaceSettings = { actionMode: 'guided', routingMode: 'automatic', activeProvider: 'nvidia', activeModel: 'nvidia/nemotron-3-ultra-550b-a55b', enabledProviders: { nvidia: true, openai: true }, fallbackOrder: ['nvidia', 'openai', 'local'], monthlyBudgetUsd: 20, cloudProcessing: true, visualUploads: false, fileUploads: false, projectMemory: true, globalMemory: false, diagnosticLogging: true };
   const state = (): AppState => ({ projectId: 'demo-project', projectName: 'Warehouse Robotics Project', mode, bridgeConnected: true, sceneRevision: 12, activeGoalJobId: null, activities: [] });
   const timeline: TimelineEventView[] = [
     { id: 't1', kind: 'activity', title: 'Fresh Blender scene captured', detail: 'scene · scene-refreshed', sceneRevision: 12, actor: 'SimForge', createdAt: now },
@@ -1026,6 +1229,19 @@ function createDemoApi(): SimForgeDesktopApi {
     startedAt: now, completedAt: now, status: 'COMPLETED',
     channels: ['fresh-blender-snapshot', 'deterministic-geometry', 'deterministic-robotics', 'deterministic-environment'],
     summary: { blocker: 0, error: 0, warning: 0, info: 4 }, findings: [],
+  };
+  const demoIsaacEnvironment: IsaacEnvironmentStatus = {
+    installed: true,
+    runtimeReady: true,
+    product: 'NVIDIA Isaac Sim',
+    version: '6.0.1.0',
+    pythonVersion: '3.12.10',
+    pythonPath: 'C:\\SimForge\\.tools\\isaacsim-6.0.1\\Scripts\\python.exe',
+    compatibility: 'BELOW_PUBLISHED_MINIMUM',
+    hardware: { ramGiB: 29.4, gpuName: 'NVIDIA GeForce RTX 5070', vramGiB: 11.7, driverVersion: '610.62' },
+    publishedMinimum: { ramGiB: 32, vramGiB: 16 },
+    issues: ['This machine is below NVIDIA\'s published RAM and VRAM minimums; local experiments remain available with reduced scenes.'],
+    checkedAt: now,
   };
   const handler: ProxyHandler<Record<string, unknown>> = { get: (_target, property) => {
     const methods: Record<string, (...args: never[]) => unknown> = {
@@ -1051,6 +1267,9 @@ function createDemoApi(): SimForgeDesktopApi {
       exportDiagnostics: async () => 'simforge-diagnostics.json', deleteCurrentProject: async () => undefined,
       getLatestValidation: async () => null, listCheckpoints: async () => [], listVersions: async () => [], getTimeline: async () => timeline, listExports: async () => [],
       listReviews: async () => [],
+      getIsaacEnvironment: async () => demoIsaacEnvironment,
+      listIsaacExperiments: async () => [],
+      getIsaacExperimentProposal: async () => ({ planHash: 'simulation:demo', toolId: 'simulation.run', risk: 'privileged', sceneRevision: 12, args: { sourceExportId: 'demo-export', sourceSceneRevision: 12, task: { id: 'static-settle-v1', seed: 20260719, steps: 240 } }, summary: 'Run the fixed 240-step static-settle task in local Isaac Sim against the latest canonical export.' }),
       getPrimitiveRobotProposal: async () => ({ planHash: 'demo', toolId: 'robot.materialize', args: { graph: {} }, graph: {}, summary: '6 links / 5 joints / 2 sensor frames' }),
       getWarehouseProposal: async () => ({ planHash: 'demo-warehouse', toolId: 'scene.materialize_assembly', args: { robotGraph: {}, environmentGraph: {} }, robotGraph: {}, environmentGraph: {}, summary: '12 links / 11 joints / 3 sensors / 15 warehouse objects' }),
       buildWarehouseScene: async () => ({ state: state(), validation: demoValidation }),
@@ -1058,9 +1277,10 @@ function createDemoApi(): SimForgeDesktopApi {
       listNativeImports: async () => [],
       chooseNativeImport: async () => null,
       runEnvironmentDoctor: async () => [
-        { id: 'blender', ok: true, summary: 'Detected and compatible', path: 'C:\\Program Files\\Blender Foundation\\Blender 4.5' },
-        { id: 'python', ok: true, summary: 'Python 3.13 runtime is ready', path: null },
-        { id: 'usd', ok: true, summary: 'usd-core 26.5 is ready', path: null },
+        { id: 'blender', ok: true, severity: 'pass', summary: 'Detected and compatible', path: 'C:\\Program Files\\Blender Foundation\\Blender 4.5' },
+        { id: 'python', ok: true, severity: 'pass', summary: 'Python 3.13 runtime is ready', path: null },
+        { id: 'usd', ok: true, severity: 'pass', summary: 'usd-core 26.5 is ready', path: null },
+        { id: 'isaac', ok: true, severity: 'warning', summary: 'Isaac Sim 6.0.1.0 is ready; hardware is below the published minimum', path: demoIsaacEnvironment.pythonPath },
       ],
       providerStatus: async (id: string) => ({ providerId: id, configured: true, discoveredModels: 4, lastError: null }),
       discoverProviderModels: async () => [],

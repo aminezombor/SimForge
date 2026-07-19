@@ -38,6 +38,8 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | Electron Forge | Windows package tooling | 7.11.2 | MIT | Active documentation/project | Adopted; portable package passing, unsigned risk remains |
 | `@electron/fuses` | Package-time runtime hardening | 2.1.3 | MIT | Electron-maintained utility | Adopted directly because Electron 43 has nine fuses; strict complete policy and binary inspection pass |
 | Blender | Authoritative editor/runtime | 4.5.11 LTS | GPL | Active LTS fixes | External prerequisite; official ZIP hash verified; never bundled |
+| NVIDIA Isaac Sim | Optional simulation execution and native inspection | 6.0.1.0 on Python 3.12.10 | NVIDIA Omniverse license/EULA; external runtime | Current official Windows/Python release | Adopted as an ignored local test runtime after explicit EULA acceptance; never committed or bundled; below-minimum hardware is disclosed |
+| PyTorch | Isaac Sim CUDA runtime dependency | 2.11.0+cu130 | BSD-style upstream package terms | Official PyTorch CUDA 13.0 index | Adopted only inside the isolated Isaac environment; never bundled with SimForge |
 | SimForge Blender extension | Bridge and structured operations | Project source | GPL-3.0-or-later | Maintained in this repository | Approved boundary; privileged code |
 | CPython runtime | Fixed USD authoring environment | 3.13.14 | PSF License | Python upstream | Adopted as a relocatable packaged resource; embedded doctor passes |
 | `usd-core` | OpenUSD composition/validation | 26.5 | LicenseRef-TOST-1.0 | Pixar release 2026-04-24 | Adopted; packaged author/deep reopen/portability passing |
@@ -129,3 +131,15 @@ and third-party notice. Real Blender proves the licensed URDF plus the six nativ
 external dependencies, remote references, Xacro, entities, traversal, symlinks, and
 post-approval source changes fail closed. AT-036 remains open only for the release-wide
 inventory and final redistributable audit in MS9A.
+
+## MS11 Audit Result
+
+MS11 adds no npm dependency, committed binary, downloaded asset, or redistribution
+obligation to the SimForge release. The ignored `.tools/isaacsim-6.0.1` environment uses
+Python 3.12.10, official `isaacsim[all,extscache]` 6.0.1.0, and official
+`torch` 2.11.0+cu130 solely for local compatibility evidence after explicit NVIDIA EULA
+acceptance. SimForge persists only a local runtime descriptor outside the project. The
+release detects a separately installed compatible runtime and remains fully usable
+without it. MS9A must document owner/judge installation choices and ensure the package
+contains none of the environment, caches, EULA markers, or experiment inputs from the
+development machine.

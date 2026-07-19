@@ -2,14 +2,14 @@
 
 ## Current State
 
-- Phase: MS0-MS8 complete; MS11A Isaac runtime and evidence is active
-- Overall status: The first-cycle path, owner-approved embedded workspace, and generated
-  warehouse mobile-manipulator demonstration now pass with
-  persistent conversations/memory, capability routing, exact-revision Blender previews,
-  responsive context docking, named history, and packaged privacy/security controls
+- Phase: MS0-MS8 and MS11A/MS11B complete; MS9A release-candidate work is next
+- Overall status: The complete generated/imported authoring path and optional real Isaac
+  feedback loop pass locally, including persistent conversations/memory, capability
+  routing, exact-revision Blender previews, verified USD, simulation evidence, advisory
+  analysis, checkpointed correction, and parent-linked rerun history
 - Architecture: Approved; no architecture changes were required
-- Current gate: owner promoted the full optional Isaac Sim loop into pre-submission work;
-  continue through MS11A/MS11B and MS9A, then stop for owner hands-on validation
+- Current gate: MS11A/MS11B now pass; continue through MS9A and stop with the packaged
+  owner-test candidate before final documentation, demo video, and submission
   before final documentation, demo video, and submission
 - Last updated: 2026-07-19
 
@@ -34,12 +34,13 @@
 | 2026-07-19 | MS7 warehouse mobile manipulator | Added reusable `EnvironmentGraph`, atomic exact-approved robot/environment materialization, 15-object warehouse workcell, full 12-link manipulator, deterministic environment rules, visible gripper defect/correction, six-view review, and real environment USD composition/reopen. | `docs/evidence/MS7_VERIFICATION.md`; 40 default tests; third real Blender acceptance; 12 passing USD checks; packaged/fuse/security/privacy smoke |
 | 2026-07-19 | MS8 imported robot and native formats | Added pinned BSD-3-Clause URDF quarantine/conversion, exact-approved materialization and camera modification, provenance-aware validation/review/USD export, plus isolated BLEND/USD/GLB/FBX/OBJ/STL stage/accept/reject operations with reference and post-approval hash defenses. | `docs/evidence/MS8_VERIFICATION.md`; 44 default tests; 5 real Blender tests; packaged/fuse/security/privacy/design evidence |
 | 2026-07-19 | Local source-of-truth cleanup | Stopped the legacy Claude SimForge server and moved its exact project tree to the Windows Recycle Bin; preserved this Codex repository and its packaged app. | Local process/path verification; recoverable deletion |
+| 2026-07-19 | MS11A/MS11B optional Isaac feedback loop | Installed an isolated official Isaac Sim 6.0.1 runtime without changing existing Omniverse, added honest runtime/hardware Doctor status, copied-package experiments, five-frame/native visualization, deterministic stability evidence, provider-routed analysis, exact-approved checkpointed Blender correction, re-export, passing child rerun, lineage, and Guided/Balanced/Autonomous authority. | `docs/evidence/ms11a/`; `docs/evidence/ms11b/`; AT-038/AT-040; real Blender + Isaac acceptance |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 44 passing; 5 live Blender tests opt-in/skipped in default suite |
+| TypeScript, ESLint, unit/contract/integration suite | 48 passing; 6 live tests opt-in/skipped in default suite |
 | Real Blender 4.5.11 acceptance | All five paths pass: bridge/recovery, primitive robot, warehouse manipulator, licensed URDF import/modify/export, and six-format native stage/decision |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
@@ -48,7 +49,7 @@
 | OpenUSD | Packaged Python 3.13.14/usd-core 26.5 runtime; quick and seven-layer canonical author/reopen, hashes, references, schemas, reports, and relocated reopen pass |
 | Live NVIDIA | 119 models discovered; intended Nemotron found; text/stream/tools/reasoning controls true; vision false; no-op tool not executed |
 | Repository secret scan | Passing |
-| Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
+| Requirements audit | 125/125 mapped; 40/40 tests referenced; 8 future-tier labels retained; 0 invalid or unmapped |
 | User-local launch | Current desktop shortcut opens app plus Blender 4.5.11 with zero visible terminals; bridge establishes; graceful exit removes its descriptor and processes |
 | MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
 | MS4 robotics and visual review | Four links, three joints, four collisions, two sensor frames plus renderable bodies; deterministic `ROB-*` rules; five lit/hash-stamped views; visible before/after correction and useful sensor angle |
@@ -56,6 +57,7 @@
 | MS6 workspace | Owner-directed three-column layout; conversations, scoped memory, model routing, exact-revision GLB inspector, timeline, responsive drawers, project/diagnostic export, and recoverable deletion pass |
 | MS7 generated demonstration | 12 links, 11 joints, 12 robot collisions, 3 sensors, 15 warehouse objects/collisions, `ENV-*` evidence, six review views, and real robot/environment USD pass |
 | MS8 imported demonstration | 16 links, 15 joints, 16 collisions, exact-approved camera, disclosed mesh approximations, imported source/license in USD, deep moved reopen, and six native formats with exact accept/reject/security evidence |
+| MS11 real simulation loop | Isaac Sim 6.0.1/Python 3.12 runs locally; five hashed frames and native GUI; warehouse stability fails, proposes -0.124770 m arm retraction, rejects missing approval, checkpoints/corrects/revalidates/re-exports, then passes a parent-linked child experiment |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -64,6 +66,9 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 - Live structured-output support and numeric context/output limits remain honestly
   `unknown`; later routing must require an observed capability rather than assume one.
 - The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
+- The real Isaac loop passes on this machine, but 27.4 GiB RAM and 11.9 GiB VRAM remain
+  below NVIDIA's published minimum. Environment Doctor reports this honestly; MS9A must
+  retain a small bounded sample and document that larger scenes can require stronger hardware.
 - The user-local installer is an owner testing convenience, not an MS9 release artifact;
   clean-account, uninstall, upgrade, signing, and redistributable packaging remain open.
 - The approved workspace and MS8 import cards pass a fresh 1280x720 packaged capture
@@ -85,7 +90,7 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Execute MS11A without pausing: add honest Isaac 6.0.1 environment/hardware detection,
-contained canonical-package handoff, deterministic standalone execution, retained
-metrics/media/logs and reloadable experiment state. Then close MS11B's exact-approved
-correction/re-export/rerun comparison before MS9A and the owner test gate.
+Execute MS9A without pausing: package the new Isaac/action-authority surface, verify the
+installed and portable builds, run the clean-profile dependency/security/Blender/OpenUSD/
+Isaac matrix, prepare the sample owner-test project and exact hands-on procedure, then
+stop at the owner validation gate. Do not start final documentation, video, or submission.

@@ -32,12 +32,18 @@ Bin. Packaged AT-032 evidence exercises each scope and confirms no telemetry exi
 | Provider credentials | DPAPI-protected local blob | Sent only as HTTPS authentication to that provider; never placed in model input |
 | Renders/images/references | Project folder | Sent only when visual/file upload is enabled and disclosed |
 | Redacted logs | Local application data | No automatic telemetry; diagnostics export is user initiated |
+| Isaac experiments, copied USD, metrics, frames, and logs | Portable project `experiments/` | Local by default; only the disclosed numeric/check summary is sent when the user requests AI analysis |
 
 ## Cloud Dispatch Disclosure
 
 Before a provider request, show provider, model, purpose, and whether the payload includes conversation text, project memory, extracted document text, images/renders, file metadata, or tool results. File uploads and visual review are independently controllable. Send the minimum relevant excerpt or derived render rather than an entire project when possible.
 
 Never send API keys, credentials, environment files, unrelated files, hidden project content, raw logs containing private paths when a sanitized form suffices, or content outside the approved project/request scope.
+
+Simulation analysis discloses provider, model, purpose, data classes, and attachments
+before dispatch. The implemented request contains deterministic check IDs, numeric
+stability evidence, and a bounded summary; it contains no USD package, frame, log,
+credential, or unrelated project content. Model narrative remains advisory.
 
 Provider retention and training policies are governed by the user's provider agreement. SimForge must link current provider privacy documentation in settings and must not promise provider-side deletion it cannot enforce.
 

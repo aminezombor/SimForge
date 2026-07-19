@@ -61,9 +61,12 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
 - MS8: complete. A pinned BSD-3-Clause URDF converts to `RobotGraph`, receives an
   exact-approved camera modification, validates, renders, and exports with provenance.
   Real Blender also stages and exact-accepts/rejects the BLEND/USD/GLB/FBX/OBJ/STL matrix.
-- MS11A: active. Implement the optional runtime doctor, canonical package handoff,
-  deterministic real Isaac execution, retained metrics/media/logs, and experiment reload.
-- MS11B: follows MS11A and closes the approved correction/re-export/rerun comparison loop.
+- MS11A: complete. Optional-runtime Doctor, below-minimum hardware disclosure, copied
+  canonical handoff, fixed real Isaac execution, five retained frames, metrics/logs,
+  native view, and experiment reload pass locally.
+- MS11B: complete. Deterministic stability failure, provider-routed advisory analysis,
+  exact approval, checkpointed Blender subtree correction, revalidation/re-export,
+  parent-linked passing rerun, recommendations, and selectable action authority pass.
 - MS9A: follows the full simulation loop and ends at the owner hands-on validation gate.
 - MS9B: intentionally waits for owner validation; it contains final documentation,
   demo-video recording, and submission.

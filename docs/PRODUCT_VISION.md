@@ -37,7 +37,7 @@ SimForge makes robotics authoring conversational without hiding the engineering 
 7. **Provider-neutral projects.** Models may change; project data and tools must not be locked in.
 8. **Local ownership.** Projects remain portable and usable without a hosted SimForge service.
 9. **General product, focused demo.** Make the warehouse manipulator reliable without hard-coding the product around it.
-10. **Simulation-ready evolution.** Preserve clean extension points for a future Isaac Sim feedback loop.
+10. **Simulation feedback with bounded authority.** Keep Isaac Sim optional while retaining reproducible build-test-analyze-correct-rerun evidence and explicit user control.
 
 ## Intended Experience
 
@@ -57,4 +57,4 @@ The user creates or opens a project, configures a provider securely, describes a
 
 ## Boundaries
 
-The hackathon product is Windows-first and does not require Isaac Sim. It does not promise AI-only proof of correctness, silent export, autonomous destructive work, arbitrary network-exposed Blender execution, broad CAD fidelity, or the full simulation feedback loop. Those retained outcomes are assigned explicit future tiers rather than discarded.
+The hackathon product is Windows-first and does not require Isaac Sim for Blender authoring, validation, or USD export. When the optional runtime is configured it provides the promoted, reproducible feedback loop. SimForge does not promise AI-only proof of correctness, silent export, autonomous destructive work, arbitrary network-exposed Blender execution, or broad CAD fidelity; retained format/platform outcomes remain explicitly tiered rather than discarded.

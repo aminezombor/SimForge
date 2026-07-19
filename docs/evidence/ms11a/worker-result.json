@@ -1,0 +1,128 @@
+{
+  "checks": [
+    {
+      "evidence": {
+        "articulationRoots": 0,
+        "entryPoint": "scene.usda",
+        "robotLinkPrims": 0,
+        "sourcePrimCount": 12
+      },
+      "id": "ISAAC-STAGE-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "applicable": false,
+        "massAuthoredLinkCount": 0,
+        "reason": "At least three mass-authored wheel/caster support links are required.",
+        "supportLinkIds": []
+      },
+      "id": "ISAAC-STABILITY-001",
+      "status": "WARN"
+    },
+    {
+      "evidence": {
+        "finalPositionM": [
+          -5.99967098236084,
+          -5.999024868011475,
+          0.2499999850988388
+        ],
+        "finite": true,
+        "initialPositionM": [
+          -6.0,
+          -6.0,
+          2.0
+        ],
+        "lateralDriftM": 0.0010291428481624917,
+        "settledHeightErrorM": 1.4901161193847656e-08,
+        "steps": 240,
+        "verticalDropM": 1.7500000149011612
+      },
+      "id": "ISAAC-PHYSICS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "bytes": 865672,
+        "frameCount": 5,
+        "relativePath": "media/frame-004.png",
+        "sha256": "2249a0bbfe78f8aa5f6d14fa38f343b29acdacc149e733c117cb9e16fa32cb21"
+      },
+      "id": "ISAAC-MEDIA-001",
+      "status": "PASS"
+    }
+  ],
+  "durationSeconds": 12.594,
+  "experimentId": "ff3dcc3c-5b5f-41ea-92ac-4ad990708704",
+  "media": [
+    {
+      "bytes": 151975,
+      "relativePath": "media/frame-000.png",
+      "sha256": "891c35240859e6ecfd704a102a4300ff66674d9851c95b3653450591e66cbc63"
+    },
+    {
+      "bytes": 155360,
+      "relativePath": "media/frame-001.png",
+      "sha256": "e61b5dae10dd654370b4570fa82d7e739b2165991c00b7396430da69763f7c60"
+    },
+    {
+      "bytes": 188708,
+      "relativePath": "media/frame-002.png",
+      "sha256": "71d79ace21545d5fa46a98d6ea668cf91544e3346bd38410db9c7160895716f1"
+    },
+    {
+      "bytes": 190295,
+      "relativePath": "media/frame-003.png",
+      "sha256": "ba62506af8ea74335a4f116b6d884aa83d0762cf1035b3c01be0e913f4195009"
+    },
+    {
+      "bytes": 179334,
+      "relativePath": "media/frame-004.png",
+      "sha256": "2249a0bbfe78f8aa5f6d14fa38f343b29acdacc149e733c117cb9e16fa32cb21"
+    }
+  ],
+  "metrics": {
+    "finalPositionM": [
+      -5.99967098236084,
+      -5.999024868011475,
+      0.2499999850988388
+    ],
+    "initialPositionM": [
+      -6.0,
+      -6.0,
+      2.0
+    ],
+    "lateralDriftM": 0.0010291428481624917,
+    "robotStability": {
+      "applicable": false,
+      "massAuthoredLinkCount": 0,
+      "reason": "At least three mass-authored wheel/caster support links are required.",
+      "supportLinkIds": []
+    },
+    "sampleCount": 17,
+    "settledHeightErrorM": 1.4901161193847656e-08,
+    "verticalDropM": 1.7500000149011612
+  },
+  "runtime": {
+    "headless": true,
+    "product": "NVIDIA Isaac Sim",
+    "python": "3.12.10",
+    "telemetryConsentAddedBySimForge": false,
+    "version": "6.0.1.0"
+  },
+  "schemaVersion": 1,
+  "source": {
+    "articulationRoots": 0,
+    "entryPoint": "scene.usda",
+    "entryPointSha256": "13cf62129cb62c75327acb716b7cdf9fccae6f904d3959ff5a34f951b99a2e78",
+    "primCount": 12,
+    "robotLinkPrims": 0
+  },
+  "status": "PASSED",
+  "task": {
+    "id": "static-settle-v1",
+    "seed": 20260719,
+    "steps": 240,
+    "timeCodesPerSecond": 60
+  }
+}

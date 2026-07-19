@@ -7,6 +7,8 @@ import type {
   EnvironmentGraph,
   ExportKind,
   ExportResult,
+  IsaacEnvironmentStatus,
+  IsaacExperiment,
   ImportReport,
   Mode,
   ModelDescriptor,
@@ -71,6 +73,13 @@ import {
   type NativeImportDecisionProposal,
   type NativeImportProposal,
 } from './import/native-import-service';
+import {
+  createIsaacStabilityCorrectionProposal,
+  IsaacExperimentService,
+  type IsaacCorrectionProposal,
+  type IsaacExperimentAnalysis,
+  type IsaacExperimentProposal,
+} from './isaac/isaac-service';
 
 export class AppRuntime {
   private project: ProjectHandle | null = null;
@@ -85,6 +94,7 @@ export class AppRuntime {
   private validation: ValidationService | null = null;
   private reviews: ReviewService | null = null;
   private exports: ExportService | null = null;
+  private isaac: IsaacExperimentService | null = null;
   private previews: PreviewService | null = null;
   private workspace: WorkspaceService | null = null;
   private providers: ProviderService | null = null;
@@ -161,6 +171,14 @@ export class AppRuntime {
       this.executor,
       this.activities,
       this.applicationRoot,
+    );
+    this.isaac = new IsaacExperimentService(
+      project,
+      this.exports,
+      this.approvals,
+      this.activities,
+      this.applicationRoot,
+      this.userDataDirectory,
     );
     this.previews = new PreviewService(project, this.bridge, this.sceneState, this.activities);
     this.bridge.on('connected', () => {
@@ -666,6 +684,208 @@ export class AppRuntime {
     return this.requireExports().list();
   }
 
+  getIsaacEnvironment(): Promise<IsaacEnvironmentStatus> {
+    return this.requireIsaac().environment();
+  }
+
+  getIsaacExperimentProposal(): IsaacExperimentProposal {
+    return this.requireIsaac().proposal();
+  }
+
+  runIsaacExperiment(
+    proposal: IsaacExperimentProposal,
+    approvalId: string,
+  ): Promise<IsaacExperiment> {
+    return this.requireIsaac().execute(proposal, approvalId);
+  }
+
+  listIsaacExperiments(): IsaacExperiment[] {
+    return this.requireIsaac().list();
+  }
+
+  getIsaacExperimentImage(experimentId: string): Promise<string> {
+    return this.requireIsaac().imageData(experimentId);
+  }
+
+  getIsaacExperimentImages(experimentId: string): Promise<string[]> {
+    return this.requireIsaac().imageDataList(experimentId);
+  }
+
+  openIsaacExperiment(experimentId: string): Promise<{ opened: true; processId: number }> {
+    return this.requireIsaac().openInteractive(experimentId);
+  }
+
+  async analyzeIsaacExperiment(experimentId: string): Promise<IsaacExperimentAnalysis> {
+    const deterministic = this.requireIsaac().analysis(experimentId);
+    const project = this.requireProject();
+    const settings = this.requireWorkspace().settings();
+    const route = await this.requireModelRouter().select(settings, 'validation-review', ['text', 'streaming']);
+    const requestId = randomUUID();
+    const request = {
+      requestId,
+      modelId: route.modelId,
+      purpose: 'Advisory analysis of deterministic Isaac Sim evidence',
+      messages: [{
+        role: 'user' as const,
+        parts: [{
+          type: 'text' as const,
+          text: [
+            'Review the following deterministic Isaac Sim check evidence.',
+            'Explain the failure plainly and assess the displayed bounded correction. Do not claim simulation evidence beyond this JSON.',
+            JSON.stringify({
+              experimentId,
+              status: deterministic.status,
+              failedCheckIds: deterministic.failedCheckIds,
+              deterministicSummary: deterministic.deterministicSummary,
+              stabilityEvidence: deterministic.stabilityEvidence,
+            }),
+          ].join('\n'),
+        }],
+      }],
+      tools: [],
+    };
+    this.requireActivities().record('provider', 'dispatch-disclosed', `${route.providerId}/${route.modelId}: ${route.reason}`, {
+      providerId: route.providerId,
+      modelId: route.modelId,
+      purpose: request.purpose,
+      dataClasses: ['deterministic simulation findings', 'numeric physics evidence'],
+      attachments: [],
+      selectionReason: route.reason,
+    });
+    let responseText = '';
+    let usage: { inputTokens: number | null; outputTokens: number | null } | null = null;
+    const cloudProvider: CloudProviderId | null = route.providerId === 'local' ? null : route.providerId;
+    const stream = cloudProvider
+      ? this.requireProviders().stream(cloudProvider, request)
+      : this.mockProvider.stream(null, request);
+    for await (const event of stream) {
+      if (event.type === 'text-delta') responseText += event.text;
+      if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+    }
+    const narrative = route.providerId === 'local'
+      ? `${deterministic.deterministicSummary} Local fixture added no independent physics claims.`
+      : responseText.trim() || `${deterministic.deterministicSummary} The selected provider returned no additional narrative.`;
+    const analysis: IsaacExperimentAnalysis = {
+      ...deterministic,
+      model: {
+        providerId: route.providerId,
+        modelId: route.modelId,
+        narrative,
+        advisoryOnly: true,
+        selectionReason: route.reason,
+      },
+    };
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `isaac-analysis:${analysis.analysisId}`,
+      projectId: project.manifest.projectId,
+      kind: 'validation',
+      body: { type: 'isaac-analysis', analysis },
+      createdAt: now,
+      updatedAt: now,
+    });
+    project.repository.saveProjectRecord({
+      id: `usage:${requestId}`,
+      projectId: project.manifest.projectId,
+      kind: 'usage',
+      body: { type: 'provider-usage', providerId: route.providerId, modelId: route.modelId, usage, costUsd: null, purpose: request.purpose, selectionReason: route.reason },
+      createdAt: now,
+      updatedAt: now,
+    });
+    this.requireActivities().record('simulation', 'isaac-analysis-completed', 'AI reviewed retained deterministic simulation evidence', {
+      experimentId,
+      status: analysis.status,
+      providerId: route.providerId,
+      modelId: route.modelId,
+      advisoryOnly: true,
+      failedCheckIds: analysis.failedCheckIds,
+    });
+    return analysis;
+  }
+
+  async getIsaacCorrectionProposal(experimentId: string): Promise<IsaacCorrectionProposal> {
+    const { snapshot } = await this.requireSceneState().refresh();
+    const analysis = this.requireIsaac().analysis(experimentId);
+    const graph = this.requireValidation().latestRobotGraph();
+    const environment = this.requireValidation().latestEnvironmentGraph();
+    if (!graph || !environment) throw new Error('Current RobotGraph and EnvironmentGraph are required for correction');
+    return createIsaacStabilityCorrectionProposal(graph, environment, analysis, snapshot.sceneRevision);
+  }
+
+  async applyIsaacCorrection(
+    proposal: IsaacCorrectionProposal,
+    approvalId: string,
+  ): Promise<{ state: AppState; validation: ValidationRun }> {
+    if (
+      proposal.toolId !== 'robot.retract_subtree' ||
+      proposal.risk !== 'structural' ||
+      proposal.planHash !== sha256({ toolId: proposal.toolId, args: proposal.args })
+    ) throw new Error('Isaac correction proposal is invalid or changed');
+    const source = this.requireIsaac().list().find((entry) => entry.experimentId === proposal.sourceExperimentId);
+    if (!source || this.requireIsaac().analysis(source.experimentId).status !== 'CORRECTION_PROPOSED') {
+      throw new Error('The source experiment no longer supports this correction');
+    }
+    const { snapshot } = await this.requireSceneState().refresh();
+    if (snapshot.sceneRevision !== proposal.sceneRevision) {
+      throw new Error('Blender changed after correction review; inspect the simulation proposal again');
+    }
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    this.saveRobotGraph(proposal.args.robotGraph, execution);
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `environment-graph:${proposal.args.environmentGraph.environmentId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: {
+        type: 'environment-graph',
+        graph: proposal.args.environmentGraph,
+        materialization: {
+          preRevision: execution.preRevision,
+          postRevision: execution.postRevision,
+          checkpointId: execution.checkpointId,
+          result: execution.result,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    project.repository.saveProjectRecord({
+      id: `isaac-correction:${proposal.sourceExperimentId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'validation',
+      body: {
+        type: 'isaac-correction',
+        sourceExperimentId: proposal.sourceExperimentId,
+        proposal,
+        checkpointId: execution.checkpointId,
+        sceneRevision: execution.postRevision,
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('simulation', 'isaac-correction-applied', 'Applied approved simulation correction in Blender and revalidated the scene', {
+      sourceExperimentId: proposal.sourceExperimentId,
+      rootLinkId: proposal.args.rootLinkId,
+      deltaXM: proposal.args.deltaXM,
+      checkpointId: execution.checkpointId,
+      sceneRevision: validation.sceneRevision,
+      blocker: validation.summary.blocker,
+      error: validation.summary.error,
+    });
+    return { state: this.getState(), validation };
+  }
+
   async executeTool(input: ToolExecutionInput): Promise<AppState> {
     const state = this.getState();
     if (state.sceneRevision === null) {
@@ -688,6 +908,14 @@ export class AppRuntime {
     if (state.sceneRevision === null) throw new Error('Scene revision is required for approval');
     const tool = this.requireExecutor().availableTools(state.mode).find((entry) => entry.id === input.toolId);
     if (!tool) throw new Error('Tool is unavailable in the current mode');
+    const configuredAuthority = this.requireWorkspace().settings().actionMode;
+    if (input.authority && input.authority !== configuredAuthority) {
+      throw new Error('Action authority changed; review the action again');
+    }
+    const automatic = input.authority === 'autonomous';
+    if (automatic && (tool.risk === 'destructive' || tool.risk === 'privileged' || ['export.package', 'python.execute'].includes(tool.id))) {
+      throw new Error(`${tool.id} is a permanent human approval gate even in Autonomous authority`);
+    }
     const approvalId = this.requireApprovals().approve({
       projectId: state.projectId,
       planHash: input.planHash,
@@ -696,10 +924,12 @@ export class AppRuntime {
       sceneRevision: state.sceneRevision,
       risk: tool.risk,
     });
-    this.requireActivities().record('approval', 'action-approved', `Approved ${input.toolId}`, {
+    this.requireActivities().record('approval', automatic ? 'approved-plan-authority-used' : 'action-approved', automatic ? `Approved plan continued with ${input.toolId}` : `Approved ${input.toolId}`, {
       approvalId,
       planHash: input.planHash,
       sceneRevision: state.sceneRevision,
+      authority: configuredAuthority,
+      automatic,
     });
     return approvalId;
   }
@@ -1198,7 +1428,7 @@ export class AppRuntime {
   }
 
   runEnvironmentDoctor(): Promise<DoctorCheck[]> {
-    return runEnvironmentDoctor(this.applicationRoot);
+    return runEnvironmentDoctor(this.applicationRoot, this.userDataDirectory);
   }
 
   private async handleSceneEvent(event: BridgeEvent): Promise<void> {
@@ -1280,6 +1510,11 @@ export class AppRuntime {
   private requireExports(): ExportService {
     if (!this.exports) throw new Error('Export service is not initialized');
     return this.exports;
+  }
+
+  private requireIsaac(): IsaacExperimentService {
+    if (!this.isaac) throw new Error('Isaac experiment service is not initialized');
+    return this.isaac;
   }
 
   private requirePreviews(): PreviewService {

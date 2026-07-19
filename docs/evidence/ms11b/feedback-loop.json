@@ -1,0 +1,15 @@
+{
+  "beforeExperimentId": "8758c392-beb2-49b9-84b1-9550cbc2f8e6",
+  "beforeStatus": "FAILED",
+  "analysisStatus": "CORRECTION_PROPOSED",
+  "correction": {
+    "rootLinkId": "arm_column_link",
+    "deltaXM": -0.12477,
+    "checkpointId": "ec28026a-ac3d-4ba2-9a79-d97bee6e29bb",
+    "sceneRevision": 4
+  },
+  "correctedExportId": "8db798ee-86ab-4bf0-91d8-f05c038b6bff",
+  "afterExperimentId": "a23c4f3c-cbd5-424d-9fc0-e1309111b4b9",
+  "afterStatus": "PASSED",
+  "parentExperimentId": "8758c392-beb2-49b9-84b1-9550cbc2f8e6"
+}

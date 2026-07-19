@@ -557,6 +557,87 @@ export const ExportResultSchema = Type.Object({
 });
 export type ExportResult = Static<typeof ExportResultSchema>;
 
+export const IsaacCheckSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  status: Type.Union([Type.Literal('PASS'), Type.Literal('WARN'), Type.Literal('FAIL')]),
+  evidence: Type.Record(Type.String(), Type.Unknown()),
+});
+export type IsaacCheck = Static<typeof IsaacCheckSchema>;
+
+export const IsaacEnvironmentStatusSchema = Type.Object({
+  installed: Type.Boolean(),
+  runtimeReady: Type.Boolean(),
+  product: Type.Literal('NVIDIA Isaac Sim'),
+  version: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  pythonVersion: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  pythonPath: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  compatibility: Type.Union([
+    Type.Literal('SUPPORTED'),
+    Type.Literal('BELOW_PUBLISHED_MINIMUM'),
+    Type.Literal('UNAVAILABLE'),
+  ]),
+  hardware: Type.Object({
+    ramGiB: Type.Number({ minimum: 0 }),
+    gpuName: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+    vramGiB: Type.Union([Type.Number({ minimum: 0 }), Type.Null()]),
+    driverVersion: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  }),
+  publishedMinimum: Type.Object({
+    ramGiB: Type.Literal(32),
+    vramGiB: Type.Literal(16),
+  }),
+  issues: Type.Array(Type.String()),
+  checkedAt: Type.String({ format: 'date-time' }),
+});
+export type IsaacEnvironmentStatus = Static<typeof IsaacEnvironmentStatusSchema>;
+
+export const IsaacExperimentSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  experimentId: Type.String({ minLength: 1 }),
+  parentExperimentId: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  projectId: Type.String({ minLength: 1 }),
+  sourceExport: Type.Object({
+    exportId: Type.String({ minLength: 1 }),
+    sceneRevision: Type.Integer({ minimum: 0 }),
+    packageSha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    entryPoint: Type.String({ minLength: 1 }),
+  }),
+  task: Type.Object({
+    id: Type.Literal('static-settle-v1'),
+    seed: Type.Integer(),
+    steps: Type.Integer({ minimum: 60, maximum: 600 }),
+    timeCodesPerSecond: Type.Literal(60),
+  }),
+  status: Type.Union([Type.Literal('PASSED'), Type.Literal('FAILED'), Type.Literal('ERROR')]),
+  checks: Type.Array(IsaacCheckSchema),
+  metrics: Type.Record(Type.String(), Type.Unknown()),
+  runtime: Type.Object({
+    product: Type.Literal('NVIDIA Isaac Sim'),
+    version: Type.String({ minLength: 1 }),
+    python: Type.String({ minLength: 1 }),
+    headless: Type.Literal(true),
+    compatibility: Type.Union([
+      Type.Literal('SUPPORTED'),
+      Type.Literal('BELOW_PUBLISHED_MINIMUM'),
+    ]),
+  }),
+  artifacts: Type.Array(Type.Object({
+    role: Type.Union([
+      Type.Literal('request'),
+      Type.Literal('result'),
+      Type.Literal('log'),
+      Type.Literal('image'),
+    ]),
+    relativePath: Type.String({ minLength: 1 }),
+    sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    bytes: Type.Integer({ minimum: 0 }),
+  })),
+  experimentRelativePath: Type.String({ minLength: 1 }),
+  startedAt: Type.String({ format: 'date-time' }),
+  completedAt: Type.String({ format: 'date-time' }),
+});
+export type IsaacExperiment = Static<typeof IsaacExperimentSchema>;
+
 export const BridgeHandshakeSchema = Type.Object({
   protocolVersion: Type.Literal(ProtocolVersion),
   kind: Type.Literal('handshake'),

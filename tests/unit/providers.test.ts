@@ -208,6 +208,7 @@ describe('provider-neutral adapters', () => {
       );
       const router = new ModelRouter(service);
       const settings: WorkspaceSettings = {
+        actionMode: 'guided',
         routingMode: 'automatic' as const,
         activeProvider: 'nvidia' as const,
         activeModel: 'mock-planner',

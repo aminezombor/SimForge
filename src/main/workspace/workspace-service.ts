@@ -17,6 +17,7 @@ import type { GlobalRepository } from '../storage/global-repository';
 import type { AttachmentRecord, ProjectHandle } from '../storage/project-repository';
 
 const DEFAULT_SETTINGS: WorkspaceSettings = {
+  actionMode: 'guided',
   routingMode: 'automatic',
   activeProvider: 'local',
   activeModel: 'mock-planner',
@@ -267,6 +268,7 @@ export class WorkspaceService {
     validateSettings(settings);
     this.global.setState('workspace:settings', settings);
     this.activities.record('privacy', 'workspace-settings-updated', 'Updated routing, memory, and privacy controls', {
+      actionMode: settings.actionMode,
       routingMode: settings.routingMode,
       activeProvider: settings.activeProvider,
       cloudProcessing: settings.cloudProcessing,
@@ -520,6 +522,7 @@ function messageText(parts: unknown[]): string {
 }
 
 function validateSettings(settings: WorkspaceSettings): void {
+  if (!['guided', 'balanced', 'autonomous'].includes(settings.actionMode)) throw new Error('Invalid action mode');
   if (!['automatic', 'manual'].includes(settings.routingMode)) throw new Error('Invalid routing mode');
   if (!['local', 'nvidia', 'openai'].includes(settings.activeProvider)) throw new Error('Invalid active provider');
   if (!settings.activeModel.trim() || settings.activeModel.length > 180) throw new Error('Invalid active model');

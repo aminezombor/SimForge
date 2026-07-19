@@ -154,3 +154,20 @@ and no success may be claimed unless a real run completes. A compatible external
 or NVIDIA cloud runner remains the honest acceptance fallback if local execution fails.
 
 Sources: [Isaac Sim 6.0.1 workstation installation](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_workstation.html), [Python environment installation](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_python.html), [workflows](https://docs.isaacsim.omniverse.nvidia.com/5.0.0/introduction/workflows.html), [6.0 requirements](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/requirements.html), and [asset validation rules](https://docs.isaacsim.omniverse.nvidia.com/latest/py/source/extensions/isaacsim.asset.validation/docs/index.html).
+
+### Isaac implementation result
+
+The bounded installation succeeded without modifying the existing Omniverse installation.
+An ignored Python 3.12.10 environment now contains `isaacsim[all,extscache]` 6.0.1.0 and
+the official CUDA 13.0 PyTorch 2.11.0 dependency. Environment Doctor proves the runtime
+and preserves the honest `BELOW_PUBLISHED_MINIMUM` status. Headless execution and the
+native GUI both opened copied canonical packages successfully on the RTX 5070 machine.
+
+The first real warehouse run produced `ISAAC-STABILITY-001: FAIL`. SimForge derived an
+exact -0.124770 m arm-subtree correction, rejected it without approval, checkpointed and
+applied the approved Blender operation, revalidated and re-exported the scene, then ran a
+parent-linked child experiment with `ISAAC-STABILITY-001: PASS`. Five captured frames,
+checks, metrics, logs, hashes, runtime identity, and manifests are retained per experiment.
+The fixed health probe had to be moved outside authored project geometry and given a
+larger session-only ground so warehouse collisions could not contaminate the runtime
+sanity metric; this diagnosis is now a regression test rather than a hidden assumption.

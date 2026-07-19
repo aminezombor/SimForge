@@ -36,6 +36,8 @@ Requirements describe outcomes and constraints, not implementation choices. Allo
 | REQ-MODE-008 | Persist job state across restarts and allow continued chat while long local work runs. | HACKATHON-P0 | Brief 7 |
 | REQ-MODE-009 | Goal Mode never silently exports, publishes, deletes, replaces major work, installs dangerous dependencies, or makes major behavioral changes. | HACKATHON-P0 | Brief 7 |
 | REQ-MODE-010 | Use approval gates for the initial plan, major design, visual review, physics/robotics configuration, USD readiness, and final destination/package; ask only when the answer materially affects outcome, cost, privacy, security, behavior, or reversibility. | HACKATHON-P0 | Brief 8 |
+| REQ-MODE-011 | Throughout build, validation, export, simulation, analysis, correction, and rerun, suggest the next evidence-backed plan or action while keeping the user in control of execution authority. | HACKATHON-P0 | Owner clarification 2026-07-19 |
+| REQ-MODE-012 | Provide persistent Guided, Balanced, and Autonomous action-authority modes; default to Guided, never let Goal Mode expand authority, and retain human gates for export/overwrite, destructive, privacy-sensitive, and privileged fallback actions. | HACKATHON-P0 | Owner clarification 2026-07-19 |
 
 ## AI Providers and Routing
 

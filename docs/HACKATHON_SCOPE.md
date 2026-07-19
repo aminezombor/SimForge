@@ -15,7 +15,10 @@ Every confirmed requirement uses exactly one label. Deferral means retaining the
 
 The stable submission path must include project creation/opening, modern chat and goal entry, plan approval, NVIDIA configuration and runtime Nemotron validation, provider-neutral proof or optional OpenAI integration, secure key storage, reliable Blender connection, structured actions, controlled Python fallback, fresh scene inspection, manual-edit detection, visible activity, risk checkpoints, generated robot/environment geometry, deterministic geometry and basic robotics validation, safe fixes, approval for structural fixes, explicit USD export, reopen verification, readiness reporting, the warehouse mobile-manipulator demo, complete setup/judge documentation, and a packaged or readily runnable build.
 
-P0 also includes the process, security, privacy, documentation, traceability, licensing, and submission requirements needed to make those capabilities trustworthy and judgeable.
+P0 also includes the process, security, privacy, documentation, traceability, licensing,
+and submission requirements needed to make those capabilities trustworthy and judgeable.
+Guided authority is the default; Balanced and Autonomous are explicit owner choices and
+never remove the permanent destructive/privacy/export/privileged gates.
 
 ## `HACKATHON-P1`
 

@@ -102,6 +102,16 @@ const TOOLS: ToolDefinition[] = [
     bridgeOperation: 'robot.set_link_pose',
   },
   {
+    id: 'robot.retract_subtree',
+    description: 'Apply one exact simulation-derived translation to a robot subtree',
+    mutates: true,
+    risk: 'structural',
+    allowedModes: ['build', 'goal'],
+    approval: 'exact-action',
+    checkpoint: 'before',
+    bridgeOperation: 'robot.retract_subtree',
+  },
+  {
     id: 'robot.add_sensor',
     description: 'Add one exact-approved sensor representation to an existing robot link',
     mutates: true,
@@ -170,6 +180,16 @@ const TOOLS: ToolDefinition[] = [
     approval: 'exact-action',
     checkpoint: 'before',
     bridgeOperation: 'export.package',
+  },
+  {
+    id: 'simulation.run',
+    description: 'Run one exact-approved deterministic task in the configured local Isaac Sim runtime',
+    mutates: false,
+    risk: 'privileged',
+    allowedModes: ['build', 'goal'],
+    approval: 'exact-action',
+    checkpoint: 'none',
+    bridgeOperation: 'simulation.run',
   },
 ];
 

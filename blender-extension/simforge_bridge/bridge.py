@@ -392,6 +392,78 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             }, [str(obj["simforge.id"])], True
         finally:
             _INTERNAL_MUTATION = False
+    if operation == "robot.retract_subtree":
+        robot_id = str(payload.get("robotId", ""))
+        root_link_id = str(payload.get("rootLinkId", ""))
+        affected_link_ids = payload.get("affectedLinkIds")
+        reason = str(payload.get("reason", ""))
+        try:
+            delta_x = float(payload.get("deltaXM"))
+        except (TypeError, ValueError):
+            delta_x = math.nan
+        if (
+            not robot_id or len(robot_id) > 128 or
+            not root_link_id or len(root_link_id) > 128 or
+            not isinstance(affected_link_ids, list) or not affected_link_ids or
+            not all(isinstance(value, str) and value for value in affected_link_ids) or
+            root_link_id not in affected_link_ids or
+            not reason or len(reason) > 1024 or
+            not math.isfinite(delta_x) or delta_x >= -0.001 or abs(delta_x) > 0.5
+        ):
+            raise BridgeOperationError("INVALID_ROBOT_CORRECTION", "Simulation correction arguments are invalid")
+        robot_objects = [
+            value for value in bpy.context.scene.objects
+            if value.get("simforge.robot.id") == robot_id
+        ]
+        target_link = next((
+            value for value in robot_objects
+            if value.get("simforge.role") == "link" and
+            value.get("simforge.link.id") == root_link_id
+        ), None)
+        if target_link is None:
+            raise BridgeOperationError("ROBOT_LINK_NOT_FOUND", "The approved correction root link was not found")
+        missing = [
+            link_id for link_id in affected_link_ids
+            if not any(
+                value.get("simforge.role") == "link" and value.get("simforge.link.id") == link_id
+                for value in robot_objects
+            )
+        ]
+        if missing:
+            raise BridgeOperationError("ROBOT_SUBTREE_CHANGED", "The approved correction subtree no longer matches Blender")
+        entering_joint = next((
+            value for value in robot_objects
+            if value.get("simforge.role") == "joint" and
+            value.get("simforge.joint.child_link_id") == root_link_id
+        ), None)
+        movable = entering_joint or target_link
+        _INTERNAL_MUTATION = True
+        try:
+            matrix = movable.matrix_world.copy()
+            matrix.translation.x += delta_x
+            movable.matrix_world = matrix
+            target_link["simforge.correction.source"] = "isaac-simulation"
+            target_link["simforge.correction.delta_x_m"] = delta_x
+            target_link["simforge.correction.reason"] = reason
+            bpy.context.view_layer.update()
+            changed_ids = [
+                str(value.get("simforge.id")) for value in robot_objects
+                if (
+                    value.get("simforge.link.id") in affected_link_ids or
+                    value.get("simforge.collision.link_id") in affected_link_ids or
+                    value.get("simforge.joint.child_link_id") in affected_link_ids or
+                    value.get("simforge.sensor.parent_link_id") in affected_link_ids
+                ) and value.get("simforge.id")
+            ]
+            return {
+                "robotId": robot_id,
+                "rootLinkId": root_link_id,
+                "deltaXM": delta_x,
+                "affectedLinkIds": affected_link_ids,
+                "changedEntityIds": changed_ids,
+            }, changed_ids, True
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "robot.add_sensor":
         robot_id = str(payload.get("robotId", ""))
         sensor = payload.get("sensor")

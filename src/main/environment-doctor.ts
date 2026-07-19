@@ -3,12 +3,14 @@ import { access } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { locateUsdRuntime, runUsdWorker } from './export/usd-runtime';
+import { inspectIsaacEnvironment } from './isaac/isaac-service';
 
 const execFileAsync = promisify(execFile);
 
 export interface DoctorCheck {
-  id: 'blender' | 'python' | 'usd';
+  id: 'blender' | 'python' | 'usd' | 'isaac';
   ok: boolean;
+  severity: 'pass' | 'warning' | 'fail';
   summary: string;
   path: string | null;
 }
@@ -46,9 +48,13 @@ async function commandVersion(command: string, args: string[]): Promise<string |
   }
 }
 
-export async function runEnvironmentDoctor(appRoot: string): Promise<DoctorCheck[]> {
+export async function runEnvironmentDoctor(
+  appRoot: string,
+  userDataDirectory: string,
+): Promise<DoctorCheck[]> {
   const blender = await locateBlender();
   const python = await commandVersion('py.exe', ['-3.13', '--version']);
+  const isaac = await inspectIsaacEnvironment(appRoot, userDataDirectory);
   let usd: string | null;
   let usdPython: string | null;
   try {
@@ -63,20 +69,40 @@ export async function runEnvironmentDoctor(appRoot: string): Promise<DoctorCheck
     {
       id: 'blender',
       ok: Boolean(blender),
+      severity: blender ? 'pass' : 'fail',
       summary: blender ? 'Blender executable detected' : 'Blender 4.5 LTS is not detected',
       path: blender,
     },
     {
       id: 'python',
       ok: Boolean(python),
+      severity: python ? 'pass' : 'fail',
       summary: python ?? 'Python 3.13 is not detected through the Windows launcher',
       path: python ? 'py.exe -3.13' : null,
     },
     {
       id: 'usd',
       ok: Boolean(usd?.includes('"ok": true')),
+      severity: usd?.includes('"ok": true') ? 'pass' : 'fail',
       summary: usd ?? 'OpenUSD sidecar environment is not bootstrapped',
       path: usd ? usdPython : null,
+    },
+    {
+      id: 'isaac',
+      ok: isaac.runtimeReady,
+      severity: !isaac.runtimeReady
+        ? 'fail'
+        : isaac.compatibility === 'BELOW_PUBLISHED_MINIMUM'
+          ? 'warning'
+          : 'pass',
+      summary: !isaac.runtimeReady
+        ? isaac.issues.join(' ') || 'Isaac Sim runtime is unavailable'
+        : `${isaac.product} ${isaac.version} is ready${
+          isaac.compatibility === 'BELOW_PUBLISHED_MINIMUM'
+            ? `; local hardware is below the published minimum. ${isaac.issues.join(' ')}`
+            : ''
+        }`,
+      path: isaac.pythonPath,
     },
   ];
 }
