@@ -6,7 +6,9 @@
 - Status: MS1/MS2 bounded proofs complete, including the owner-keyed live NVIDIA probe
 - Method: Prefer current official documentation and upstream source repositories. Popularity alone is not adoption evidence.
 
-Every adopted dependency must be pinned, inventoried, security-reviewed, and verified in a packaged Windows path. MS1 installed only its reviewed application/runtime dependencies; Blender and OpenUSD were exercised from ignored local verification environments.
+Every adopted dependency must be pinned, inventoried, security-reviewed, and verified in
+a packaged Windows path. Blender is exercised from the separate verified LTS installation;
+MS5 embeds the fixed Python/OpenUSD worker after packaged author/reopen proof.
 
 ## Architecture Comparison
 
@@ -27,7 +29,7 @@ Sources: [Electron releases](https://releases.electronjs.org/), [Electron securi
 | `@assistant-ui/react` | Modern chat primitives | MIT; active project | Reduces message/thread/accessibility work; supports custom runtimes | Provider/cloud adapters could create lock-in | Use primitives plus local custom runtime only; no Assistant Cloud; prove Electron/Vite fit |
 | `node:sqlite` | Local project/global persistence | Node license; delivered with Node 24 | No native add-on rebuild and defensive SQLite API | API is release-candidate stability | Adopt behind interface if packaged spike passes; fixed fallback to `better-sqlite3` |
 | Blender 4.5 LTS Python API | Authoritative scene integration | Blender GPL; maintained LTS | Official scene/import/export APIs and headless testing | `bpy` is main-thread sensitive; USD importer/exporter has composition limits | Require separate install; build thin GPL extension and direct background tests |
-| `usd-core` 26.5 | OpenUSD authoring and verification | TOST-1.0; Pixar-maintained | Official Windows CPython 3.13 wheel; includes core schemas without imaging burden | Native DLL packaging and license notices | Adopt in fixed Python sidecar after package/reopen proof |
+| `usd-core` 26.5 | OpenUSD authoring and verification | TOST-1.0; Pixar-maintained | Official Windows CPython 3.13 wheel; includes core schemas without imaging burden | Native DLL packaging and license notices | Adopted in fixed packaged sidecar; deep relocated reopen passes |
 | UsdPhysics | Neutral robotics physics schemas | Part of OpenUSD | Standard articulation, collision, joint, and mass representation | Does not guarantee Isaac-specific readiness | Adopt neutral P0 layer; add rule parity with Isaac guidance |
 | NVIDIA hosted NIM | Primary inference | Commercial service terms; official NVIDIA API | Hosted Nemotron avoids impractical local hardware; OpenAI-compatible streaming/tool surfaces | Access/model/capabilities vary by endpoint | Discover and probe at runtime; never hard-code success |
 | OpenAI Responses API | Optional secondary provider | Commercial service terms; official SDK/API | Proves provider abstraction; current models can support text/image/tool workflows | Cost, access, and model changes | Optional P0 proof, capability-driven selection |
@@ -81,3 +83,12 @@ packaged NVIDIA probe discovered 119 models, found the intended Nemotron identif
 streamed text, observed a harmless tool call without execution, and accepted an explicit
 reasoning-control request. The credential and raw model output are absent from committed
 evidence.
+
+## MS5 Research Gate Result
+
+The Blender 4.5 exporter, Python 3.13.14, `usd-core` 26.5, and UsdPhysics seams pass as a
+packaged path. The official wheel relocates with the fixed Python runtime, authors neutral
+composition layers, flattens a quick file, resolves dependencies after a package move, and
+inspects articulation/physics/material/sensor schemas. No alternate USD library or
+Blender-only composition fallback was required. Release size/notices remain an MS9 audit;
+Isaac-specific validation remains optional V2 work.

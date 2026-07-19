@@ -176,6 +176,29 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   unchanged, and recorded that the NVIDIA key may need re-entry. Exported hierarchy and
   imported integrity remain correctly assigned to MS5/MS8.
 
+### 2026-07-19 - MS5 verified USD export closure
+
+- Phase/milestone: MS5 complete; cycle one complete
+- Requirement/test IDs: `REQ-VALIDATION-011/012`, `REQ-USD-001` through
+  `REQ-USD-006`, `AT-028` through `AT-030`
+- What Codex/GPT-5.6 contributed: converted the approved neutral export architecture into
+  selected Blender geometry/source capture, JSON-driven OpenUSD composition, deterministic
+  schema/reference/hash inspection, quick flattening, and atomic approved promotion.
+- Important decisions: exact export scope binds destination, overwrite, final-package
+  intent, validation and revision; visual review remains advisory; fixed OpenUSD code runs
+  from a relocatable packaged Python/usd-core resource without shell or runtime download.
+- Time/risk saved: the real Blender/OpenUSD loop caught Blender's enum API detail, USD
+  custom-data typing, and duplicate visual/physics link identifiers before packaging.
+- Human review and verification: strict tests, real Blender, deep relocated reopen,
+  JSON/Markdown agreement, packaged runtime doctor, fuses, isolated security/credential
+  smoke, and a current one-click installation pass.
+- Evidence: `docs/evidence/MS5_VERIFICATION.md` and `docs/evidence/ms5-usd/`.
+- Limitations or correction made: a diagnostic mistake displayed one ephemeral loopback
+  descriptor in transient tool output. Codex stopped the session immediately, traced stale
+  files to non-awaited Electron shutdown, and added graceful revocation/startup cleanup and
+  regression coverage without retaining the token. Signing and clean-account release work
+  remain MS9.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

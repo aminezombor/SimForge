@@ -4,6 +4,8 @@ import path from 'node:path';
 import type {
   AppState,
   BridgeEvent,
+  ExportKind,
+  ExportResult,
   Mode,
   ModelDescriptor,
   ReviewManifest,
@@ -28,6 +30,7 @@ import { CheckpointService } from './domain/checkpoint-service';
 import { JobOrchestrator } from './domain/job-orchestrator';
 import { ToolExecutor } from './domain/tool-executor';
 import { runEnvironmentDoctor, type DoctorCheck } from './environment-doctor';
+import { ExportService, type ExportProposal } from './export/export-service';
 import { MockProviderAdapter } from './providers/mock-provider';
 import {
   ProviderService,
@@ -55,6 +58,7 @@ export class AppRuntime {
   private checkpoints: CheckpointService | null = null;
   private validation: ValidationService | null = null;
   private reviews: ReviewService | null = null;
+  private exports: ExportService | null = null;
   private providers: ProviderService | null = null;
   private closed = false;
   private readonly mockProvider = new MockProviderAdapter();
@@ -114,6 +118,13 @@ export class AppRuntime {
       this.activities,
     );
     this.reviews = new ReviewService(project, this.sceneState, this.executor, this.activities);
+    this.exports = new ExportService(
+      project,
+      this.sceneState,
+      this.executor,
+      this.activities,
+      this.applicationRoot,
+    );
     this.bridge.on('connected', () => {
       this.requireActivities().record('bridge', 'connected', 'Blender connected');
     });
@@ -280,6 +291,18 @@ export class AppRuntime {
 
   getReviewImage(reviewId: string, view: string): Promise<string> {
     return this.requireReviews().imageData(reviewId, view);
+  }
+
+  proposeExport(kind: ExportKind, destination: string, overwrite: boolean): Promise<ExportProposal> {
+    return this.requireExports().propose(kind, destination, overwrite);
+  }
+
+  executeExport(proposal: ExportProposal, approvalId: string): Promise<ExportResult> {
+    return this.requireExports().execute(proposal, approvalId);
+  }
+
+  listExports(): ExportResult[] {
+    return this.requireExports().list();
   }
 
   async executeTool(input: ToolExecutionInput): Promise<AppState> {
@@ -641,6 +664,11 @@ export class AppRuntime {
   private requireReviews(): ReviewService {
     if (!this.reviews) throw new Error('Review service is not initialized');
     return this.reviews;
+  }
+
+  private requireExports(): ExportService {
+    if (!this.exports) throw new Error('Export service is not initialized');
+    return this.exports;
   }
 
   private goalView(state: ReturnType<JobOrchestrator['get']>): GoalJobView {

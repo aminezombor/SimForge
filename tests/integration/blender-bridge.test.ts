@@ -1,5 +1,5 @@
 import { once } from 'node:events';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import net, { type Socket } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -57,6 +57,26 @@ async function fixture(options: ConstructorParameters<typeof BlenderBridgeServer
 }
 
 describe('authenticated Blender bridge', () => {
+  it('removes dead or malformed session descriptors before issuing a fresh token', async () => {
+    const sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-bridge-cleanup-'));
+    sandboxes.push(sandbox);
+    const runtime = path.join(sandbox, 'runtime');
+    await mkdir(runtime);
+    const dead = path.join(runtime, '999999-old-project.json');
+    const malformed = path.join(runtime, '888888-malformed.json');
+    await writeFile(dead, JSON.stringify({
+      appPid: 999999,
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    }), 'utf8');
+    await writeFile(malformed, '{not-json', 'utf8');
+    const server = new BlenderBridgeServer();
+    servers.push(server);
+    await server.start(runtime, 'fresh-project', path.join(sandbox, 'project'));
+    await expect(access(dead)).rejects.toBeDefined();
+    await expect(access(malformed)).rejects.toBeDefined();
+    await expect(access(path.join(runtime, `${process.pid}-fresh-project.json`))).resolves.toBeUndefined();
+  });
+
   it('keeps the token private, rejects forged clients, and exchanges revisioned RPC', async () => {
     const { server, descriptor, publicDescriptor } = await fixture();
     expect(publicDescriptor).not.toHaveProperty('token');

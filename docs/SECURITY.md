@@ -4,7 +4,7 @@
 
 Protect provider credentials and private project data, prevent models/renderers/imports from gaining ambient authority, prevent unintended Blender or filesystem mutation, keep recovery possible, and make cloud and privileged actions understandable to the user.
 
-## MS1-MS4 Implemented Baseline
+## MS1-MS5 Implemented Baseline
 
 Packaged evidence confirms renderer sandbox/context isolation, no renderer Node globals,
 restrictive CSP, denied remote windows/navigation/permissions, a typed narrow preload
@@ -13,8 +13,9 @@ DPAPI-backed credentials, policy, files, jobs, and the authenticated bridge. Run
 descriptors and credential blobs receive current-user-only Windows ACLs. Tests cover
 forged/oversized bridge frames, stale/forged approvals, prompt-injected unavailable
 tools, project-path traversal, secret-like chat/script content, privileged script
-failure, and crash recovery. Import/export-specific controls remain gated in their
-later milestones because those surfaces do not yet exist.
+failure, crash recovery, export-path/type/traversal policy, exact overwrite approval,
+staging containment, relative USD dependencies, inventory hashes, and atomic promotion.
+Import-specific controls remain gated to MS8.
 
 Packaged smoke tests run only with an explicit isolated user-data directory. SimForge
 sets that directory before runtime initialization, creates a separate global/project
@@ -59,7 +60,14 @@ Mode permissions are checked twice: when tools are offered to a provider and whe
 
 ## Files, Imports, and Sidecars
 
-All paths are absolute after canonicalization and checked against approved roots. Archive extraction rejects absolute paths, drive changes, `..`, symlink escapes, and excessive sizes/counts. Sidecars are launched without a shell, with fixed executable/script paths and JSON stdin. Blender opens untrusted files with automatic script execution disabled.
+All paths are absolute after canonicalization and checked against approved roots. Archive extraction rejects absolute paths, drive changes, `..`, symlink escapes, and excessive sizes/counts. Sidecars are launched without a shell, with fixed executable/script paths and contained JSON request files. Blender opens untrusted files with automatic script execution disabled.
+
+Export proposals bind kind, robot, destination, overwrite, final-package intent,
+validation run, scene revision, and exact arguments. Blender writes only inside project
+staging. OpenUSD rejects absolute/up-level dependencies, inventories every artifact, and
+deeply reopens the promoted output; an existing destination requires a new explicit
+overwrite proposal. Graceful app exit awaits bridge shutdown, and startup removes
+dead/expired/malformed session descriptors before generating a fresh token.
 
 ## Network Policy
 
@@ -72,3 +80,9 @@ Acceptance tests cover Plan Mode mutation attempts, forged bridge sessions, stal
 ## Incident Handling
 
 On suspected leakage: stop provider calls, revoke the affected key with the provider, delete protected local credentials, sanitize retained logs/evidence, document the incident privately, rotate any related secret, and add a regression test. Never commit a leaked key even after revocation.
+
+During MS5 installed-launch verification, a diagnostic command mistakenly displayed one
+ephemeral loopback descriptor. The exact app and Blender processes were stopped
+immediately, revoking the session; the value was neither a provider credential nor
+committed. Investigation produced DEC-025 and regression coverage for awaited shutdown,
+stale-descriptor cleanup, and fresh-token issuance without descriptor logging.

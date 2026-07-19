@@ -1,0 +1,189 @@
+{
+  "quick": {
+    "verified": true,
+    "checks": [
+      {
+        "evidence": {
+          "path": "verified-quick.usdc"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "links": 4,
+          "visualAndPhysicsLinkPrims": 8
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "bytes": 66957,
+          "sha256": "8e9aa7c289fe3b4280dc015b0e77bf72000d892c09a2ab4442bd57c3df02b3d7"
+        },
+        "id": "USD-HASH-001",
+        "status": "PASS"
+      }
+    ]
+  },
+  "canonical": {
+    "exportId": "1627edf1-8fd3-47c1-b4d9-fbb1f13a1698",
+    "sceneRevision": 3,
+    "checks": [
+      {
+        "evidence": {
+          "missing": [],
+          "required": [
+            "scene.usda",
+            "robot/robot.usda",
+            "robot/geometry/robot_geometry.usdc",
+            "robot/materials/robot_materials.usda",
+            "robot/physics/robot_physics.usda",
+            "robot/sensors/robot_sensors.usda",
+            "environment/environment.usda"
+          ]
+        },
+        "id": "USD-LAYERS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "invalid": [],
+          "references": [
+            {
+              "asset": "./environment/environment.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./robot/robot.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./geometry/robot_geometry.usdc",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            }
+          ]
+        },
+        "id": "USD-REFERENCES-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "joints": 3,
+          "links": 4,
+          "visualAndPhysicsLinkPrims": 8
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "collisions": 4,
+          "massSchemas": 4
+        },
+        "id": "USD-PHYSICS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "materials": 4
+        },
+        "id": "USD-MATERIAL-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "sensors": 2
+        },
+        "id": "USD-SENSOR-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "failures": [],
+          "fileCount": 20
+        },
+        "id": "USD-HASH-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "collisions": 4,
+          "joints": 3,
+          "links": 4,
+          "materials": 4,
+          "metersPerUnit": 1,
+          "sensors": 2,
+          "traversedPrims": 55,
+          "upAxis": "Z",
+          "usedLayers": 8
+        },
+        "id": "USD-DEEP-REOPEN-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda",
+          "failures": [],
+          "reopenedAtCurrentLocation": true
+        },
+        "id": "USD-PORTABILITY-001",
+        "status": "PASS"
+      }
+    ],
+    "movedReopen": true
+  }
+}

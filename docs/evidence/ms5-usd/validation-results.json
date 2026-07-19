@@ -1,0 +1,509 @@
+{
+  "assumptions": [
+    "Physical values are explicit hackathon assumptions, not measured hardware data.",
+    "Z=0 is the support plane and X is robot-forward.",
+    "Collision primitives intentionally approximate visual primitives.",
+    "Drive force values are placeholders for downstream tuning and require human approval before behavioral use."
+  ],
+  "exportId": "1627edf1-8fd3-47c1-b4d9-fbb1f13a1698",
+  "limitations": [
+    "Physical values marked ASSUMED are not measured hardware data.",
+    "Primitive collision/contact checks are not simulator proof.",
+    "Isaac Sim execution is a V2 extension and is not required for this export."
+  ],
+  "modelAssertionUsedAsEvidence": false,
+  "sceneRevision": 3,
+  "schemaVersion": 1,
+  "sourceValidation": {
+    "channels": [
+      "fresh-blender-snapshot",
+      "deterministic-geometry-metadata",
+      "deterministic-robotics"
+    ],
+    "completedAt": "2026-07-19T10:46:49.541Z",
+    "findings": [
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.5899999737739563,
+              0.3400000035762787,
+              0.5449999570846558
+            ],
+            "min": [
+              -0.5899999737739563,
+              -0.3400000035762787,
+              0.29499998688697815
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:base_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-ORIGIN-001:ddd9f93620d4",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            -3.020508287931989e-09,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.2150000035762787,
+              0.4675000011920929,
+              0.4350000023841858
+            ],
+            "min": [
+              -0.2150000035762787,
+              0.35249999165534973,
+              0.004999991040676832
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:left_wheel_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-ORIGIN-001:440abd1aaa86",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              -0.33500003814697266,
+              0.1149999126791954,
+              0.23499999940395355
+            ],
+            "min": [
+              -0.5649999380111694,
+              -0.11499994993209839,
+              0.004999995231628418
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:rear_caster_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-ORIGIN-001:cc17ada19ff6",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            3.020508287931989e-09,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.2150000035762787,
+              -0.35249999165534973,
+              0.4349999725818634
+            ],
+            "min": [
+              -0.2150000035762787,
+              -0.4675000011920929,
+              0.00500002084299922
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:right_wheel_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-ORIGIN-001:35bda14c31dd",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:base_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-VISIBILITY-001:ddd9f93620d4",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:left_wheel_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-VISIBILITY-001:440abd1aaa86",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:rear_caster_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-VISIBILITY-001:cc17ada19ff6",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/simforge-primitive-wheeled-v1:collision:right_wheel_link",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:GEO-VISIBILITY-001:35bda14c31dd",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Uniform-box inertia calculated from the assumed 18 kg mass and visual dimensions."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Uniform-box inertia calculated from the assumed 18 kg mass and visual dimensions.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/base_link/inertia",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:6251b72d5af0",
+        "message": "Physical inertia is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hackathon demonstration value; confirm against manufactured design."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Hackathon demonstration value; confirm against manufactured design.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/base_link/mass",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:b57ce1f637b2",
+        "message": "Physical mass is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Uniform-cylinder inertia calculated from assumed wheel mass and dimensions."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Uniform-cylinder inertia calculated from assumed wheel mass and dimensions.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/left_wheel_link/inertia",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:325b2e2a46d4",
+        "message": "Physical inertia is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hackathon wheel mass assumption."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Hackathon wheel mass assumption.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/left_wheel_link/mass",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:218b6f50ff9d",
+        "message": "Physical mass is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Uniform-sphere inertia calculated from assumed mass and radius."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Uniform-sphere inertia calculated from assumed mass and radius.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/rear_caster_link/inertia",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:8fb183d1020e",
+        "message": "Physical inertia is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hackathon caster assembly mass assumption."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Hackathon caster assembly mass assumption.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/rear_caster_link/mass",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:d47926c021ad",
+        "message": "Physical mass is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Uniform-cylinder inertia calculated from assumed wheel mass and dimensions."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Uniform-cylinder inertia calculated from assumed wheel mass and dimensions.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/right_wheel_link/inertia",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:ef89447144e1",
+        "message": "Physical inertia is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hackathon wheel mass assumption."
+        ],
+        "createdAt": "2026-07-19T10:46:49.541Z",
+        "deterministicEvidence": {
+          "note": "Hackathon wheel mass assumption.",
+          "source": "ASSUMED"
+        },
+        "domain": "physics",
+        "entityPath": "/robots/simforge-primitive-wheeled-v1/links/right_wheel_link/mass",
+        "id": "9f1b992b-8498-4f02-91d7-353feda86120:ROB-ASSUMPTION-001:a5a6a3265a47",
+        "message": "Physical mass is explicitly marked as an assumption.",
+        "proposedFix": null,
+        "ruleId": "ROB-ASSUMPTION-001",
+        "runId": "9f1b992b-8498-4f02-91d7-353feda86120",
+        "severity": "info",
+        "status": "OPEN"
+      }
+    ],
+    "id": "9f1b992b-8498-4f02-91d7-353feda86120",
+    "projectId": "a1715f09-ef9b-4c63-b6e6-d54ec49331a7",
+    "sceneRevision": 3,
+    "startedAt": "2026-07-19T10:46:49.541Z",
+    "status": "COMPLETED",
+    "summary": {
+      "blocker": 0,
+      "error": 0,
+      "info": 16,
+      "warning": 0
+    }
+  },
+  "usdChecks": [
+    {
+      "evidence": {
+        "missing": [],
+        "required": [
+          "scene.usda",
+          "robot/robot.usda",
+          "robot/geometry/robot_geometry.usdc",
+          "robot/materials/robot_materials.usda",
+          "robot/physics/robot_physics.usda",
+          "robot/sensors/robot_sensors.usda",
+          "environment/environment.usda"
+        ]
+      },
+      "id": "USD-LAYERS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "entryPoint": "scene.usda"
+      },
+      "id": "USD-STAGE-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "defaultPrim": "/World",
+        "metersPerUnit": 1.0,
+        "upAxis": "Z"
+      },
+      "id": "USD-CONVENTION-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "invalid": [],
+        "references": [
+          {
+            "asset": "./environment/environment.usda",
+            "layer": "scene.usda"
+          },
+          {
+            "asset": "./robot/robot.usda",
+            "layer": "scene.usda"
+          },
+          {
+            "asset": "./materials/robot_materials.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./physics/robot_physics.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./sensors/robot_sensors.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./geometry/robot_geometry.usdc",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./materials/robot_materials.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./physics/robot_physics.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./sensors/robot_sensors.usda",
+            "layer": "robot/robot.usda"
+          }
+        ]
+      },
+      "id": "USD-REFERENCES-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "articulationRoot": true,
+        "joints": 3,
+        "links": 4,
+        "visualAndPhysicsLinkPrims": 8
+      },
+      "id": "USD-ROBOT-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "collisions": 4,
+        "massSchemas": 4
+      },
+      "id": "USD-PHYSICS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "materials": 4
+      },
+      "id": "USD-MATERIAL-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "sensors": 2
+      },
+      "id": "USD-SENSOR-001",
+      "status": "PASS"
+    }
+  ]
+}

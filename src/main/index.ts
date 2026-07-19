@@ -46,6 +46,20 @@ app.enableSandbox();
 
 let runtime: AppRuntime | null = null;
 let mainWindow: BrowserWindow | null = null;
+let shutdownStarted = false;
+let shutdownComplete = false;
+
+async function shutdownThenQuit(): Promise<void> {
+  if (!shutdownStarted) {
+    shutdownStarted = true;
+    try {
+      await runtime?.shutdown();
+    } finally {
+      shutdownComplete = true;
+    }
+  }
+  app.quit();
+}
 
 function registerAppProtocol(): void {
   const rendererRoot = path.resolve(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}`);
@@ -211,6 +225,8 @@ void app.whenReady().then(async () => {
   if (smokeMode) {
     await runSmokeTest();
     await runtime.shutdown();
+    shutdownStarted = true;
+    shutdownComplete = true;
     app.quit();
     return;
   }
@@ -224,6 +240,8 @@ void app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (!smokeMode) app.quit();
 });
-app.on('before-quit', () => {
-  void runtime?.shutdown();
+app.on('before-quit', (event) => {
+  if (shutdownComplete) return;
+  event.preventDefault();
+  void shutdownThenQuit();
 });

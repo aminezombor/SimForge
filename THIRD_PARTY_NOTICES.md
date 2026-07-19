@@ -20,10 +20,11 @@ development tooling and retain their upstream licenses.
 
 ## Python, OpenUSD, and Blender
 
-- `usd-core` 26.5 is used in the Python 3.13 compatibility environment under its
-  upstream license and is not yet embedded in the MS1 desktop package.
-- CPython retains the Python Software Foundation License.
+- `usd-core` 26.5 is embedded in the fixed export runtime under its upstream
+  `LicenseRef-TOST-1.0` terms.
+- CPython 3.13.14 is embedded for that worker and retains the Python Software Foundation
+  License. SimForge invokes it only through the fixed JSON-driven OpenUSD sidecar.
 - Blender 4.5 LTS is an external GPL prerequisite and is not redistributed by SimForge.
 - The SimForge Blender extension includes its GPL-3.0-or-later notice and SPDX metadata.
 
-No third-party robot, texture, environment, or sample asset is included in MS1/MS2.
+No third-party robot, texture, environment, or sample asset is included through MS5.

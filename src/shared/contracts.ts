@@ -336,6 +336,67 @@ export const ReviewManifestSchema = Type.Object({
 });
 export type ReviewManifest = Static<typeof ReviewManifestSchema>;
 
+export const ExportKindSchema = Type.Union([Type.Literal('quick'), Type.Literal('canonical')]);
+export type ExportKind = Static<typeof ExportKindSchema>;
+
+export const ExportCheckSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  status: Type.Union([Type.Literal('PASS'), Type.Literal('WARN'), Type.Literal('FAIL')]),
+  evidence: Type.Record(Type.String(), Type.Unknown()),
+});
+export type ExportCheck = Static<typeof ExportCheckSchema>;
+
+export const ExportManifestSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  exportId: Type.String({ minLength: 1 }),
+  kind: ExportKindSchema,
+  appVersion: Type.String({ minLength: 1 }),
+  createdAt: Type.String({ format: 'date-time' }),
+  entryPoint: Type.String({ minLength: 1 }),
+  project: Type.Object({ id: Type.String({ minLength: 1 }), name: Type.String({ minLength: 1 }) }),
+  robotId: Type.String({ minLength: 1 }),
+  sceneRevision: Type.Integer({ minimum: 0 }),
+  conventions: Type.Object({
+    upAxis: Type.Literal('Z'),
+    metersPerUnit: Type.Literal(1),
+    robotForwardAxis: Type.Literal('X'),
+  }),
+  sourceValidationRunId: Type.String({ minLength: 1 }),
+  validation: Type.Object({
+    checks: Type.Array(ExportCheckSchema),
+    summary: Type.Object({
+      blocker: Type.Integer({ minimum: 0 }),
+      error: Type.Integer({ minimum: 0 }),
+      warning: Type.Integer({ minimum: 0 }),
+      info: Type.Integer({ minimum: 0 }),
+    }),
+  }),
+  assumptions: Type.Array(Type.String()),
+  limitations: Type.Array(Type.String()),
+  files: Type.Array(Type.Object({
+    path: Type.String({ minLength: 1 }),
+    role: Type.String({ minLength: 1 }),
+    bytes: Type.Integer({ minimum: 0 }),
+    sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+  })),
+});
+export type ExportManifest = Static<typeof ExportManifestSchema>;
+
+export const ExportResultSchema = Type.Object({
+  exportId: Type.String({ minLength: 1 }),
+  kind: ExportKindSchema,
+  destination: Type.String({ minLength: 1 }),
+  sceneRevision: Type.Integer({ minimum: 0 }),
+  verified: Type.Boolean(),
+  checkpointId: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  manifest: ExportManifestSchema,
+  checks: Type.Array(ExportCheckSchema),
+  machineResultsPath: Type.String({ minLength: 1 }),
+  readinessReportPath: Type.String({ minLength: 1 }),
+  completedAt: Type.String({ format: 'date-time' }),
+});
+export type ExportResult = Static<typeof ExportResultSchema>;
+
 export const BridgeHandshakeSchema = Type.Object({
   protocolVersion: Type.Literal(ProtocolVersion),
   kind: Type.Literal('handshake'),

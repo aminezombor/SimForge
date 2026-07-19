@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { EventEmitter } from 'node:events';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import net, { type Server, type Socket } from 'node:net';
 import path from 'node:path';
 import {
@@ -88,6 +88,7 @@ export class BlenderBridgeServer extends EventEmitter {
   ): Promise<Omit<BridgeDescriptor, 'token'>> {
     if (this.server) throw new BridgeError('ALREADY_STARTED', 'Blender bridge is already started');
     await mkdir(runtimeDirectory, { recursive: true });
+    await cleanupStaleDescriptors(runtimeDirectory);
     const token = randomBytes(32).toString('base64url');
     const server = net.createServer({ pauseOnConnect: false }, (socket) => this.accept(socket));
     this.server = server;
@@ -317,5 +318,33 @@ export class BlenderBridgeServer extends EventEmitter {
       .catch(() => {
         // Reconnect fails closed if the protected descriptor cannot be renewed.
       });
+  }
+}
+
+async function cleanupStaleDescriptors(runtimeDirectory: string): Promise<void> {
+  const root = path.resolve(runtimeDirectory);
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (!entry.isFile() || !/^\d+-.+\.json$/.test(entry.name)) continue;
+    const candidate = path.resolve(root, entry.name);
+    if (!candidate.startsWith(`${root}${path.sep}`) || (await lstat(candidate)).isSymbolicLink()) continue;
+    let stale: boolean;
+    try {
+      const value = JSON.parse(await readFile(candidate, 'utf8')) as Partial<BridgeDescriptor>;
+      const alive = typeof value.appPid === 'number' && value.appPid !== process.pid && processIsAlive(value.appPid);
+      const unexpired = typeof value.expiresAt === 'string' && Date.parse(value.expiresAt) > Date.now();
+      stale = !alive || !unexpired;
+    } catch {
+      stale = true;
+    }
+    if (stale) await rm(candidate, { force: true });
+  }
+}
+
+function processIsAlive(processId: number): boolean {
+  try {
+    process.kill(processId, 0);
+    return true;
+  } catch {
+    return false;
   }
 }

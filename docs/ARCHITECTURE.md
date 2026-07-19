@@ -19,7 +19,7 @@ flowchart LR
     M --> D["Global and project SQLite"]
     M -->|"loopback token RPC"| B["Blender 4.5 LTS extension"]
     B --> S["Authoritative Blender scene"]
-    M -->|"fixed JSON over stdio"| X["Fixed OpenUSD sidecar (release target)"]
+    M -->|"fixed executable + contained JSON request"| X["Packaged OpenUSD sidecar"]
     X --> W["Verified USD package"]
 ```
 
@@ -206,12 +206,15 @@ The review service produces lit materialized three-quarter/front/side/close-up/s
 PNGs in a revision-unique project path, hashes them into a validated manifest, and only
 serves stored integrity-checked images to the renderer. Temporary lights, camera, and
 ground are removed without advancing the Blender revision. Visual evidence remains
-advisory. OpenUSD evidence arrives in MS5; channel separation prevents partial evidence
-from claiming complete readiness.
+advisory. MS5 adds the independent OpenUSD channel; channel separation prevents partial
+evidence from claiming complete readiness.
 
 ## USD Export Package
 
-Blender exports visual geometry/material data. The fixed Python 3.13 `usd-core` sidecar authors composition, UsdPhysics, sensor placeholders, metadata, and manifest data through `pxr`. It receives validated JSON over stdio and never a shell command.
+Blender exports selected visual geometry plus a source `.blend` into project-contained
+staging. The packaged Python 3.13.14/`usd-core` 26.5 sidecar authors composition,
+UsdPhysics, sensor metadata, reports, and manifest data through `pxr`. It receives a
+contained JSON request-file path through a fixed argument array and never a shell command.
 
 ```text
 <slug>/
@@ -222,10 +225,12 @@ Blender exports visual geometry/material data. The fixed Python 3.13 `usd-core` 
     materials/robot_materials.usda
     physics/robot_physics.usda
     sensors/robot_sensors.usda
-  environment/environment.usdc
-  textures/
-  source/<project>.blend
-  scripts/
+  environment/environment.usda
+  source/
+    project.blend
+    simforge.project.json
+    actions.json
+    scripts/
   validation/
     validation-results.json
     readiness-report.md
@@ -251,6 +256,6 @@ P0 checks stage open, default prim, units/up axis, relative reference resolution
 
 Electron Forge produces a Windows installer and portable ZIP. Blender remains a separate prerequisite. The release bundles the fixed OpenUSD sidecar and Blender extension installer files, but no API key, Blender binary, or Isaac Sim. Auto-update is outside P0. Unsigned-build limitations must be documented if no certificate is available.
 
-MS1 proves the portable Electron package, packaged extension ZIP, and local pinned
-Python/OpenUSD worker. Embedding the fixed Python/OpenUSD runtime is deliberately an
-MS5/MS9 release task; the current package must not claim standalone USD export.
+MS1 proves the portable Electron package and extension ZIP; MS5 embeds the fixed
+Python/OpenUSD runtime and proves it from packaged resources. MS9 still owns installer,
+portable release, clean-account, signing, upgrade/uninstall, and distribution audits.

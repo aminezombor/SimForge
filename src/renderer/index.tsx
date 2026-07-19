@@ -9,12 +9,21 @@ import {
   type ChatModelAdapter,
   type ThreadMessageLike,
 } from '@assistant-ui/react';
-import type { AppState, Mode, ModelDescriptor, ReviewManifest, ValidationRun } from '../shared/contracts';
+import type {
+  AppState,
+  ExportKind,
+  ExportResult,
+  Mode,
+  ModelDescriptor,
+  ReviewManifest,
+  ValidationRun,
+} from '../shared/contracts';
 import type {
   ChatMessageView,
   CheckpointView,
   GoalJobView,
   RobotProposal,
+  ExportProposal,
 } from '../shared/desktop-api';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type {
@@ -118,6 +127,12 @@ function App() {
   const [robotApproval, setRobotApproval] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewManifest | null>(null);
   const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
+  const [exportKind, setExportKind] = useState<ExportKind>('canonical');
+  const [exportDestination, setExportDestination] = useState('');
+  const [exportOverwrite, setExportOverwrite] = useState(false);
+  const [exportProposal, setExportProposal] = useState<ExportProposal | null>(null);
+  const [exportApproval, setExportApproval] = useState<string | null>(null);
+  const [exports, setExports] = useState<ExportResult[]>([]);
   const robotBuilt = validation?.channels.includes('deterministic-robotics') ?? false;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +192,7 @@ function App() {
     void window.simforge.getLatestValidation().then(setValidation).catch(() => setValidation(null));
     void window.simforge.listCheckpoints().then(setCheckpoints).catch(() => setCheckpoints([]));
     void window.simforge.getPrimitiveRobotProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
+    void window.simforge.listExports().then(setExports).catch(() => setExports([]));
     void window.simforge.getChat().then((messages) => {
       setChat(messages);
       setChatReady(true);
@@ -202,7 +218,7 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3 + MS4</p><h1>{state.projectName}</h1></div>
+        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3 + MS4 + MS5</p><h1>{state.projectName}</h1></div>
         <div className="status-cluster">
           <span className={state.bridgeConnected ? 'status good' : 'status quiet'}>
             <i /> Blender {state.bridgeConnected ? 'connected' : 'waiting'}
@@ -482,6 +498,77 @@ function App() {
                 </li>;
               })}</ul>
             </details>
+          </section>
+          <section className="export-dock">
+            <div className="panel-heading">
+              <div><p className="eyebrow">VERIFIED USD</p><h2>Explicit export and reopen</h2></div>
+              <span className="export-ready">{exports[0]?.verified ? 'last verified' : 'not exported'}</span>
+            </div>
+            <div className="export-controls">
+              <select value={exportKind} onChange={(event) => {
+                setExportKind(event.target.value as ExportKind);
+                setExportDestination('');
+                setExportProposal(null);
+                setExportApproval(null);
+              }}>
+                <option value="canonical">Canonical package</option>
+                <option value="quick">Quick .usdc</option>
+              </select>
+              <button className="secondary" disabled={busy} onClick={() => void run(async () => {
+                const selected = await window.simforge.chooseExportDestination(exportKind);
+                if (selected) {
+                  setExportDestination(selected);
+                  setExportProposal(null);
+                  setExportApproval(null);
+                }
+              })}>Choose destination</button>
+            </div>
+            <p className="export-path">{exportDestination || 'No destination selected.'}</p>
+            <label className="overwrite-control">
+              <input type="checkbox" checked={exportOverwrite} onChange={(event) => {
+                setExportOverwrite(event.target.checked);
+                setExportProposal(null);
+                setExportApproval(null);
+              }} /> Explicitly approve replacing an existing destination
+            </label>
+            {!exportProposal && <button className="secondary export-action" disabled={
+              busy || !robotBuilt || !exportDestination || !['build', 'goal'].includes(state.mode)
+            } onClick={() => void run(async () => {
+              setExportProposal(await window.simforge.proposeExport(exportKind, exportDestination, exportOverwrite));
+              setExportApproval(null);
+            })}>Review exact export</button>}
+            {exportProposal && <div className="export-proposal">
+              <b>{exportProposal.kind === 'canonical' ? 'Canonical package approval' : 'Quick file approval'}</b>
+              <p>{exportProposal.summary}</p>
+              <small>scene r{exportProposal.sceneRevision} / plan {exportProposal.planHash.slice(0, 16)}</small>
+              <small>Destination: {exportProposal.destination}</small>
+              <small>Overwrite: {exportProposal.overwrite ? 'explicitly allowed' : 'denied'}</small>
+              {!exportApproval ? <button className="primary" disabled={busy} onClick={() => void run(async () => {
+                setExportApproval(await window.simforge.approveAction({
+                  planHash: exportProposal.planHash,
+                  toolId: exportProposal.toolId,
+                  args: exportProposal.args,
+                }));
+              })}>Approve destination and {exportProposal.kind === 'canonical' ? 'final package' : 'quick file'}</button> :
+                <button className="primary" disabled={busy} onClick={() => void run(async () => {
+                  const result = await window.simforge.executeExport(exportProposal, exportApproval);
+                  const history = await window.simforge.listExports();
+                  setExports([result, ...history.filter((entry) => entry.exportId !== result.exportId)]);
+                  setExportProposal(null);
+                  setExportApproval(null);
+                })}>Export, reopen, and verify</button>}
+              <button className="secondary" disabled={busy} onClick={() => {
+                setExportProposal(null);
+                setExportApproval(null);
+              }}>Cancel proposal</button>
+            </div>}
+            {exports[0] && <div className="export-result">
+              <div><b>{exports[0].kind} export verified</b><span>scene r{exports[0].sceneRevision}</span></div>
+              <p>{exports[0].destination}</p>
+              <small>{exports[0].checks.filter((check) => check.status === 'PASS').length}/{exports[0].checks.length} deterministic checks passed</small>
+              <small>Machine: {exports[0].machineResultsPath}</small>
+              <small>Report: {exports[0].readinessReportPath}</small>
+            </div>}
           </section>
           <div className="panel-heading">
             <div><p className="eyebrow">ACTIVITY</p><h2>Auditable state changes</h2></div>

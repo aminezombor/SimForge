@@ -383,6 +383,69 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             "height": 512,
             "materialized": True,
         }, [], False
+    if operation == "export.package":
+        robot_id = str(payload.get("robotId", ""))
+        export_id = str(payload.get("exportId", ""))
+        export_kind = str(payload.get("kind", ""))
+        staging_directory = _safe_project_path(str(payload.get("stagingDirectory", "")))
+        if not robot_id or not export_id or export_kind not in {"quick", "canonical"}:
+            raise BridgeOperationError("INVALID_EXPORT", "Export identity, kind, and robot are required")
+        if staging_directory.exists():
+            raise BridgeOperationError("EXPORT_STAGING_EXISTS", "Export staging directory already exists")
+        visual_objects = [
+            obj for obj in bpy.context.scene.objects
+            if obj.get("simforge.robot.id") == robot_id and
+            obj.get("simforge.role") in {"link", "sensor-visual"}
+        ]
+        if not visual_objects:
+            raise BridgeOperationError("ROBOT_NOT_FOUND", "Robot geometry is unavailable for export")
+        package_root = staging_directory / "package"
+        geometry_path = package_root / "robot" / "geometry" / "robot_geometry.usdc"
+        source_path = package_root / "source" / "project.blend"
+        geometry_path.parent.mkdir(parents=True, exist_ok=False)
+        source_path.parent.mkdir(parents=True, exist_ok=False)
+        selected = list(bpy.context.selected_objects)
+        active = bpy.context.view_layer.objects.active
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in visual_objects:
+                obj.select_set(True)
+            bpy.context.view_layer.objects.active = visual_objects[0]
+            source_result = bpy.ops.wm.save_as_mainfile(filepath=str(source_path), copy=True)
+            if "FINISHED" not in source_result:
+                raise BridgeOperationError("SOURCE_EXPORT_FAILED", "Blender source copy failed")
+            export_result = bpy.ops.wm.usd_export(
+                filepath=str(geometry_path),
+                selected_objects_only=True,
+                visible_objects_only=False,
+                export_animation=False,
+                export_materials=True,
+                export_meshes=True,
+                export_custom_properties=True,
+                custom_properties_namespace="simforge",
+                relative_paths=True,
+                root_prim_path="/BlenderGeometry",
+                meters_per_unit=1.0,
+                convert_scene_units="CUSTOM",
+            )
+            if "FINISHED" not in export_result or not geometry_path.is_file():
+                raise BridgeOperationError("USD_GEOMETRY_EXPORT_FAILED", "Blender USD geometry export failed")
+            return {
+                "exportId": export_id,
+                "kind": export_kind,
+                "robotId": robot_id,
+                "packageRoot": str(package_root),
+                "geometryPath": str(geometry_path),
+                "sourcePath": str(source_path),
+                "geometryObjectCount": len(visual_objects),
+            }, [], False
+        finally:
+            bpy.ops.object.select_all(action="DESELECT")
+            for selected_object in selected:
+                if selected_object.name in bpy.context.scene.objects:
+                    selected_object.select_set(True)
+            if active and active.name in bpy.context.scene.objects:
+                bpy.context.view_layer.objects.active = active
     if operation == "python.execute":
         script = payload.get("script")
         intent = payload.get("intent")

@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { once } from 'node:events';
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -12,6 +12,8 @@ import { ApprovedScriptArchive } from '../../src/main/domain/approved-script-arc
 import { ApprovalService } from '../../src/main/domain/approval-service';
 import { CheckpointService } from '../../src/main/domain/checkpoint-service';
 import { ToolExecutor } from '../../src/main/domain/tool-executor';
+import { ExportService } from '../../src/main/export/export-service';
+import { locateUsdRuntime, runUsdWorker } from '../../src/main/export/usd-runtime';
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
 import { primitiveWheeledRobotGraph } from '../../src/main/robotics/primitive-wheeled-robot';
 import { ReviewService } from '../../src/main/robotics/review-service';
@@ -289,7 +291,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     await withTimeout(finalExit, 20_000, 'second Blender exit');
   }, 90_000);
 
-  it('materializes and validates a primitive wheeled robot with before/after materialized review evidence', async () => {
+  it('materializes, validates, reviews, corrects, and exports a primitive wheeled robot', async () => {
     sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-real-robot-'));
     const localAppData = path.join(sandbox, 'localappdata');
     const runtime = path.join(localAppData, 'SimForge', 'runtime');
@@ -445,6 +447,102 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     }
     expect((await scene.refresh()).snapshot.objects.some((object) => object.name.startsWith('SF Review'))).toBe(false);
     expect(project.repository.listCheckpoints(project.manifest.projectId).length).toBeGreaterThanOrEqual(3);
+
+    const exportService = new ExportService(project, scene, executor, activities, process.cwd());
+    const quickDestination = path.join(sandbox, 'verified-quick.usdc');
+    const quickProposal = await exportService.propose('quick', quickDestination, false);
+    await expect(exportService.execute({ ...quickProposal, kind: 'canonical' }, 'missing-approval'))
+      .rejects.toMatchObject({ code: 'EXPORT_SCOPE_CHANGED' });
+    await expect(exportService.execute(quickProposal, 'missing-approval')).rejects.toMatchObject({
+      code: 'APPROVAL_INVALID',
+    });
+    await expect(access(quickDestination)).rejects.toBeDefined();
+    const quickApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: quickProposal.planHash,
+      toolId: quickProposal.toolId,
+      args: quickProposal.args,
+      sceneRevision: quickProposal.sceneRevision,
+      risk: 'structural',
+    });
+    const quickResult = await exportService.execute(quickProposal, quickApproval);
+    expect(quickResult.verified).toBe(true);
+    expect(quickResult.kind).toBe('quick');
+    expect(quickResult.checks.every((check) => check.status !== 'FAIL')).toBe(true);
+    await expect(access(quickDestination)).resolves.toBeUndefined();
+    await expect(exportService.propose('quick', quickDestination, false)).rejects.toMatchObject({
+      code: 'OVERWRITE_APPROVAL_REQUIRED',
+    });
+    const overwriteProposal = await exportService.propose('quick', quickDestination, true);
+    const overwriteApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: overwriteProposal.planHash,
+      toolId: overwriteProposal.toolId,
+      args: overwriteProposal.args,
+      sceneRevision: overwriteProposal.sceneRevision,
+      risk: 'structural',
+    });
+    expect((await exportService.execute(overwriteProposal, overwriteApproval)).verified).toBe(true);
+
+    const canonicalDestination = path.join(sandbox, 'canonical-package');
+    const canonicalProposal = await exportService.propose('canonical', canonicalDestination, false);
+    const canonicalApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: canonicalProposal.planHash,
+      toolId: canonicalProposal.toolId,
+      args: canonicalProposal.args,
+      sceneRevision: canonicalProposal.sceneRevision,
+      risk: 'structural',
+    });
+    const canonical = await exportService.execute(canonicalProposal, canonicalApproval);
+    expect(canonical.verified).toBe(true);
+    expect(canonical.manifest.files.every((file) => !path.isAbsolute(file.path) && !file.path.includes('..'))).toBe(true);
+    for (const relative of [
+      'scene.usda',
+      'robot/robot.usda',
+      'robot/geometry/robot_geometry.usdc',
+      'robot/materials/robot_materials.usda',
+      'robot/physics/robot_physics.usda',
+      'robot/sensors/robot_sensors.usda',
+      'environment/environment.usda',
+      'source/project.blend',
+      'validation/validation-results.json',
+      'validation/readiness-report.md',
+      'manifest.json',
+      'THIRD_PARTY_NOTICES.md',
+    ]) await expect(access(path.join(canonicalDestination, ...relative.split('/')))).resolves.toBeUndefined();
+    const machine = JSON.parse(await readFile(
+      path.join(canonicalDestination, 'validation', 'validation-results.json'),
+      'utf8',
+    )) as { usdChecks: Array<{ id: string; status: string }> };
+    const report = await readFile(path.join(canonicalDestination, 'validation', 'readiness-report.md'), 'utf8');
+    expect(machine.usdChecks.map((check) => check.id)).toEqual(
+      canonical.manifest.validation.checks.map((check) => check.id),
+    );
+    for (const check of machine.usdChecks) expect(report).toContain(`\`${check.id}\`: **${check.status}**`);
+    const movedDestination = path.join(sandbox, 'moved-canonical-package');
+    await rename(canonicalDestination, movedDestination);
+    const usdRuntime = await locateUsdRuntime(process.cwd());
+    const movedVerification = await runUsdWorker(usdRuntime, ['verify', '--path', movedDestination]);
+    expect(movedVerification.ok).toBe(true);
+    const ms5Evidence = process.env.SIMFORGE_MS5_EVIDENCE_DIR;
+    if (ms5Evidence) {
+      await mkdir(ms5Evidence, { recursive: true });
+      await Promise.all([
+        copyFile(path.join(movedDestination, 'manifest.json'), path.join(ms5Evidence, 'manifest.json')),
+        copyFile(path.join(movedDestination, 'validation', 'validation-results.json'), path.join(ms5Evidence, 'validation-results.json')),
+        copyFile(path.join(movedDestination, 'validation', 'readiness-report.md'), path.join(ms5Evidence, 'readiness-report.md')),
+        writeFile(path.join(ms5Evidence, 'acceptance.json'), `${JSON.stringify({
+          quick: { verified: quickResult.verified, checks: quickResult.checks },
+          canonical: {
+            exportId: canonical.exportId,
+            sceneRevision: canonical.sceneRevision,
+            checks: canonical.checks,
+            movedReopen: movedVerification.ok,
+          },
+        }, null, 2)}\n`, 'utf8'),
+      ]);
+    }
 
     const exit = once(blender, 'exit');
     await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');

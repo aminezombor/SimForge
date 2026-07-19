@@ -1,7 +1,7 @@
 # SimForge
 
 SimForge is a Windows-first, local-first desktop tool for conversational robotics
-authoring in a real Blender scene. MS1 through MS4 establish the safe vertical slice:
+authoring in a real Blender scene. MS1 through MS5 establish the complete first cycle:
 chat or an approved goal produces a structured Blender operation, the app captures
 fresh scene truth, checkpoints before mutation, rejects stale work, and records an
 auditable activity trail. Deterministic geometry findings can drive a preconditioned
@@ -12,8 +12,10 @@ real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nem
 3 Ultra model and proved streamed text plus a non-executed no-op tool call. Eighteen
 stable geometry/scene rules and approved complete checkpoint restore pass in Blender
 4.5.11. A versioned primitive wheeled robot, robotics/physics/sensor rules, exact-approved
-defect correction, and five lit revision/hash-stamped review views now pass. Verified USD
-export is MS5.
+defect correction, and five lit revision/hash-stamped review views now pass. Exact-approved
+quick and canonical USD exports include neutral physics/sensor layers, source/provenance,
+machine and human reports, hashes, and deep relocated OpenUSD reopen evidence. MS6 now
+integrates the owner-approved product workspace.
 
 The current screen is an engineering preview, not the final product UI. The approved
 three-column product direction is documented in [the workspace contract](docs/UX_WORKSPACE.md)
@@ -24,7 +26,7 @@ and is integrated fully in MS6 as earlier milestones populate its validation and
 - `src/` - sandboxed React renderer, narrow preload bridge, Electron main services,
   provider adapters, policy, persistence, jobs, and Blender protocol
 - `blender-extension/` - GPL-3.0-or-later Blender 4.5 LTS extension
-- `sidecars/` - Apache-2.0 OpenUSD compatibility worker
+- `sidecars/` - Apache-2.0 fixed OpenUSD authoring/verification worker
 - `tests/` - unit, contract, bridge, security, and opt-in real-Blender tests
 - `docs/` - persistent requirements, decisions, traceability, evidence, and progress
 
@@ -48,11 +50,13 @@ pnpm package:extension
 `pnpm verify` runs strict TypeScript, ESLint, Vitest, and the repository secret
 scan. `pnpm package` creates `out/SimForge-win32-x64/SimForge.exe`.
 
-Bootstrap and prove the pinned OpenUSD seam:
+Prepare and prove the pinned OpenUSD seam:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-usd.ps1
 .\.venv-usd\Scripts\python.exe sidecars\usd_worker.py spike --output .\reports\usd-spike\scene.usda
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-usd-runtime.ps1
+.\.tools\usd-runtime\python.exe sidecars\usd_worker.py doctor
 ```
 
 Run the opt-in real Blender acceptance fixture:
@@ -78,6 +82,7 @@ test convenience, not the future signed MS9 installer; Blender remains a separat
 licensed executable. Follow [the MS1/MS2 foundation test](docs/MS1_MS2_MANUAL_TEST.md)
 and [the MS3 validation/recovery test](docs/MS3_MANUAL_TEST.md).
 Use [the MS4 robot/review test](docs/MS4_MANUAL_TEST.md) for the current installed build.
+Use [the MS5 verified export test](docs/MS5_MANUAL_TEST.md) for quick/canonical USD.
 
 ## Security and Licensing
 

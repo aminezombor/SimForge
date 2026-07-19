@@ -1,14 +1,17 @@
-import { ipcMain, type IpcMainInvokeEvent } from 'electron';
-import type { Mode } from '../shared/contracts';
+import path from 'node:path';
+import { BrowserWindow, dialog, ipcMain, type IpcMainInvokeEvent } from 'electron';
+import type { ExportKind, Mode } from '../shared/contracts';
 import type {
   ApprovalInput,
   GoalPlanInput,
   ToolExecutionInput,
 } from '../shared/desktop-api';
 import type { AppRuntime } from './app-runtime';
+import type { ExportProposal } from './export/export-service';
 
 const ALLOWED_MODES = new Set<Mode>(['normal', 'plan', 'build', 'goal']);
 const ALLOWED_PROVIDERS = new Set(['nvidia', 'openai'] as const);
+const ALLOWED_EXPORT_KINDS = new Set<ExportKind>(['quick', 'canonical']);
 
 function providerId(value: unknown): 'nvidia' | 'openai' {
   if (typeof value !== 'string' || !ALLOWED_PROVIDERS.has(value as 'nvidia' | 'openai')) {
@@ -97,6 +100,44 @@ export function registerIpc(runtime: AppRuntime): void {
     if (typeof reviewId !== 'string' || typeof view !== 'string') throw new Error('Invalid review image request');
     return runtime.getReviewImage(reviewId, view);
   });
+  handle('export:choose-destination', async (event, rawKind: unknown) => {
+    if (typeof rawKind !== 'string' || !ALLOWED_EXPORT_KINDS.has(rawKind as ExportKind)) {
+      throw new Error('Invalid export kind');
+    }
+    const kind = rawKind as ExportKind;
+    const owner = BrowserWindow.fromWebContents(event.sender);
+    if (kind === 'quick') {
+      const options = {
+        title: 'Choose verified quick USD destination',
+        defaultPath: 'simforge-robot.usdc',
+        filters: [{ name: 'OpenUSD Binary', extensions: ['usdc'] }],
+        properties: ['createDirectory', 'showOverwriteConfirmation'] as Array<'createDirectory' | 'showOverwriteConfirmation'>,
+      };
+      const result = owner ? await dialog.showSaveDialog(owner, options) : await dialog.showSaveDialog(options);
+      return result.canceled ? null : result.filePath;
+    }
+    const options = {
+      title: 'Choose parent folder for the canonical SimForge package',
+      properties: ['openDirectory', 'createDirectory', 'promptToCreate'] as Array<'openDirectory' | 'createDirectory' | 'promptToCreate'>,
+    };
+    const result = owner ? await dialog.showOpenDialog(owner, options) : await dialog.showOpenDialog(options);
+    return result.canceled || !result.filePaths[0]
+      ? null
+      : path.join(result.filePaths[0], 'simforge-robot-package');
+  });
+  handle('export:propose', (_event, rawKind: unknown, destination: unknown, overwrite: unknown) => {
+    if (
+      typeof rawKind !== 'string' || !ALLOWED_EXPORT_KINDS.has(rawKind as ExportKind) ||
+      typeof destination !== 'string' || typeof overwrite !== 'boolean'
+    ) throw new Error('Invalid export proposal request');
+    return runtime.proposeExport(rawKind as ExportKind, destination, overwrite);
+  });
+  handle('export:execute', (_event, rawProposal: unknown, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid export approval');
+    const proposal = record(rawProposal, 'export proposal');
+    return runtime.executeExport(proposal as unknown as ExportProposal, approvalId);
+  });
+  handle('export:list', () => runtime.listExports());
   handle('tool:execute', (_event, rawInput: unknown) => {
     const input = record(rawInput, 'tool execution') as unknown as ToolExecutionInput;
     if (typeof input.toolId !== 'string') throw new Error('Invalid tool ID');

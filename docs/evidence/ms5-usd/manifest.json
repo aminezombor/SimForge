@@ -1,0 +1,272 @@
+{
+  "appVersion": "0.1.0",
+  "assumptions": [
+    "Physical values are explicit hackathon assumptions, not measured hardware data.",
+    "Z=0 is the support plane and X is robot-forward.",
+    "Collision primitives intentionally approximate visual primitives.",
+    "Drive force values are placeholders for downstream tuning and require human approval before behavioral use."
+  ],
+  "conventions": {
+    "metersPerUnit": 1.0,
+    "robotForwardAxis": "X",
+    "upAxis": "Z"
+  },
+  "createdAt": "2026-07-19T10:46:53.377Z",
+  "entryPoint": "scene.usda",
+  "exportId": "1627edf1-8fd3-47c1-b4d9-fbb1f13a1698",
+  "files": [
+    {
+      "bytes": 219,
+      "path": "environment/environment.usda",
+      "role": "usd-layer",
+      "sha256": "de80dfdcb920d894fb3235f353c7de56068608cf40445a67129251a831bbc9a7"
+    },
+    {
+      "bytes": 62260,
+      "path": "robot/geometry/robot_geometry.usdc",
+      "role": "usd-layer",
+      "sha256": "53252c2aff14e379c9b4c96f61cb7affc5e5fd1837846570bd2bd11752ad24ca"
+    },
+    {
+      "bytes": 109,
+      "path": "robot/geometry/textures/color_121212.hdr",
+      "role": "source-artifact",
+      "sha256": "c4c6bc7a125abb414d9336a2b03c698f9db650c7917b69068beaedb569cb2291"
+    },
+    {
+      "bytes": 2916,
+      "path": "robot/materials/robot_materials.usda",
+      "role": "usd-layer",
+      "sha256": "18edad095a039486187c915c6ed271e14e75fdf184139e8db53d03005da13b86"
+    },
+    {
+      "bytes": 7635,
+      "path": "robot/physics/robot_physics.usda",
+      "role": "usd-layer",
+      "sha256": "972b3586eb274064880b8564e62f9df4dc333f92aa9277ac0c91536b1bbdd225"
+    },
+    {
+      "bytes": 673,
+      "path": "robot/robot.usda",
+      "role": "usd-layer",
+      "sha256": "2297c45ae1162943a5d70f20d0f8db2005c7e8e22c0926ba5c617496f1907715"
+    },
+    {
+      "bytes": 1072,
+      "path": "robot/sensors/robot_sensors.usda",
+      "role": "usd-layer",
+      "sha256": "fd582623a5e0922c239ba4718bf91692208a4e63f470b1ef54ab4bcc3a8e5593"
+    },
+    {
+      "bytes": 480,
+      "path": "scene.usda",
+      "role": "usd-layer",
+      "sha256": "01c49c91e3797778bdf20a5c5cad0fbf6e4550a63e7e303bb6c06cdf5c6a55ec"
+    },
+    {
+      "bytes": 14576,
+      "path": "source/actions.json",
+      "role": "machine-data",
+      "sha256": "c0623f6c9e00f086c4aa603730d893ef4a719db90c88cc9657f0b6d61afafe5d"
+    },
+    {
+      "bytes": 641652,
+      "path": "source/project.blend",
+      "role": "blender-source",
+      "sha256": "a98990137b80da90f2b4e745dde16fe42374fe35050621d6a410a24cec2edd16"
+    },
+    {
+      "bytes": 230,
+      "path": "source/simforge.project.json",
+      "role": "machine-data",
+      "sha256": "7c7a63b24e55d40ac315927822ef46a5078f13dfa8d4a2a770dc50fcac24d471"
+    },
+    {
+      "bytes": 1479,
+      "path": "THIRD_PARTY_NOTICES.md",
+      "role": "documentation",
+      "sha256": "eb23ed949b96aa5543a1839131d435d672ec08dfd7734994247b0e2b3c2d5e56"
+    },
+    {
+      "bytes": 278421,
+      "path": "validation/preview-images/close-up.png",
+      "role": "preview",
+      "sha256": "23863b2495ac61505bb9184176679ff964ad25b0043cccaa2ef041ed7a90d388"
+    },
+    {
+      "bytes": 238945,
+      "path": "validation/preview-images/front.png",
+      "role": "preview",
+      "sha256": "2bfd3dd73208ad26c8efa6e06fb351b5e979d46ff2598471e811dd0372600bf8"
+    },
+    {
+      "bytes": 1530,
+      "path": "validation/preview-images/review-manifest.json",
+      "role": "machine-data",
+      "sha256": "84a1fe856692734ef3a1e86a805875532cf1abcef5c926dcda446ac75b458265"
+    },
+    {
+      "bytes": 277938,
+      "path": "validation/preview-images/sensor.png",
+      "role": "preview",
+      "sha256": "df7a412cbf4d0865661e20c71747b32a6e1ff28064f194bee36bcc4e6b45989b"
+    },
+    {
+      "bytes": 232373,
+      "path": "validation/preview-images/side.png",
+      "role": "preview",
+      "sha256": "ff06dfd5bc075a77ac790340e86d4f9d191108587af2b56d7fb35ecbb7de21bf"
+    },
+    {
+      "bytes": 271731,
+      "path": "validation/preview-images/three-quarter.png",
+      "role": "preview",
+      "sha256": "c801c05b8d72135029d1e0785f44c5d236073cafb61453c596552aa7a18bc5ef"
+    },
+    {
+      "bytes": 1428,
+      "path": "validation/readiness-report.md",
+      "role": "documentation",
+      "sha256": "755deb2fd3cb4f0a81647c7b9549d2b7748c571d19df6b6127af40a0374956a5"
+    },
+    {
+      "bytes": 17810,
+      "path": "validation/validation-results.json",
+      "role": "machine-data",
+      "sha256": "5e186513261f6943eea5bf26750a644648258dadea7c44478ff99398f5447165"
+    }
+  ],
+  "kind": "canonical",
+  "limitations": [
+    "Physical values marked ASSUMED are not measured hardware data.",
+    "Primitive collision/contact checks are not simulator proof.",
+    "Isaac Sim execution is a V2 extension and is not required for this export."
+  ],
+  "project": {
+    "id": "a1715f09-ef9b-4c63-b6e6-d54ec49331a7",
+    "name": "Real Robot"
+  },
+  "robotId": "simforge-primitive-wheeled-v1",
+  "sceneRevision": 3,
+  "schemaVersion": 1,
+  "sourceValidationRunId": "9f1b992b-8498-4f02-91d7-353feda86120",
+  "validation": {
+    "checks": [
+      {
+        "evidence": {
+          "missing": [],
+          "required": [
+            "scene.usda",
+            "robot/robot.usda",
+            "robot/geometry/robot_geometry.usdc",
+            "robot/materials/robot_materials.usda",
+            "robot/physics/robot_physics.usda",
+            "robot/sensors/robot_sensors.usda",
+            "environment/environment.usda"
+          ]
+        },
+        "id": "USD-LAYERS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1.0,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "invalid": [],
+          "references": [
+            {
+              "asset": "./environment/environment.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./robot/robot.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./geometry/robot_geometry.usdc",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            }
+          ]
+        },
+        "id": "USD-REFERENCES-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "joints": 3,
+          "links": 4,
+          "visualAndPhysicsLinkPrims": 8
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "collisions": 4,
+          "massSchemas": 4
+        },
+        "id": "USD-PHYSICS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "materials": 4
+        },
+        "id": "USD-MATERIAL-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "sensors": 2
+        },
+        "id": "USD-SENSOR-001",
+        "status": "PASS"
+      }
+    ],
+    "summary": {
+      "blocker": 0,
+      "error": 0,
+      "info": 16,
+      "warning": 0
+    }
+  }
+}

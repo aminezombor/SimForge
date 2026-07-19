@@ -9,7 +9,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | ID | Requirement | Priority | Planned milestone | Acceptance test | Status | Evidence |
 | -- | ----------- | -------- | ----------------- | --------------- | ------ | -------- |
 | REQ-PROD-001 | Standalone local-first conversational robotics desktop app | HACKATHON-P0 | MS1 | AT-006, AT-034 | Tested | Packaged app, assistant-ui local chat, portable persistence; clean-judge AT-034 remains MS9 |
-| REQ-PROD-002 | Complete approved plan-to-verified-USD loop | HACKATHON-P0 | MS5 | AT-016, AT-021, AT-024, AT-029, AT-030 | Planned | - |
+| REQ-PROD-002 | Complete approved plan-to-verified-USD loop | HACKATHON-P0 | MS5 | AT-016, AT-021, AT-024, AT-029, AT-030 | Tested | Real Blender robot path through exact-approved export, fresh validation, reports, move, and OpenUSD reopen |
 | REQ-PROD-003 | Real Blender scene is authoritative and changes are tracked | HACKATHON-P0 | MS2 | AT-012, AT-013 | Tested | Real Blender snapshot/manual-edit/diff/stale tests |
 | REQ-PROD-004 | General product beyond warehouse example | HACKATHON-P0 | MS7 | AT-017, AT-020 | In progress | Provider-neutral `RobotGraph` and general Blender/validation tools pass for the primitive robot; environment/import breadth remains MS7/MS8 |
 | REQ-PROD-005 | Complete warehouse mobile-manipulator demonstration content | HACKATHON-P0 | MS7 | AT-017 | Planned | - |
@@ -25,7 +25,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-MODE-007 | Goal jobs pause/cancel/retry/rewind/branch/resume | HACKATHON-P0 | MS2 | AT-011 | Tested | Persistent job lifecycle tests and UI controls |
 | REQ-MODE-008 | Jobs persist across restart while chat remains usable | HACKATHON-P0 | MS2 | AT-011 | Tested | SQLite reopen plus concurrent assistant-ui message path |
 | REQ-MODE-009 | Goal Mode never performs restricted actions silently | HACKATHON-P0 | MS2 | AT-009, AT-010, AT-011 | Tested | Mode/allowlist/exact-approval enforcement |
-| REQ-MODE-010 | Approval gates occur only at material decision points | HACKATHON-P0 | MS2 | AT-010, AT-025, AT-029 | Tested | Safe-local auto path; destructive/privileged exact approval; later operation gates retained |
+| REQ-MODE-010 | Approval gates occur only at material decision points | HACKATHON-P0 | MS2 | AT-010, AT-025, AT-029 | Tested | Safe-local auto path; structural/privileged/export exact approval; stale or changed export scope rejected |
 | REQ-AI-001 | NVIDIA-first provider with user key | HACKATHON-P0 | MS1 | AT-003, AT-004 | Tested | Protected owner key used by packaged live NVIDIA probe; no key in evidence/log/source |
 | REQ-AI-002 | Runtime NVIDIA model discovery/validation | HACKATHON-P0 | MS1 | AT-004 | Tested | Live `/models` returned 119 entries and intended Nemotron identifier |
 | REQ-AI-003 | Runtime capability probes and records | HACKATHON-P0 | MS1 | AT-004 | Tested | Live streamed-text, non-executed no-op tool, and explicit reasoning-control probes; sanitized record retained |
@@ -51,7 +51,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-DATA-001 | Multiple locally owned portable projects | HACKATHON-P0 | MS1 | AT-006 | Tested | Global index plus distinct move/reopen project fixtures |
 | REQ-DATA-002 | Store brief/chat/memory/references/docs/plans/decisions | HACKATHON-P0 | MS1 | AT-006, AT-007 | Tested | Generic typed records and provider-neutral message persistence; advanced controls remain MS6 |
 | REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Dedicated validation run/finding/fix tables, evidence-rich scene snapshots, scripts/actions, and complete checkpoint restore fixture |
-| REQ-DATA-004 | Store dependencies/assets/attribution/physics/sensors/exports/reports/previews | HACKATHON-P0 | MS5 | AT-006, AT-029, AT-030, AT-036 | In progress | Robot physics/sensors and hashed previews persist as provider-neutral project records; exports/reports/dependency inventory finish in MS5/MS9 |
+| REQ-DATA-004 | Store dependencies/assets/attribution/physics/sensors/exports/reports/previews | HACKATHON-P0 | MS5 | AT-006, AT-029, AT-030, AT-036 | Tested | RobotGraph, hashed previews, export manifests/results/reports, source actions, and third-party notice persist; release-wide asset audit remains AT-036 |
 | REQ-DATA-005 | Store named versions/branches/checkpoints/job state | HACKATHON-P1 | MS6 | AT-011, AT-026, AT-027 | Planned | - |
 | REQ-DATA-006 | Reusable libraries for robotics authoring resources | POST-HACKATHON-V1 | MS10 | AT-037 | Planned | - |
 | REQ-BLENDER-001 | Collaborate with a real running Blender scene | HACKATHON-P0 | MS1 | AT-012 | Tested | Official Blender 4.5.11 live fixture |
@@ -73,7 +73,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-IMPORT-003 | One licensed external robot import/modify/validate/export path | HACKATHON-P1 | MS8 | AT-020 | Planned | - |
 | REQ-IMPORT-004 | Import/conversion/loss/units/material/hierarchy/license/status report | HACKATHON-P1 | MS8 | AT-019, AT-020 | Planned | - |
 | REQ-IMPORT-005 | Evaluate, pin, attribute, isolate, and secure external reuse | HACKATHON-P0 | MS9 | AT-031, AT-036 | In progress | Reviewed MS1 dependency inventory and package boundaries; final asset/release audit remains MS9 |
-| REQ-VALIDATION-001 | Combine scene, deterministic, USD, visual, and human evidence | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-023, AT-030 | In progress | Fresh Blender, deterministic geometry/robotics, hashed materialized visuals and human review pass; OpenUSD/report channel remains MS5 |
+| REQ-VALIDATION-001 | Combine scene, deterministic, USD, visual, and human evidence | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-023, AT-030 | Tested | Fresh Blender, geometry/robotics rules, hashed visual review, OpenUSD inspection, and matching human/machine reports pass |
 | REQ-VALIDATION-002 | Validate units/orientation/transforms/origins/bounds/dimensions | HACKATHON-P0 | MS3 | AT-021 | Tested | `GEO-UNIT`, `GEO-TRANSFORM`, `GEO-ORIGIN`, and `GEO-DIMENSION` fixtures plus Z-up/world-bound Blender evidence |
 | REQ-VALIDATION-003 | Validate contact/clearance/intersections/penetration | HACKATHON-P0 | MS3 | AT-021 | Tested | Support-plane penetration/floating and conservative world-AABB overlap rules with explicit assumptions |
 | REQ-VALIDATION-004 | Validate duplicates/visibility/existence/topology/complexity | HACKATHON-P0 | MS3 | AT-021 | Tested | Stable visibility, naming, non-manifold, loose, degenerate, zero-edge, normal, and complexity fixtures |
@@ -83,8 +83,8 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-VALIDATION-008 | Validate kinematic/joint/articulation structure | HACKATHON-P0 | MS4 | AT-023 | In progress | Fresh graph/scene hierarchy, root, link/joint tree, axes/types/limits/drives pass; exported hierarchy inspection completes in MS5 |
 | REQ-VALIDATION-009 | Validate collision/body/contact/physics/import integrity | HACKATHON-P0 | MS4 | AT-023 | In progress | Generated robot collisions, dynamic flags, physics materials, self-collision note and Z=0 support pass; imported integrity completes in MS8 |
 | REQ-VALIDATION-010 | Validate physical/sensor/convention data and mark assumptions | HACKATHON-P0 | MS4 | AT-023 | Tested | Deterministic mass/COM/inertia/convention/sensor/FOV rules; source-tagged unknown/assumed fixtures never fabricate values |
-| REQ-VALIDATION-011 | Reopen and deeply validate USD stage/package | HACKATHON-P0 | MS5 | AT-029 | Planned | - |
-| REQ-VALIDATION-012 | Machine and human reports; model assertion is not evidence | HACKATHON-P0 | MS5 | AT-030 | Planned | - |
+| REQ-VALIDATION-011 | Reopen and deeply validate USD stage/package | HACKATHON-P0 | MS5 | AT-029 | Tested | Layer/reference containment, conventions, articulation, link/joint/collision/material/sensor counts, hashes, move and deep reopen pass |
+| REQ-VALIDATION-012 | Machine and human reports; model assertion is not evidence | HACKATHON-P0 | MS5 | AT-030 | Tested | `validation-results.json` and `readiness-report.md` agree on stable check IDs/statuses; model evidence flag is false |
 | REQ-FIX-001 | Auto-fix only clear safe reversible local non-creative changes | HACKATHON-P0 | MS3 | AT-024, AT-025 | Tested | Only preconditioned `SAFE_LOCAL` ground correction bypasses approval; every other fix class is gated |
 | REQ-FIX-002 | Rule-gated safe correction set | HACKATHON-P0 | MS3 | AT-024 | Tested | Exact revision/object/location support-plane fix clears only its target rule in unit and live Blender tests |
 | REQ-FIX-003 | Approval for design/behavior/physical/file/dependency/export ambiguity | HACKATHON-P0 | MS3 | AT-025 | Tested | Structural scale and full checkpoint restore require exact plan/args/revision approval before checkpoint/mutation |
@@ -93,12 +93,12 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-HISTORY-002 | Complete recoverable project checkpoint | HACKATHON-P0 | MS3 | AT-026 | Tested | Blender save-copy, SQLite backup, hashed portable files/task state, integrity verification, pre-restore checkpoint, and live approved restore |
 | REQ-HISTORY-003 | Named versions and checkpoint branching | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
 | REQ-HISTORY-004 | Actor/tool/model/validation/checkpoint/export timeline | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
-| REQ-USD-001 | Explicit export/destination/overwrite/package intent | HACKATHON-P0 | MS5 | AT-028, AT-029 | Planned | - |
-| REQ-USD-002 | Verified single-file quick USD | HACKATHON-P0 | MS5 | AT-028 | Planned | - |
-| REQ-USD-003 | Portable modular robotics-ready package | HACKATHON-P0 | MS5 | AT-029 | Planned | - |
-| REQ-USD-004 | Package provenance/dependencies/results/previews/reports/manifest/conventions/limits | HACKATHON-P0 | MS5 | AT-029, AT-030, AT-036 | Planned | - |
-| REQ-USD-005 | Reopen and verify every artifact | HACKATHON-P0 | MS5 | AT-028, AT-029 | Planned | - |
-| REQ-USD-006 | Preserve/export source/project/scripts/actions/version | HACKATHON-P0 | MS5 | AT-029 | Planned | - |
+| REQ-USD-001 | Explicit export/destination/overwrite/package intent | HACKATHON-P0 | MS5 | AT-028, AT-029 | Tested | Exact proposal binds kind, destination, overwrite, final-package flag, robot, validation run, revision, and plan hash |
+| REQ-USD-002 | Verified single-file quick USD | HACKATHON-P0 | MS5 | AT-028 | Tested | Approved `.usdc` flattened from canonical layers and reopened with convention/robot/hash checks |
+| REQ-USD-003 | Portable modular robotics-ready package | HACKATHON-P0 | MS5 | AT-029 | Tested | Neutral geometry/material/physics/sensor/environment/root layers use contained relative references and reopen after move |
+| REQ-USD-004 | Package provenance/dependencies/results/previews/reports/manifest/conventions/limits | HACKATHON-P0 | MS5 | AT-029, AT-030, AT-036 | Tested | Manifest inventories roles/bytes/SHA-256 plus project, version, validation, assumptions, limitations, previews, reports, and notices |
+| REQ-USD-005 | Reopen and verify every artifact | HACKATHON-P0 | MS5 | AT-028, AT-029 | Tested | Quick file reopens; canonical inventory hashes, all USD layer dependencies, root composition, and relocated package reopen pass |
+| REQ-USD-006 | Preserve/export source/project/scripts/actions/version | HACKATHON-P0 | MS5 | AT-029 | Tested | Canonical source includes Blender copy, portable manifest, generated scripts when present, activity history, and app version |
 | REQ-SECURITY-001 | Local-first portable project storage | HACKATHON-P0 | MS1 | AT-006, AT-032 | Tested | Portable project/global split tests; no telemetry/service |
 | REQ-SECURITY-002 | Accurate cloud payload/provider/purpose disclosure | HACKATHON-P0 | MS1 | AT-032 | Tested | Probe disclosure object and pre-dispatch renderer text |
 | REQ-SECURITY-003 | Project controls for uploads/providers/cloud/memory/logging | HACKATHON-P1 | MS6 | AT-032 | Planned | - |
@@ -122,10 +122,10 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-GOV-001 | Clean repository/docs are source of truth; no prior code | HACKATHON-P0 | MS0 | AT-002 | Tested | `AGENTS.md`, Git tree |
 | REQ-GOV-002 | Maintain and reread persistent documents | HACKATHON-P0 | MS0 | AT-001, AT-039 | Tested | `AGENTS.md`, complete `docs/` tree; reread before MS1/MS2 planning |
 | REQ-GOV-003 | Every requirement has ID/priority/milestone/test/status/evidence | HACKATHON-P0 | MS0 | AT-001 | Tested | This matrix; completeness audit |
-| REQ-GOV-004 | Small milestone workflow with checkpoint/test/docs/commit/risks | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS4 checkpoints, tests, progress, decisions, evidence, and risk logs retained |
-| REQ-GOV-005 | No completion without reproducible non-model-only evidence | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS4 automated, real-Blender, packaged, deterministic, and human visual evidence retained |
-| REQ-GOV-006 | Required integration-test coverage | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS4 integration/security/recovery/robotics coverage passes; later acceptance suites remain milestone-bound |
-| REQ-GOV-007 | Two-cycle delivery strategy | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS4 follow the approved first-cycle sequence; MS5 completes cycle one |
+| REQ-GOV-004 | Small milestone workflow with checkpoint/test/docs/commit/risks | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS5 checkpoints, tests, progress, decisions, evidence, and risk logs retained |
+| REQ-GOV-005 | No completion without reproducible non-model-only evidence | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS5 automated, real-Blender, packaged, deterministic, OpenUSD, and human visual evidence retained |
+| REQ-GOV-006 | Required integration-test coverage | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS5 integration/security/recovery/robotics/export coverage passes; cycle-two suites remain milestone-bound |
+| REQ-GOV-007 | Two-cycle delivery strategy | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS5 complete the approved first cycle; MS6 begins cycle two |
 | REQ-GOV-008 | Primary research, alternatives, risks, approval before implementation | HACKATHON-P0 | MS0 | AT-001, AT-036, AT-039 | Tested | `docs/RESEARCH.md`, `docs/DECISIONS.md`, approved plan |
 | REQ-V2-001 | Isaac imports package and configures tasks | V2-ISAAC-SIM | MS11 | AT-038 | Planned | `docs/ARCHITECTURE.md` extension point |
 | REQ-V2-002 | Run simulations and capture evidence/failures | V2-ISAAC-SIM | MS11 | AT-038 | Planned | - |

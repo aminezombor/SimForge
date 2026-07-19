@@ -39,8 +39,8 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | `@electron/fuses` | Package-time runtime hardening | 2.1.3 | MIT | Electron-maintained utility | Adopted directly because Electron 43 has nine fuses; strict complete policy and binary inspection pass |
 | Blender | Authoritative editor/runtime | 4.5.11 LTS | GPL | Active LTS fixes | External prerequisite; official ZIP hash verified; never bundled |
 | SimForge Blender extension | Bridge and structured operations | Project source | GPL-3.0-or-later | Maintained in this repository | Approved boundary; privileged code |
-| CPython runtime | USD compatibility environment | 3.13.14 | PSF License | Python upstream | Local spike adopted; embedded packaging remains MS5/MS9 |
-| `usd-core` | OpenUSD composition/validation | 26.5 | LicenseRef-TOST-1.0 | Pixar release 2026-04-24 | Author/reopen passing; not yet embedded in desktop package |
+| CPython runtime | Fixed USD authoring environment | 3.13.14 | PSF License | Python upstream | Adopted as a relocatable packaged resource; embedded doctor passes |
+| `usd-core` | OpenUSD composition/validation | 26.5 | LicenseRef-TOST-1.0 | Pixar release 2026-04-24 | Adopted; packaged author/deep reopen/portability passing |
 | Three.js | Embedded preview | Pin in MS6 | MIT | Active releases | P1 approved concept |
 | React Three Fiber | React/Three integration | Pin in MS6 | MIT | Active releases | P1 approved concept |
 | Urchin | URDF parser candidate | 0.0.30 baseline | MIT | Release 2025-10-21 | P1 candidate; Python 3.13/asset proof required |
@@ -85,4 +85,14 @@ MS4 adds no external runtime dependency or third-party asset. Robot construction
 rendering, and inspection use Blender 4.5.11's bundled `bpy`, `bmesh`, and math utilities;
 desktop contracts/validation remain TypeScript. The package, extension ZIP, fuse policy,
 isolated credential/security smoke, and current-user installation pass at the existing
-pinned versions. OpenUSD and Three.js dependency work remains gated to MS5/MS6.
+pinned versions. OpenUSD is now adopted in MS5; Three.js dependency work remains MS6.
+
+## MS5 Audit Result
+
+MS5 adds no JavaScript package or external asset. `scripts/prepare-usd-runtime.ps1`
+constructs a fixed resource from pinned CPython 3.13.14 and the reviewed `usd-core` 26.5
+wheel, copying only the Python runtime and required `pxr` distribution. The packaged
+doctor reports the exact versions and UsdPhysics availability; no runtime download,
+shell invocation, or user-site import is used. The app package retains root license and
+third-party notices, while canonical exports carry their own notice. MS9 must still run
+the release-wide binary/notice/redistribution and clean-account audit required by AT-036.

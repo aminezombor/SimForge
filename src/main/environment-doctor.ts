@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { access } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { locateUsdRuntime, runUsdWorker } from './export/usd-runtime';
 
 const execFileAsync = promisify(execFile);
 
@@ -48,11 +49,16 @@ async function commandVersion(command: string, args: string[]): Promise<string |
 export async function runEnvironmentDoctor(appRoot: string): Promise<DoctorCheck[]> {
   const blender = await locateBlender();
   const python = await commandVersion('py.exe', ['-3.13', '--version']);
-  const usdPython = path.join(appRoot, '.venv-usd', 'Scripts', 'python.exe');
-  const usdWorker = path.join(appRoot, 'sidecars', 'usd_worker.py');
-  const usd = (await exists(usdPython)) && (await exists(usdWorker))
-    ? await commandVersion(usdPython, [usdWorker, 'doctor'])
-    : null;
+  let usd: string | null;
+  let usdPython: string | null;
+  try {
+    const runtime = await locateUsdRuntime(appRoot);
+    usdPython = runtime.python;
+    usd = JSON.stringify(await runUsdWorker(runtime, ['doctor']));
+  } catch {
+    usd = null;
+    usdPython = null;
+  }
   return [
     {
       id: 'blender',

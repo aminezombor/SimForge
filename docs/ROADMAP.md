@@ -45,8 +45,11 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
   stable sensor representation, explicit physical assumptions, deterministic robotics
   rules, exact-approved defect/correction, five-view hashed evidence, packaging, and the
   installed no-terminal shortcut pass.
-- MS5: next. Complete the first cycle with explicit quick/canonical USD export,
-  OpenUSD reopen/portability verification, and machine/human readiness reports.
+- MS5: complete. Exact destination/overwrite approval, Blender staging, quick `.usdc`,
+  canonical relative-reference layers, SHA-256 inventory, source/previews/notices,
+  matching reports, embedded runtime, and deep relocated OpenUSD reopen pass.
+- MS6: active. Replace the engineering preview with the owner-approved embedded workspace
+  while preserving all MS1-MS5 policy, validation, and export behavior.
 
 ## Post-Hackathon V1 (MS10)
 

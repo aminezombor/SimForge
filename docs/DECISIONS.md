@@ -30,6 +30,9 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-020 | 2026-07-19 | Validation and recovery | Materialize Blender geometry evidence in versioned snapshots, keep findings/fixes append-only in SQLite, allow only preconditioned `SAFE_LOCAL` operations without approval, and restore complete checkpoints only through exact approval plus a pre-restore checkpoint. | Approved | REQ-VALIDATION-001 through REQ-VALIDATION-005, REQ-FIX-001 through REQ-FIX-004, REQ-HISTORY-001, REQ-HISTORY-002 |
 | DEC-021 | 2026-07-19 | Robotics authoring | Use a versioned provider-neutral `RobotGraph`, stable Blender identities, source-tagged physical values, deterministic `ROB-*` rules, and materialized advisory review renders for generated robots. | Approved | REQ-PROD-004, REQ-BLENDER-008, REQ-VALIDATION-006 through REQ-VALIDATION-010 |
 | DEC-022 | 2026-07-19 | Test isolation | Packaged smoke modes must honor an explicit isolated user-data directory, never touch the normal profile, and keep hidden renderer closure from terminating a combined smoke sequence. | Approved | REQ-SECURITY-001, REQ-SECURITY-005, REQ-GOV-005 |
+| DEC-023 | 2026-07-19 | USD export | Compose and validate neutral staged layers, then preverify, atomically promote, final-reopen, and roll back on failure under exact export approval. | Approved | REQ-VALIDATION-011, REQ-VALIDATION-012, REQ-USD-001 through REQ-USD-006 |
+| DEC-024 | 2026-07-19 | OpenUSD runtime | Package a relocatable Python 3.13.14 plus `usd-core` 26.5 resource and invoke its fixed JSON worker without a shell or runtime download. | Approved | REQ-PLATFORM-001, REQ-SECURITY-004, REQ-USD-005 |
+| DEC-025 | 2026-07-19 | Bridge lifecycle | Await bridge shutdown before app exit and remove dead, expired, or malformed descriptors before issuing a fresh token. | Approved | REQ-BLENDER-002, REQ-SECURITY-003, REQ-SECURITY-006 |
 
 ## Architecture Decision Details
 
@@ -172,6 +175,53 @@ and after and requires an isolated database to be created.
 **Consequences.** The pre-fix smoke may have removed the current NVIDIA credential; it
 must be entered again through Settings. Future credential/security/provider smokes must
 use isolated profiles and prove the primary profile is unchanged.
+
+### DEC-023: Verified USD authoring and atomic promotion
+
+**Context.** Blender is authoritative for visible geometry, but its exporter alone does
+not provide the neutral robotics layers, portable composition evidence, or deterministic
+readiness report required by the product.
+
+**Decision.** Blender writes a selected-object geometry layer and source `.blend` into a
+project-contained staging area. The pinned OpenUSD worker authors materials, physics,
+sensors, robot, environment, and root layers; validates them; inventories SHA-256 values;
+and produces matching JSON and Markdown reports. Quick export flattens the same verified
+stage to `.usdc`. Nothing reaches the approved destination until exact destination,
+overwrite, scene revision, validation run, and plan-hash approval pass. Promotion uses a
+temporary sibling that is reopened before promotion, retains a recoverable backup through
+final-destination reopen, and rolls back on failure.
+
+**Consequences.** Visual review remains advisory, while Blender validation and OpenUSD
+inspection provide deterministic evidence. Canonical packages remain neutral and movable;
+Isaac-specific schemas are not a V1 runtime dependency.
+
+### DEC-024: Relocatable pinned OpenUSD runtime
+
+**Context.** A developer virtual environment cannot make packaged export reproducible.
+The official `usd-core` 26.5 Windows wheel supports the approved Python 3.13 baseline.
+
+**Decision.** Build a fixed application resource containing Python 3.13.14 plus only the
+required `pxr`/`usd-core` distribution. The desktop invokes the fixed worker directly with
+argument arrays, no shell or runtime downloads. Packaging verification runs the embedded
+runtime's doctor command.
+
+**Consequences.** The desktop package grows materially, but judges do not need a separate
+Python/OpenUSD install. Runtime preparation is deterministic and license/notices remain a
+release gate.
+
+### DEC-025: Bridge descriptor shutdown and stale-session cleanup
+
+**Context.** Electron's normal quit event did not await asynchronous bridge shutdown, so
+expired loopback descriptor files could survive a closed app.
+
+**Decision.** Prevent normal quit until `AppRuntime.shutdown()` completes and remove dead,
+expired, or malformed descriptors before issuing a fresh session token. Descriptors stay
+current-user-only and every new token remains 256-bit, process/project-bound, loopback-only,
+and short-lived.
+
+**Consequences.** Graceful exits revoke the current descriptor deterministically; crash
+debris is removed at the next start. Integration tests cover stale cleanup and fresh-token
+creation without logging descriptor contents.
 
 ## Approval Record
 

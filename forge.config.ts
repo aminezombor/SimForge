@@ -16,7 +16,13 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     executableName: 'SimForge',
-    extraResource: ['sidecars', 'blender-extension'],
+    extraResource: [
+      'sidecars',
+      'blender-extension',
+      '.tools/usd-runtime',
+      'THIRD_PARTY_NOTICES.md',
+      'LICENSE',
+    ],
   },
   rebuildConfig: {},
   makers: [],

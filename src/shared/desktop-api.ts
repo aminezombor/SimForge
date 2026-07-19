@@ -1,5 +1,7 @@
 import type {
   AppState,
+  ExportKind,
+  ExportResult,
   Mode,
   ModelDescriptor,
   ReviewManifest,
@@ -12,6 +14,8 @@ import type {
   ProviderProbeResult,
   ProviderStatus,
 } from '../main/providers/provider-service';
+import type { ExportProposal } from '../main/export/export-service';
+export type { ExportProposal };
 
 export interface ToolExecutionInput {
   toolId: string;
@@ -99,6 +103,10 @@ export interface SimForgeDesktopApi {
   }>;
   renderPrimitiveRobotReview(label: string): Promise<ReviewManifest>;
   getReviewImage(reviewId: string, view: string): Promise<string>;
+  chooseExportDestination(kind: ExportKind): Promise<string | null>;
+  proposeExport(kind: ExportKind, destination: string, overwrite: boolean): Promise<ExportProposal>;
+  executeExport(proposal: ExportProposal, approvalId: string): Promise<ExportResult>;
+  listExports(): Promise<ExportResult[]>;
   executeTool(input: ToolExecutionInput): Promise<AppState>;
   approveAction(input: ApprovalInput): Promise<string>;
   createGoal(input: GoalPlanInput): Promise<{ jobId: string; planHash: string }>;
