@@ -50,6 +50,40 @@ export function registerIpc(runtime: AppRuntime): void {
     return runtime.setMode(rawMode as Mode);
   });
   handle('scene:refresh', () => runtime.refreshScene());
+  handle('validation:get-latest', () => runtime.getLatestValidation());
+  handle('validation:run', () => runtime.runValidation());
+  handle('validation:apply-fix', (_event, rawInput: unknown) => {
+    const input = record(rawInput, 'validation fix');
+    if (typeof input.findingId !== 'string') throw new Error('Invalid validation finding ID');
+    if (input.planHash !== null && typeof input.planHash !== 'string') {
+      throw new Error('Invalid validation plan hash');
+    }
+    if (input.approvalId !== null && typeof input.approvalId !== 'string') {
+      throw new Error('Invalid validation approval ID');
+    }
+    return runtime.applyValidationFix(input.findingId, input.planHash, input.approvalId);
+  });
+  handle('validation:undo-latest-fix', () => runtime.undoLatestValidationFix());
+  handle('checkpoint:list', () => runtime.listCheckpoints());
+  handle('checkpoint:approve-restore', (_event, checkpointId: unknown, planHash: unknown) => {
+    if (typeof checkpointId !== 'string' || typeof planHash !== 'string' || !planHash) {
+      throw new Error('Invalid checkpoint restore approval');
+    }
+    return runtime.approveCheckpointRestore(checkpointId, planHash);
+  });
+  handle(
+    'checkpoint:restore',
+    (_event, checkpointId: unknown, planHash: unknown, approvalId: unknown) => {
+      if (
+        typeof checkpointId !== 'string' ||
+        typeof planHash !== 'string' ||
+        typeof approvalId !== 'string'
+      ) {
+        throw new Error('Invalid checkpoint restore');
+      }
+      return runtime.restoreCheckpoint(checkpointId, planHash, approvalId);
+    },
+  );
   handle('tool:execute', (_event, rawInput: unknown) => {
     const input = record(rawInput, 'tool execution') as unknown as ToolExecutionInput;
     if (typeof input.toolId !== 'string') throw new Error('Invalid tool ID');

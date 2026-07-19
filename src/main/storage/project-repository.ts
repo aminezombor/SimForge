@@ -1,8 +1,17 @@
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import type { Activity, Mode, SceneSnapshot } from '../../shared/contracts';
+import type {
+  Activity,
+  FindingStatus,
+  Mode,
+  SceneSnapshot,
+  ValidationFinding,
+  ValidationFixRecord,
+  ValidationRun,
+} from '../../shared/contracts';
 
 const PROJECT_FORMAT_VERSION = 1;
 
@@ -192,6 +201,57 @@ export class ProjectRepository {
         error TEXT,
         PRIMARY KEY(job_id, task_index)
       ) STRICT;
+      CREATE TABLE IF NOT EXISTS validation_runs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        scene_revision INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        channels_json TEXT NOT NULL,
+        summary_json TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        completed_at TEXT NOT NULL
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS validation_findings (
+        id TEXT PRIMARY KEY,
+        run_id TEXT NOT NULL REFERENCES validation_runs(id) ON DELETE CASCADE,
+        rule_id TEXT NOT NULL,
+        domain TEXT NOT NULL,
+        severity TEXT NOT NULL,
+        entity_path TEXT NOT NULL,
+        message TEXT NOT NULL,
+        evidence_json TEXT NOT NULL,
+        assumptions_json TEXT NOT NULL,
+        proposed_fix_json TEXT,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS validation_fixes (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        source_run_id TEXT NOT NULL REFERENCES validation_runs(id),
+        finding_id TEXT NOT NULL REFERENCES validation_findings(id),
+        fix_id TEXT NOT NULL,
+        fix_class TEXT NOT NULL,
+        tool_id TEXT NOT NULL,
+        args_json TEXT NOT NULL,
+        inverse_tool_id TEXT,
+        inverse_args_json TEXT,
+        checkpoint_id TEXT,
+        pre_revision INTEGER NOT NULL,
+        post_revision INTEGER NOT NULL,
+        result_run_id TEXT NOT NULL REFERENCES validation_runs(id),
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS validation_runs_project_revision
+        ON validation_runs(project_id, scene_revision DESC, completed_at DESC);
+      CREATE INDEX IF NOT EXISTS validation_findings_run
+        ON validation_findings(run_id, rule_id, entity_path);
+      CREATE INDEX IF NOT EXISTS validation_fixes_project_status
+        ON validation_fixes(project_id, status, created_at DESC);
+      INSERT OR IGNORE INTO schema_migrations(version, applied_at)
+      VALUES (2, datetime('now'));
     `);
   }
 
@@ -409,6 +469,233 @@ export class ProjectRepository {
       blenderPath: row.blender_path === null ? null : String(row.blender_path),
       manifest: JSON.parse(String(row.manifest_json)) as Record<string, unknown>,
       createdAt: String(row.created_at),
+    };
+  }
+
+  listCheckpoints(projectId: string, limit = 50): CheckpointRecord[] {
+    const rows = this.database.prepare(
+      `SELECT * FROM checkpoints WHERE project_id = ? ORDER BY created_at DESC, id DESC LIMIT ?`,
+    ).all(projectId, limit) as Array<Record<string, string | number | null>>;
+    return rows.map((row) => ({
+      id: String(row.id),
+      projectId: String(row.project_id),
+      label: String(row.label),
+      sceneRevision: Number(row.scene_revision),
+      blenderPath: row.blender_path === null ? null : String(row.blender_path),
+      manifest: JSON.parse(String(row.manifest_json)) as Record<string, unknown>,
+      createdAt: String(row.created_at),
+    }));
+  }
+
+  restoreMutableStateFromBackup(backupPath: string): void {
+    const absolute = path.resolve(backupPath);
+    const checkpointRoot = `${path.resolve(this.root, 'checkpoints')}${path.sep}`;
+    if (!absolute.startsWith(checkpointRoot) || !existsSync(absolute)) {
+      throw new Error('Checkpoint database is missing or outside the project checkpoint root');
+    }
+    const escaped = absolute.replaceAll("'", "''");
+    this.database.exec(`ATTACH DATABASE '${escaped}' AS checkpoint_restore`);
+    try {
+      this.database.exec(`
+        BEGIN IMMEDIATE;
+        DELETE FROM messages;
+        DELETE FROM conversations;
+        DELETE FROM job_tasks;
+        DELETE FROM jobs;
+        DELETE FROM project_records;
+        DELETE FROM project_state;
+        INSERT INTO project_state SELECT * FROM checkpoint_restore.project_state;
+        INSERT INTO project_records SELECT * FROM checkpoint_restore.project_records;
+        INSERT INTO conversations SELECT * FROM checkpoint_restore.conversations;
+        INSERT INTO messages SELECT * FROM checkpoint_restore.messages;
+        INSERT INTO jobs SELECT * FROM checkpoint_restore.jobs;
+        INSERT INTO job_tasks SELECT * FROM checkpoint_restore.job_tasks;
+        COMMIT;
+      `);
+    } catch (error) {
+      try {
+        this.database.exec('ROLLBACK');
+      } catch {
+        // The original error is more useful when SQLite already rolled back.
+      }
+      throw error;
+    } finally {
+      this.database.exec('DETACH DATABASE checkpoint_restore');
+    }
+  }
+
+  saveValidationRun(run: ValidationRun): void {
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      this.database.prepare(
+        `INSERT INTO validation_runs(
+          id, project_id, scene_revision, status, channels_json, summary_json,
+          started_at, completed_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        run.id,
+        run.projectId,
+        run.sceneRevision,
+        run.status,
+        JSON.stringify(run.channels),
+        JSON.stringify(run.summary),
+        run.startedAt,
+        run.completedAt,
+      );
+      const statement = this.database.prepare(
+        `INSERT INTO validation_findings(
+          id, run_id, rule_id, domain, severity, entity_path, message,
+          evidence_json, assumptions_json, proposed_fix_json, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      );
+      for (const finding of run.findings) {
+        statement.run(
+          finding.id,
+          finding.runId,
+          finding.ruleId,
+          finding.domain,
+          finding.severity,
+          finding.entityPath,
+          finding.message,
+          JSON.stringify(finding.deterministicEvidence),
+          JSON.stringify(finding.assumptions),
+          finding.proposedFix ? JSON.stringify(finding.proposedFix) : null,
+          finding.status,
+          finding.createdAt,
+        );
+      }
+      this.database.exec('COMMIT');
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
+    }
+  }
+
+  latestValidationRun(projectId: string): ValidationRun | null {
+    const row = this.database.prepare(
+      `SELECT * FROM validation_runs
+       WHERE project_id = ? ORDER BY rowid DESC LIMIT 1`,
+    ).get(projectId) as Record<string, string | number> | undefined;
+    return row ? this.hydrateValidationRun(row) : null;
+  }
+
+  getValidationRun(id: string): ValidationRun | null {
+    const row = this.database.prepare('SELECT * FROM validation_runs WHERE id = ?')
+      .get(id) as Record<string, string | number> | undefined;
+    return row ? this.hydrateValidationRun(row) : null;
+  }
+
+  getValidationFinding(id: string): ValidationFinding | null {
+    const row = this.database.prepare('SELECT * FROM validation_findings WHERE id = ?')
+      .get(id) as Record<string, string | null> | undefined;
+    return row ? this.hydrateValidationFinding(row) : null;
+  }
+
+  setValidationFindingStatus(id: string, status: FindingStatus): void {
+    this.database.prepare('UPDATE validation_findings SET status = ? WHERE id = ?').run(status, id);
+  }
+
+  saveValidationFix(fix: ValidationFixRecord): void {
+    this.database.prepare(
+      `INSERT INTO validation_fixes(
+        id, project_id, source_run_id, finding_id, fix_id, fix_class, tool_id,
+        args_json, inverse_tool_id, inverse_args_json, checkpoint_id, pre_revision,
+        post_revision, result_run_id, status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      fix.id,
+      fix.projectId,
+      fix.sourceRunId,
+      fix.findingId,
+      fix.fixId,
+      fix.fixClass,
+      fix.toolId,
+      JSON.stringify(fix.args),
+      fix.inverseToolId,
+      fix.inverseArgs ? JSON.stringify(fix.inverseArgs) : null,
+      fix.checkpointId,
+      fix.preRevision,
+      fix.postRevision,
+      fix.resultRunId,
+      fix.status,
+      fix.createdAt,
+      fix.updatedAt,
+    );
+  }
+
+  latestAppliedValidationFix(projectId: string): ValidationFixRecord | null {
+    const row = this.database.prepare(
+      `SELECT * FROM validation_fixes
+       WHERE project_id = ? AND status = 'APPLIED' AND inverse_tool_id IS NOT NULL
+       ORDER BY rowid DESC LIMIT 1`,
+    ).get(projectId) as Record<string, string | number | null> | undefined;
+    return row ? this.hydrateValidationFix(row) : null;
+  }
+
+  markValidationFixUndone(id: string, updatedAt: string): void {
+    this.database.prepare(
+      `UPDATE validation_fixes SET status = 'UNDONE', updated_at = ? WHERE id = ?`,
+    ).run(updatedAt, id);
+  }
+
+  private hydrateValidationRun(row: Record<string, string | number>): ValidationRun {
+    const runId = String(row.id);
+    const findings = this.database.prepare(
+      `SELECT * FROM validation_findings WHERE run_id = ? ORDER BY rule_id, entity_path, id`,
+    ).all(runId) as Array<Record<string, string | null>>;
+    return {
+      id: runId,
+      projectId: String(row.project_id),
+      sceneRevision: Number(row.scene_revision),
+      status: 'COMPLETED',
+      channels: JSON.parse(String(row.channels_json)) as string[],
+      summary: JSON.parse(String(row.summary_json)) as ValidationRun['summary'],
+      startedAt: String(row.started_at),
+      completedAt: String(row.completed_at),
+      findings: findings.map((finding) => this.hydrateValidationFinding(finding)),
+    };
+  }
+
+  private hydrateValidationFinding(row: Record<string, string | null>): ValidationFinding {
+    return {
+      id: String(row.id),
+      runId: String(row.run_id),
+      ruleId: String(row.rule_id),
+      domain: String(row.domain) as ValidationFinding['domain'],
+      severity: String(row.severity) as ValidationFinding['severity'],
+      entityPath: String(row.entity_path),
+      message: String(row.message),
+      deterministicEvidence: JSON.parse(String(row.evidence_json)) as Record<string, unknown>,
+      assumptions: JSON.parse(String(row.assumptions_json)) as string[],
+      proposedFix: row.proposed_fix_json === null
+        ? null
+        : JSON.parse(String(row.proposed_fix_json)) as ValidationFinding['proposedFix'],
+      status: String(row.status) as ValidationFinding['status'],
+      createdAt: String(row.created_at),
+    };
+  }
+
+  private hydrateValidationFix(row: Record<string, string | number | null>): ValidationFixRecord {
+    return {
+      id: String(row.id),
+      projectId: String(row.project_id),
+      sourceRunId: String(row.source_run_id),
+      findingId: String(row.finding_id),
+      fixId: String(row.fix_id),
+      fixClass: String(row.fix_class) as ValidationFixRecord['fixClass'],
+      toolId: String(row.tool_id),
+      args: JSON.parse(String(row.args_json)) as Record<string, unknown>,
+      inverseToolId: row.inverse_tool_id === null ? null : String(row.inverse_tool_id),
+      inverseArgs: row.inverse_args_json === null
+        ? null
+        : JSON.parse(String(row.inverse_args_json)) as Record<string, unknown>,
+      checkpointId: row.checkpoint_id === null ? null : String(row.checkpoint_id),
+      preRevision: Number(row.pre_revision),
+      postRevision: Number(row.post_revision),
+      resultRunId: String(row.result_run_id),
+      status: String(row.status) as ValidationFixRecord['status'],
+      createdAt: String(row.created_at),
+      updatedAt: String(row.updated_at),
     };
   }
 

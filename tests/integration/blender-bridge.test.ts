@@ -108,6 +108,11 @@ describe('authenticated Blender bridge', () => {
           sceneName: 'Scene',
           blenderFile: null,
           capturedAt: new Date().toISOString(),
+          unitSystem: 'METRIC',
+          unitScale: 1,
+          lengthUnit: 'METERS',
+          upAxis: 'Z',
+          externalFiles: [],
           objects: [],
         } : { objectId: 'cube' },
       });

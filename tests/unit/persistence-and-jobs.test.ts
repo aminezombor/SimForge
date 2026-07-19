@@ -68,6 +68,11 @@ describe('portable project persistence', () => {
       sceneName: 'Persisted scene',
       blenderFile: 'scene/main.blend',
       capturedAt: now,
+      unitSystem: 'METRIC',
+      unitScale: 1,
+      lengthUnit: 'METERS',
+      upAxis: 'Z',
+      externalFiles: [],
       objects: [],
     }, 'bridge');
     project.repository.saveConversation({

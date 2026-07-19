@@ -27,6 +27,15 @@ export class PolicyDeniedError extends Error {
   }
 }
 
+export interface ToolExecutionResult {
+  toolId: string;
+  result: unknown;
+  preRevision: number;
+  postRevision: number;
+  changedEntityIds: string[];
+  checkpointId: string | null;
+}
+
 export class ToolExecutor {
   constructor(
     private readonly bridge: BlenderBridgeServer,
@@ -45,7 +54,7 @@ export class ToolExecutor {
     toolId: string,
     args: Record<string, unknown>,
     context: ExecutionContext,
-  ): Promise<unknown> {
+  ): Promise<ToolExecutionResult> {
     const tool = this.registry.get(toolId);
     if (!tool) throw new PolicyDeniedError('UNKNOWN_TOOL', `Unknown tool ${toolId}`);
     if (!tool.allowedModes.includes(context.mode)) {
@@ -92,8 +101,10 @@ export class ToolExecutor {
     this.activities.record('execution', 'tool-started', `Starting ${toolId}`, {
       ...operationDetails,
     });
+    let checkpointId: string | null = null;
     if (tool.checkpoint === 'before') {
       const checkpoint = await this.checkpoints.create(`Before ${toolId}`, context.sceneRevision);
+      checkpointId = checkpoint.id;
       this.activities.record('execution', 'checkpoint-created', `Checkpoint created before ${toolId}`, {
         checkpointId: checkpoint.id,
         blenderPath: checkpoint.blenderPath,
@@ -116,7 +127,14 @@ export class ToolExecutor {
       postRevision: response.postRevision,
       changedEntityIds: response.changedEntityIds,
     });
-    return response.result;
+    return {
+      toolId,
+      result: response.result,
+      preRevision: response.preRevision,
+      postRevision: response.postRevision,
+      changedEntityIds: response.changedEntityIds,
+      checkpointId,
+    };
   }
 
   private validatePythonFallback(args: Record<string, unknown>): void {

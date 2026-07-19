@@ -149,9 +149,10 @@ counter is seeded from the app-persisted monotonic revision floor on reconnect. 
 mutating request with a mismatched expected revision returns `STALE_SCENE`, causing
 refresh and replanning rather than overwrite.
 
-The MS1/MS2 operation set covers snapshot, checkpoint copy, primitive creation, object
-deletion, and controlled Python fallback. Later milestones add the remaining typed
-collection/material/transform/import/export/render/validation operations. Python
+The MS1-MS3 operation set covers evidence-rich snapshot, complete checkpoint
+copy/restore, primitive creation, exact object location, approved scale application,
+object deletion, and controlled Python fallback. Later milestones add the remaining
+typed collection/material/robot/import/export/render operations. Python
 fallback is disabled in Plan Mode and requires displayed intent, exact approval,
 pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
 audit entry, and post-execution snapshot. It is privileged, not sandboxed.
@@ -184,6 +185,14 @@ Finding {
 Rule classes cover geometry, topology, scene organization, materials/references, robot graph, collision, mass/inertia, joints/articulation, sensors, and USD composition. Physical values are never fabricated without an explicit recorded assumption.
 
 Fix classes are `SAFE_LOCAL`, `STRUCTURAL`, `CREATIVE`, `DESTRUCTIVE`, and `UNKNOWN`. Only `SAFE_LOCAL` may auto-run, and only when preconditions match the current revision, the operation has an inverse or checkpoint, and post-validation passes. All other classes require approval.
+
+MS3 materializes the first channel as 18 stable `GEO-*` rules over fresh Blender
+snapshots. Snapshots include units, Z-up convention, visibility, world bounds, mesh
+counts and topology evidence, materials, and local external-file existence. Findings,
+runs, and correction records persist in dedicated SQLite tables. Conservative AABB
+overlap remains an informational review signal, and Z=0 ground contact is an explicit
+project assumption. Robotics rules/renders arrive in MS4 and OpenUSD evidence in MS5;
+the channel separation prevents partial evidence from claiming complete readiness.
 
 ## USD Export Package
 

@@ -47,4 +47,8 @@ For every milestone:
 
 ## Current Approval Gate
 
-The owner approved the documentation and architecture baseline on 2026-07-18. MS0 documentation may be completed and committed. Stop afterward; application implementation begins only after a separate instruction to start MS1.
+The owner approved the documentation/architecture baseline on 2026-07-18, approved
+MS1/MS2 separately, and on 2026-07-19 authorized Codex to continue through the
+remaining hackathon milestones in Goal Mode. Preserve every milestone's evidence and
+working-checkpoint gate. No major cycle-two architecture change is permitted without a
+recorded blocking defect and explicit owner approval.

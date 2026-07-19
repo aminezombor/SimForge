@@ -18,6 +18,11 @@ function snapshot(revision: number, x: number, ids = ['one']) {
     sceneName: 'Scene',
     blenderFile: null,
     capturedAt: new Date().toISOString(),
+    unitSystem: 'METRIC',
+    unitScale: 1,
+    lengthUnit: 'METERS',
+    upAxis: 'Z' as const,
+    externalFiles: [],
     objects: ids.map((id) => ({
       id,
       name: id,
@@ -27,6 +32,21 @@ function snapshot(revision: number, x: number, ids = ['one']) {
       rotation: [0, 0, 0] as [number, number, number],
       scale: [1, 1, 1] as [number, number, number],
       dimensions: [1, 1, 1] as [number, number, number],
+      visible: true,
+      worldBounds: {
+        min: [x - 0.5, -0.5, 0] as [number, number, number],
+        max: [x + 0.5, 0.5, 1] as [number, number, number],
+      },
+      mesh: {
+        vertexCount: 8,
+        edgeCount: 12,
+        polygonCount: 6,
+        looseVertexCount: 0,
+        nonManifoldEdgeCount: 0,
+        degenerateFaceCount: 0,
+        zeroLengthEdgeCount: 0,
+        normalIssueCount: 0,
+      },
       materialNames: [],
     })),
   };

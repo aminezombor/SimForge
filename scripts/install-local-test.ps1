@@ -66,7 +66,7 @@ $shortcut.TargetPath = (Join-Path $env:SystemRoot 'System32\wscript.exe')
 $shortcut.Arguments = "//B //Nologo `"$windowlessLauncherDestination`""
 $shortcut.WorkingDirectory = $appDestination
 $shortcut.IconLocation = "$(Join-Path $appDestination 'SimForge.exe'),0"
-$shortcut.Description = 'Launch the SimForge MS1/MS2 test build with Blender 4.5 LTS'
+$shortcut.Description = 'Launch the current SimForge hackathon build with Blender 4.5 LTS'
 $shortcut.Save()
 
 [pscustomobject]@{

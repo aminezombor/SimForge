@@ -37,7 +37,12 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
   complete thin AI-to-Blender, storage, security, and OpenUSD compatibility evidence passes.
 - MS2: complete; modes, exact approvals, jobs, live revisions, manual-edit diffs,
   stale rejection, checkpoint recovery, and controlled Python evidence pass.
-- MS3: not started. No deterministic validation capability is claimed yet.
+- MS3: complete. Eighteen stable geometry/scene/topology/material/reference rules,
+  persisted findings, safe preconditioned correction, exact structural approval,
+  inverse undo, and complete approved checkpoint restore pass unit and real Blender
+  evidence. Robotics/renders remain MS4; USD evidence remains MS5.
+- MS4: next. Begin with a versioned robot authoring graph and the smallest complete
+  primitive wheeled-robot build/inspection/robotics-validation slice.
 
 ## Post-Hackathon V1 (MS10)
 

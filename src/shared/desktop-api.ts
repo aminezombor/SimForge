@@ -1,4 +1,4 @@
-import type { AppState, Mode, ModelDescriptor } from './contracts';
+import type { AppState, Mode, ModelDescriptor, ValidationRun } from './contracts';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type {
   CloudProviderId,
@@ -48,10 +48,35 @@ export interface ChatMessageView {
   createdAt: string;
 }
 
+export interface ValidationFixInput {
+  findingId: string;
+  planHash: string | null;
+  approvalId: string | null;
+}
+
+export interface CheckpointView {
+  id: string;
+  label: string;
+  sceneRevision: number;
+  createdAt: string;
+  completeProjectState: boolean;
+}
+
 export interface SimForgeDesktopApi {
   getState(): Promise<AppState>;
   setMode(mode: Mode): Promise<AppState>;
   refreshScene(): Promise<AppState>;
+  getLatestValidation(): Promise<ValidationRun | null>;
+  runValidation(): Promise<ValidationRun>;
+  applyValidationFix(input: ValidationFixInput): Promise<ValidationRun>;
+  undoLatestValidationFix(): Promise<ValidationRun>;
+  listCheckpoints(): Promise<CheckpointView[]>;
+  approveCheckpointRestore(checkpointId: string, planHash: string): Promise<string>;
+  restoreCheckpoint(
+    checkpointId: string,
+    planHash: string,
+    approvalId: string,
+  ): Promise<ValidationRun>;
   executeTool(input: ToolExecutionInput): Promise<AppState>;
   approveAction(input: ApprovalInput): Promise<string>;
   createGoal(input: GoalPlanInput): Promise<{ jobId: string; planHash: string }>;

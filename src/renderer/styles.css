@@ -87,6 +87,35 @@ input:focus, select:focus { border-color: #47bfa3; }
 .doctor-card li.ok b { color: #65d1b3; }
 .doctor-card li.missing b { color: #e7a576; }
 
+.validation-dock { border-bottom: 1px solid #172b35; padding: 20px; background: rgba(7, 17, 24, .72); }
+.validation-dock > .panel-heading { margin: 0 0 13px; padding: 0; border: 0; }
+.validation-empty { color: #78909f; font-size: 12px; line-height: 1.5; }
+.validation-summary { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.validation-summary span { border: 1px solid #284451; border-radius: 999px; padding: 4px 7px; color: #9db2bd; font-size: 9px; text-transform: uppercase; }
+.validation-summary .blocker, .validation-summary .error { border-color: #6a3340; color: #ffadba; }
+.validation-summary .warning { border-color: #5f4a2d; color: #e8c58e; }
+.validation-summary small { margin-left: auto; color: #66808f; font-size: 10px; }
+.finding-list { display: grid; gap: 8px; max-height: 330px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
+.finding-list .finding { display: block; border: 1px solid #213844; border-left: 3px solid #4f7b88; border-radius: 8px; padding: 10px; background: #08151d; }
+.finding-list .finding.error, .finding-list .finding.blocker { border-left-color: #d76378; }
+.finding-list .finding.warning { border-left-color: #c89955; }
+.finding-title { display: flex; justify-content: space-between; gap: 8px; color: #9fdcca; font-size: 10px; }
+.finding-title span { color: #77919f; text-transform: uppercase; }
+.finding-list p { margin: 5px 0; color: #b7c9d2; font-size: 11px; line-height: 1.4; }
+.finding-list small { display: block; color: #66808f; font-size: 9px; line-height: 1.4; }
+.finding-pass { color: #82d9bf; font-size: 12px; }
+.finding-action { margin-top: 8px; border: 1px solid #35705f; border-radius: 7px; padding: 6px 8px; color: #a7ead5; background: #0c2a22; font-size: 10px; }
+.finding-action.approval { border-color: #6d5838; color: #ebce9f; background: #2b2114; }
+.validation-undo { margin-top: 10px; padding: 7px 9px; font-size: 10px; }
+.checkpoint-history { margin-top: 12px; border-top: 1px solid #172b35; padding-top: 10px; color: #8ea6b3; font-size: 11px; }
+.checkpoint-history summary { cursor: pointer; }
+.checkpoint-history ul { display: grid; gap: 7px; margin: 9px 0 0; padding: 0; list-style: none; }
+.checkpoint-history li { display: flex; justify-content: space-between; gap: 8px; align-items: center; border: 1px solid #1c323d; border-radius: 7px; padding: 7px; }
+.checkpoint-history li b, .checkpoint-history li small { display: block; }
+.checkpoint-history li b { color: #b6cad3; font-size: 10px; }
+.checkpoint-history li small { color: #657f8d; font-size: 9px; }
+.checkpoint-history button { border: 1px solid #5c4b31; border-radius: 6px; padding: 5px 7px; color: #e2c594; background: #261d12; font-size: 9px; }
+
 .activity .panel-heading { margin: 0; padding: 22px 20px 16px; border-bottom: 1px solid #172b35; }
 .icon-button { padding: 7px 10px; }
 .activity-list { max-height: 650px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }

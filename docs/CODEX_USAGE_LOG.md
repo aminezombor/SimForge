@@ -123,6 +123,32 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   install smoke, and owner-provided screenshots. Exact colors/typography remain for MS6
   visual exploration and reference-versus-build QA.
 
+### 2026-07-19 - MS3 deterministic evidence and recovery closure
+
+- Phase/milestone: MS3
+- Requirement/test IDs: REQ-VALIDATION-001 through REQ-VALIDATION-005,
+  REQ-FIX-001 through REQ-FIX-004, REQ-HISTORY-001/002; AT-021, AT-024,
+  AT-025, AT-026
+- Contribution: Codex translated broad geometry-quality language into 18 stable rules,
+  versioned snapshot/finding/fix contracts, and repeatable defective/repaired fixtures.
+  It kept conservative overlap and support-plane assumptions visible instead of
+  presenting them as simulation proof.
+- Important decisions: safe grounding is eligible only with exact revision/object/
+  location preconditions and a typed inverse; scale application and full restore remain
+  structural exact-approved actions. Checkpoints combine Blender, a consistent SQLite
+  backup, portable files, and SHA-256 inventory.
+- Acceleration: one 4.79-second real Blender acceptance run exercised the entire earlier
+  bridge suite plus fresh geometry evidence, safe fix, deterministic revalidation,
+  inverse undo, reconnect, and full approved restore--turning several risky Blender/API
+  assumptions into repeatable evidence.
+- Human review: the owner can repeat the visible sequence through the updated desktop
+  shortcut using `docs/MS3_MANUAL_TEST.md`.
+- Evidence: `tests/unit/validation.test.ts`, `tests/live/blender-live.test.ts`,
+  `docs/evidence/MS3_VERIFICATION.md`, packaged renderer security smoke.
+- Limitations: robotics and rendered visual evidence begin MS4; USD evidence begins
+  MS5. No new external dependency was added; mesh inspection uses Blender's bundled
+  `bmesh` API.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

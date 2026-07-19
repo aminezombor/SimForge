@@ -6,6 +6,15 @@ const api: SimForgeDesktopApi = {
   getState: () => ipcRenderer.invoke('state:get'),
   setMode: (mode: Mode) => ipcRenderer.invoke('mode:set', mode),
   refreshScene: () => ipcRenderer.invoke('scene:refresh'),
+  getLatestValidation: () => ipcRenderer.invoke('validation:get-latest'),
+  runValidation: () => ipcRenderer.invoke('validation:run'),
+  applyValidationFix: (input) => ipcRenderer.invoke('validation:apply-fix', input),
+  undoLatestValidationFix: () => ipcRenderer.invoke('validation:undo-latest-fix'),
+  listCheckpoints: () => ipcRenderer.invoke('checkpoint:list'),
+  approveCheckpointRestore: (checkpointId, planHash) =>
+    ipcRenderer.invoke('checkpoint:approve-restore', checkpointId, planHash),
+  restoreCheckpoint: (checkpointId, planHash, approvalId) =>
+    ipcRenderer.invoke('checkpoint:restore', checkpointId, planHash, approvalId),
   executeTool: (input) => ipcRenderer.invoke('tool:execute', input),
   approveAction: (input) => ipcRenderer.invoke('approval:create', input),
   createGoal: (input) => ipcRenderer.invoke('job:create', input),

@@ -2,10 +2,10 @@
 
 ## Current State
 
-- Phase: MS1 and MS2 complete; owner-authorized continuation paused before MS3
-- Overall status: Verified MS1/MS2 foundation; owner UI review incorporated and launcher defects corrected
+- Phase: MS0-MS3 complete; MS4 is next
+- Overall status: Deterministic validation/correction/recovery verified in real Blender and packaged renderer
 - Architecture: Approved; no architecture changes were required
-- Current gate: owner authorized MS3-MS9; work is paused at the owner's end-of-day request
+- Current gate: owner authorized continuation through MS9; proceed milestone-by-milestone
 - Last updated: 2026-07-19
 
 ## Completed Work
@@ -22,13 +22,14 @@
 | 2026-07-18 | Live NVIDIA acceptance | Protected owner key drove packaged runtime discovery and non-mutating capability probes; 119 models returned, intended Nemotron found, streamed text and no-op tool call observed, explicit reasoning control accepted, vision false. | `docs/evidence/NVIDIA_PROVIDER_ACCEPTANCE.json`; AT-004 |
 | 2026-07-18 | User-local MS1/MS2 test installation | Installed hash-verified Blender 4.5.11 LTS and the validated bridge extension beside the packaged app; added a no-terminal desktop shortcut, automatic authenticated connection, disconnected descriptor renewal, and an exact manual walkthrough. Existing unrelated desktop shortcut was preserved. | `scripts/install-local-test.ps1`; `docs/MS1_MS2_MANUAL_TEST.md`; live installed-process/loopback smoke |
 | 2026-07-19 | Owner workspace review and launch correction | Confirmed the tested screen is an engineering harness, adopted the owner-directed three-column final workspace contract, moved sample goal text to a placeholder, and added a visible preview label. Replaced console-producing launch paths, fixed the authenticated bridge's 30-second idle disconnect, added extension auto-reconnect and live header polling, then reverified the installed shortcut. | `docs/UX_WORKSPACE.md`; `docs/UX_AUDIT_2026-07-19.md`; installed 35-second idle smoke; bridge regression test |
+| 2026-07-19 | MS3 deterministic validation and recovery | Added evidence-rich Blender snapshots, 18 stable geometry/scene/topology/material/reference rules, persisted runs/findings/fixes, safe preconditioned ground correction, structural approval, inverse undo, hashed complete checkpoints, approved restore, and a validation/recovery dock. | `docs/evidence/MS3_VERIFICATION.md`; 26 default tests; real Blender safe-fix/undo/restore acceptance; packaged renderer smoke |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 22 passing; live Blender test opt-in/skipped in default suite |
-| Real Blender 4.5.11 acceptance | 1 passing; snapshot, AI tool, checkpoint, manual edit, stale denial, crash/reconnect, Python fallback |
+| TypeScript, ESLint, unit/contract/integration suite | 26 passing; live Blender test opt-in/skipped in default suite |
+| Real Blender 4.5.11 acceptance | 1 passing; prior MS1/MS2 path plus geometry evidence, safe fix/revalidation/inverse undo, and exact-approved complete restore |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
 | Credential smoke | Protected store works; plaintext scan false before/after removal |
@@ -38,6 +39,7 @@
 | Repository secret scan | Passing |
 | Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
 | User-local launch | Desktop shortcut opens installed app plus Blender 4.5.11 with zero new terminal windows; authenticated loopback connection remains established after 35 seconds idle |
+| MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -54,27 +56,29 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
   information architecture is fixed in `docs/UX_WORKSPACE.md`; full viewport/history/
   docking integration remains MS6, with MS3/MS5 panels designed to fit it.
 - Deterministic validators and USD product export are intentionally MS3-MS5, not hidden
-  behind the current compatibility worker.
+  behind the current compatibility worker. Geometry validators now pass; robotics and
+  visual evidence remain MS4 and USD product export remains MS5.
+- AABB overlap is intentionally conservative and Z=0 support contact is an explicit
+  assumption; MS4 must add robot-aware collision/contact semantics instead of treating
+  these general geometry signals as simulation proof.
 
 ## Next Action
 
-When the owner resumes, begin MS3 deterministic validation. First reread the required
-persistent-memory documents, then state the MS3 objective, requirement IDs, acceptance
-tests, and smallest independently testable validation slice before changing code. The
-owner has already authorized continuing through the remaining milestones; preserve each
-milestone's verification and checkpoint gate.
+Begin MS4 with persistent-memory reread and name `REQ-VALIDATION-006` through
+`REQ-VALIDATION-010`, the primitive robot requirements, `AT-016`, `AT-022`, and
+`AT-023`. Implement the smallest complete structured wheeled-robot authoring graph,
+robotics validation, material/collision/physics metadata, and materialized review slice
+without hard-coding the later warehouse manipulator.
 
-## End-of-Day Handoff - 2026-07-19
+## Prior End-of-Day Handoff - 2026-07-19 (superseded)
 
 - Repository state is committed and verified; no uncommitted work is intentionally left.
 - The corrected **SimForge Hackathon** shortcut launches without terminals, Blender
   reconnects automatically, and visible status follows the live bridge.
 - The current renderer is an engineering preview. `docs/UX_WORKSPACE.md` is the approved
   final workspace direction; no full MS6 redesign has been started.
-- MS3 has not started. The owner subsequently authorized continuing through the
-  remaining milestones, then asked to pause until tomorrow.
-- Resume directly with MS3: reread persistent memory, name the exact deterministic
-  validation requirements and acceptance tests, and implement the smallest complete
-  slice. Figma exploration is optional and must not displace milestone evidence.
+- This pause was subsequently resumed. MS3 is now complete; the current next action is
+  MS4 as recorded above. Figma exploration remains optional and must not displace
+  milestone evidence.
 - Publishing is pending because no Git remote is configured. Add an owner-selected
   remote before pushing; do not create or guess a repository destination.

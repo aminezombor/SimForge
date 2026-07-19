@@ -9,8 +9,8 @@ import {
   type ChatModelAdapter,
   type ThreadMessageLike,
 } from '@assistant-ui/react';
-import type { AppState, Mode, ModelDescriptor } from '../shared/contracts';
-import type { ChatMessageView, GoalJobView } from '../shared/desktop-api';
+import type { AppState, Mode, ModelDescriptor, ValidationRun } from '../shared/contracts';
+import type { ChatMessageView, CheckpointView, GoalJobView } from '../shared/desktop-api';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type {
   CloudProviderId,
@@ -105,6 +105,10 @@ function App() {
   const [selectedModel, setSelectedModel] = useState('');
   const [providerProbe, setProviderProbe] = useState<ProviderProbeResult | null>(null);
   const [doctor, setDoctor] = useState<DoctorCheck[]>([]);
+  const [validation, setValidation] = useState<ValidationRun | null>(null);
+  const [validationApprovals, setValidationApprovals] = useState<Record<string, string>>({});
+  const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
+  const [restoreApprovals, setRestoreApprovals] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -160,6 +164,8 @@ function App() {
 
   useEffect(() => {
     void window.simforge.runEnvironmentDoctor().then(setDoctor).catch(() => setDoctor([]));
+    void window.simforge.getLatestValidation().then(setValidation).catch(() => setValidation(null));
+    void window.simforge.listCheckpoints().then(setCheckpoints).catch(() => setCheckpoints([]));
     void window.simforge.getChat().then((messages) => {
       setChat(messages);
       setChatReady(true);
@@ -185,7 +191,7 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div><p className="eyebrow">SIMFORGE / MS1 + MS2</p><h1>{state.projectName}</h1></div>
+        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3</p><h1>{state.projectName}</h1></div>
         <div className="status-cluster">
           <span className={state.bridgeConnected ? 'status good' : 'status quiet'}>
             <i /> Blender {state.bridgeConnected ? 'connected' : 'waiting'}
@@ -209,7 +215,7 @@ function App() {
 
       <div className="preview-banner" role="note">
         <strong>Engineering preview</strong>
-        <span>This MS1/MS2 test harness proves connection, policy, and persistence. It is not the final SimForge workspace.</span>
+        <span>This milestone harness proves connection, policy, persistence, and deterministic correction. MS6 delivers the final SimForge workspace.</span>
       </div>
 
       {error && <div className="error-banner" role="alert">{error}</div>}
@@ -247,7 +253,9 @@ function App() {
                   {task.description} <small>{task.status}{task.attempts ? ` / attempt ${task.attempts}` : ''}</small>
                 </li>
               ))}</ol>
-              <p className="validation-state">Validation gate: not run; deterministic validation begins in MS3.</p>
+              <p className="validation-state">Validation gate: {validation
+                ? `r${validation.sceneRevision} / ${validation.summary.error + validation.summary.blocker} blocking`
+                : 'not run for this project'}.</p>
               <div className="actions wrap">
                 {job.status === 'awaiting-approval' && <button className="primary" disabled={busy} onClick={() => void run(async () => {
                   await window.simforge.approveGoal(job.jobId, job.planHash);
@@ -335,6 +343,88 @@ function App() {
         </section>
 
         <aside className="activity panel">
+          <section className="validation-dock">
+            <div className="panel-heading">
+              <div><p className="eyebrow">VALIDATION</p><h2>Deterministic scene evidence</h2></div>
+              <button className="icon-button" disabled={busy || !state.bridgeConnected} onClick={() => void run(async () => {
+                setValidation(await window.simforge.runValidation());
+                setValidationApprovals({});
+                setCheckpoints(await window.simforge.listCheckpoints());
+              })}>Run fresh</button>
+            </div>
+            {!validation ? <p className="validation-empty">No validation run yet. Connect Blender and inspect the current revision.</p> : <>
+              <div className="validation-summary">
+                <span className="blocker">{validation.summary.blocker} blocker</span>
+                <span className="error">{validation.summary.error} errors</span>
+                <span className="warning">{validation.summary.warning} warnings</span>
+                <span>{validation.summary.info} info</span>
+                <small>fresh scene r{validation.sceneRevision}</small>
+              </div>
+              <ul className="finding-list">
+                {validation.findings.length === 0 && <li className="finding-pass">No deterministic geometry findings.</li>}
+                {validation.findings.map((finding) => {
+                  const fix = finding.proposedFix;
+                  const approvalId = validationApprovals[finding.id];
+                  const planHash = `validation:${validation.id}`;
+                  return <li key={finding.id} className={`finding ${finding.severity}`}>
+                    <div className="finding-title"><b>{finding.ruleId}</b><span>{finding.severity}</span></div>
+                    <p>{finding.message}</p>
+                    <small>{finding.entityPath}</small>
+                    {finding.assumptions.map((assumption) => <small key={assumption}>Assumption: {assumption}</small>)}
+                    {fix?.fixClass === 'SAFE_LOCAL' && <button className="finding-action" disabled={busy || state.mode === 'plan'} onClick={() => void run(async () => {
+                      setValidation(await window.simforge.applyValidationFix({
+                        findingId: finding.id,
+                        planHash: null,
+                        approvalId: null,
+                      }));
+                      setCheckpoints(await window.simforge.listCheckpoints());
+                    })}>Apply reversible safe fix</button>}
+                    {fix && fix.fixClass !== 'SAFE_LOCAL' && !approvalId && <button className="finding-action approval" disabled={busy || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
+                      const approved = await window.simforge.approveAction({
+                        planHash,
+                        toolId: fix.toolId,
+                        args: fix.args,
+                      });
+                      setValidationApprovals((current) => ({ ...current, [finding.id]: approved }));
+                    })}>Approve exact {fix.fixClass.toLowerCase()} fix</button>}
+                    {fix && fix.fixClass !== 'SAFE_LOCAL' && approvalId && <button className="finding-action" disabled={busy} onClick={() => void run(async () => {
+                      setValidation(await window.simforge.applyValidationFix({
+                        findingId: finding.id,
+                        planHash,
+                        approvalId,
+                      }));
+                      setValidationApprovals({});
+                      setCheckpoints(await window.simforge.listCheckpoints());
+                    })}>Apply approved fix</button>}
+                  </li>;
+                })}
+              </ul>
+              <button className="secondary validation-undo" disabled={busy || state.mode === 'plan'} onClick={() => void run(async () => {
+                setValidation(await window.simforge.undoLatestValidationFix());
+                setCheckpoints(await window.simforge.listCheckpoints());
+              })}>Undo latest safe fix</button>
+            </>}
+            <details className="checkpoint-history">
+              <summary>Recovery checkpoints ({checkpoints.length})</summary>
+              <ul>{checkpoints.slice(0, 8).map((checkpoint) => {
+                const planHash = `restore:${checkpoint.id}`;
+                const approvalId = restoreApprovals[checkpoint.id];
+                return <li key={checkpoint.id}>
+                  <div><b>{checkpoint.label}</b><small>r{checkpoint.sceneRevision} / {new Date(checkpoint.createdAt).toLocaleTimeString()}</small></div>
+                  {!checkpoint.completeProjectState && <small>Blender-only legacy checkpoint</small>}
+                  {checkpoint.completeProjectState && !approvalId && <button disabled={busy || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
+                    const approved = await window.simforge.approveCheckpointRestore(checkpoint.id, planHash);
+                    setRestoreApprovals((current) => ({ ...current, [checkpoint.id]: approved }));
+                  })}>Approve restore</button>}
+                  {checkpoint.completeProjectState && approvalId && <button disabled={busy} onClick={() => void run(async () => {
+                    setValidation(await window.simforge.restoreCheckpoint(checkpoint.id, planHash, approvalId));
+                    setRestoreApprovals({});
+                    setCheckpoints(await window.simforge.listCheckpoints());
+                  })}>Restore approved checkpoint</button>}
+                </li>;
+              })}</ul>
+            </details>
+          </section>
           <div className="panel-heading">
             <div><p className="eyebrow">ACTIVITY</p><h2>Auditable state changes</h2></div>
             <button className="icon-button" onClick={() => void refreshState()} aria-label="Refresh activity">Refresh</button>

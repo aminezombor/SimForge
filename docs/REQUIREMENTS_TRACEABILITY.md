@@ -13,15 +13,15 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-PROD-003 | Real Blender scene is authoritative and changes are tracked | HACKATHON-P0 | MS2 | AT-012, AT-013 | Tested | Real Blender snapshot/manual-edit/diff/stale tests |
 | REQ-PROD-004 | General product beyond warehouse example | HACKATHON-P0 | MS7 | AT-017, AT-020 | Planned | - |
 | REQ-PROD-005 | Complete warehouse mobile-manipulator demonstration content | HACKATHON-P0 | MS7 | AT-017 | Planned | - |
-| REQ-PROD-006 | Transparent, reliable, approval-aware, reversible automation | HACKATHON-P0 | MS3 | AT-008, AT-010, AT-026 | Planned | - |
-| REQ-PROD-007 | Deterministic evidence and human approval for ambiguity | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-025 | Planned | - |
+| REQ-PROD-006 | Transparent, reliable, approval-aware, reversible automation | HACKATHON-P0 | MS3 | AT-008, AT-010, AT-026 | Tested | Findings/fix/checkpoint UI, append-only activity, exact gates, inverse undo, and complete restore evidence |
+| REQ-PROD-007 | Deterministic evidence and human approval for ambiguity | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-025 | Tested | Stable geometry evidence and fix classification; conservative/ambiguous findings retain assumptions and approval |
 | REQ-PROD-008 | Preserve future Isaac feedback loop outside hackathon | V2-ISAAC-SIM | MS11 | AT-038 | Planned | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
 | REQ-MODE-001 | Normal Chat supports required discussion and requests | HACKATHON-P0 | MS2 | AT-008, AT-010 | Tested | assistant-ui custom local runtime; persisted no-tool chat |
 | REQ-MODE-002 | Plan Mode supports read-only inspection and planning | HACKATHON-P0 | MS2 | AT-009 | Tested | Plan UI, fresh snapshot, proposed goal plan |
 | REQ-MODE-003 | Plan Mode is technically non-mutating | HACKATHON-P0 | MS2 | AT-009 | Tested | All mutating registry tools denied; real Blender revision unchanged |
 | REQ-MODE-004 | Build Mode gates risky actions and permits safe actions | HACKATHON-P0 | MS2 | AT-010 | Tested | Policy/approval suite and real safe action |
 | REQ-MODE-005 | Goal Mode decomposes work and asks only material questions | HACKATHON-P0 | MS2 | AT-011 | Tested | Explicit task plan and approval gate; unsupported runners fail closed |
-| REQ-MODE-006 | Goal Mode shows progress, checkpoints, validation, and gates | HACKATHON-P0 | MS2 | AT-011 | Tested | Packaged task/status/attempt/checkpoint and honest not-run validation state |
+| REQ-MODE-006 | Goal Mode shows progress, checkpoints, validation, and gates | HACKATHON-P0 | MS2 | AT-011 | Tested | Packaged task/status/attempt/checkpoint plus persisted deterministic validation and gated correction state |
 | REQ-MODE-007 | Goal jobs pause/cancel/retry/rewind/branch/resume | HACKATHON-P0 | MS2 | AT-011 | Tested | Persistent job lifecycle tests and UI controls |
 | REQ-MODE-008 | Jobs persist across restart while chat remains usable | HACKATHON-P0 | MS2 | AT-011 | Tested | SQLite reopen plus concurrent assistant-ui message path |
 | REQ-MODE-009 | Goal Mode never performs restricted actions silently | HACKATHON-P0 | MS2 | AT-009, AT-010, AT-011 | Tested | Mode/allowlist/exact-approval enforcement |
@@ -50,7 +50,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-UX-010 | No secrets in conversation history | HACKATHON-P0 | MS1 | AT-003, AT-007 | Tested | Secret-like chat rejected; protected configuration path and secret scan |
 | REQ-DATA-001 | Multiple locally owned portable projects | HACKATHON-P0 | MS1 | AT-006 | Tested | Global index plus distinct move/reopen project fixtures |
 | REQ-DATA-002 | Store brief/chat/memory/references/docs/plans/decisions | HACKATHON-P0 | MS1 | AT-006, AT-007 | Tested | Generic typed records and provider-neutral message persistence; advanced controls remain MS6 |
-| REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Portable reopen test covers Blender source, script, action, validation records and scene snapshot; semantic validation begins MS3 |
+| REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Dedicated validation run/finding/fix tables, evidence-rich scene snapshots, scripts/actions, and complete checkpoint restore fixture |
 | REQ-DATA-004 | Store dependencies/assets/attribution/physics/sensors/exports/reports/previews | HACKATHON-P0 | MS5 | AT-006, AT-029, AT-030, AT-036 | Planned | - |
 | REQ-DATA-005 | Store named versions/branches/checkpoints/job state | HACKATHON-P1 | MS6 | AT-011, AT-026, AT-027 | Planned | - |
 | REQ-DATA-006 | Reusable libraries for robotics authoring resources | POST-HACKATHON-V1 | MS10 | AT-037 | Planned | - |
@@ -61,7 +61,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-BLENDER-005 | Checkpoint before risky Blender operations | HACKATHON-P0 | MS1 | AT-012, AT-026 | Tested | Tool metadata plus live save-copy/manifest/DB evidence |
 | REQ-BLENDER-006 | Synchronize while remaining responsive | HACKATHON-P0 | MS2 | AT-011, AT-012 | Tested | Off-thread socket/main-thread queue and concurrent local chat path |
 | REQ-BLENDER-007 | Recover/relink after disconnect or crash | HACKATHON-P0 | MS2 | AT-014 | Tested | Forced process death, checkpoint reopen, authenticated reconnect/fresh truth |
-| REQ-BLENDER-008 | Structured tools for common operations | HACKATHON-P0 | MS1 | AT-012, AT-016 | Tested | Snapshot/checkpoint/primitive/delete typed registry; robot tools remain MS4 |
+| REQ-BLENDER-008 | Structured tools for common operations | HACKATHON-P0 | MS1 | AT-012, AT-016 | Tested | Snapshot/checkpoint/restore/primitive/location/scale/delete typed registry; robot tools remain MS4 |
 | REQ-BLENDER-009 | Controlled Blender Python fallback | HACKATHON-P0 | MS2 | AT-015 | Tested | Plan denial, exact approval, hash/path/checkpoint/live success/failure |
 | REQ-BLENDER-010 | Generated Python is explained/logged/gated/scoped/validated/reusable | HACKATHON-P0 | MS2 | AT-015, AT-031 | Tested | Intent/hash/path metadata, secret denial, archive, audit and reinspection |
 | REQ-VIEW-001 | Useful embedded mini 3D inspection workspace | HACKATHON-P1 | MS6 | AT-018 | Planned | - |
@@ -73,11 +73,11 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-IMPORT-003 | One licensed external robot import/modify/validate/export path | HACKATHON-P1 | MS8 | AT-020 | Planned | - |
 | REQ-IMPORT-004 | Import/conversion/loss/units/material/hierarchy/license/status report | HACKATHON-P1 | MS8 | AT-019, AT-020 | Planned | - |
 | REQ-IMPORT-005 | Evaluate, pin, attribute, isolate, and secure external reuse | HACKATHON-P0 | MS9 | AT-031, AT-036 | In progress | Reviewed MS1 dependency inventory and package boundaries; final asset/release audit remains MS9 |
-| REQ-VALIDATION-001 | Combine scene, deterministic, USD, visual, and human evidence | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-023, AT-030 | Planned | - |
-| REQ-VALIDATION-002 | Validate units/orientation/transforms/origins/bounds/dimensions | HACKATHON-P0 | MS3 | AT-021 | Planned | - |
-| REQ-VALIDATION-003 | Validate contact/clearance/intersections/penetration | HACKATHON-P0 | MS3 | AT-021 | Planned | - |
-| REQ-VALIDATION-004 | Validate duplicates/visibility/existence/topology/complexity | HACKATHON-P0 | MS3 | AT-021 | Planned | - |
-| REQ-VALIDATION-005 | Validate materials/textures/files/naming/hierarchy | HACKATHON-P0 | MS3 | AT-021 | Planned | - |
+| REQ-VALIDATION-001 | Combine scene, deterministic, USD, visual, and human evidence | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-023, AT-030 | In progress | Fresh Blender plus deterministic geometry channels pass; robotics/visual MS4 and OpenUSD/report MS5 channels remain explicitly separate |
+| REQ-VALIDATION-002 | Validate units/orientation/transforms/origins/bounds/dimensions | HACKATHON-P0 | MS3 | AT-021 | Tested | `GEO-UNIT`, `GEO-TRANSFORM`, `GEO-ORIGIN`, and `GEO-DIMENSION` fixtures plus Z-up/world-bound Blender evidence |
+| REQ-VALIDATION-003 | Validate contact/clearance/intersections/penetration | HACKATHON-P0 | MS3 | AT-021 | Tested | Support-plane penetration/floating and conservative world-AABB overlap rules with explicit assumptions |
+| REQ-VALIDATION-004 | Validate duplicates/visibility/existence/topology/complexity | HACKATHON-P0 | MS3 | AT-021 | Tested | Stable visibility, naming, non-manifold, loose, degenerate, zero-edge, normal, and complexity fixtures |
+| REQ-VALIDATION-005 | Validate materials/textures/files/naming/hierarchy | HACKATHON-P0 | MS3 | AT-021 | Tested | Material assignment, missing image file, name suffix/duplicate, absent parent, and cycle rules |
 | REQ-VALIDATION-006 | Materialized multi-view visual review | HACKATHON-P1 | MS4 | AT-022 | Planned | - |
 | REQ-VALIDATION-007 | No material-less screenshot as final evidence | HACKATHON-P0 | MS4 | AT-022 | Planned | - |
 | REQ-VALIDATION-008 | Validate kinematic/joint/articulation structure | HACKATHON-P0 | MS4 | AT-023 | Planned | - |
@@ -85,12 +85,12 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-VALIDATION-010 | Validate physical/sensor/convention data and mark assumptions | HACKATHON-P0 | MS4 | AT-023 | Planned | - |
 | REQ-VALIDATION-011 | Reopen and deeply validate USD stage/package | HACKATHON-P0 | MS5 | AT-029 | Planned | - |
 | REQ-VALIDATION-012 | Machine and human reports; model assertion is not evidence | HACKATHON-P0 | MS5 | AT-030 | Planned | - |
-| REQ-FIX-001 | Auto-fix only clear safe reversible local non-creative changes | HACKATHON-P0 | MS3 | AT-024, AT-025 | Planned | - |
-| REQ-FIX-002 | Rule-gated safe correction set | HACKATHON-P0 | MS3 | AT-024 | Planned | - |
-| REQ-FIX-003 | Approval for design/behavior/physical/file/dependency/export ambiguity | HACKATHON-P0 | MS3 | AT-025 | Planned | - |
-| REQ-FIX-004 | Log, undo, and revalidate automatic fixes | HACKATHON-P0 | MS3 | AT-024, AT-026 | Planned | - |
-| REQ-HISTORY-001 | Undo latest safe action | HACKATHON-P0 | MS3 | AT-024, AT-026 | Planned | - |
-| REQ-HISTORY-002 | Complete recoverable project checkpoint | HACKATHON-P0 | MS3 | AT-026 | Planned | - |
+| REQ-FIX-001 | Auto-fix only clear safe reversible local non-creative changes | HACKATHON-P0 | MS3 | AT-024, AT-025 | Tested | Only preconditioned `SAFE_LOCAL` ground correction bypasses approval; every other fix class is gated |
+| REQ-FIX-002 | Rule-gated safe correction set | HACKATHON-P0 | MS3 | AT-024 | Tested | Exact revision/object/location support-plane fix clears only its target rule in unit and live Blender tests |
+| REQ-FIX-003 | Approval for design/behavior/physical/file/dependency/export ambiguity | HACKATHON-P0 | MS3 | AT-025 | Tested | Structural scale and full checkpoint restore require exact plan/args/revision approval before checkpoint/mutation |
+| REQ-FIX-004 | Log, undo, and revalidate automatic fixes | HACKATHON-P0 | MS3 | AT-024, AT-026 | Tested | Append-only fix/activity record includes inverse/checkpoint/revisions/result run; live inverse and rerun pass |
+| REQ-HISTORY-001 | Undo latest safe action | HACKATHON-P0 | MS3 | AT-024, AT-026 | Tested | Latest applied safe fix persists its typed inverse; unit and real Blender undo restore the original finding |
+| REQ-HISTORY-002 | Complete recoverable project checkpoint | HACKATHON-P0 | MS3 | AT-026 | Tested | Blender save-copy, SQLite backup, hashed portable files/task state, integrity verification, pre-restore checkpoint, and live approved restore |
 | REQ-HISTORY-003 | Named versions and checkpoint branching | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
 | REQ-HISTORY-004 | Actor/tool/model/validation/checkpoint/export timeline | HACKATHON-P1 | MS6 | AT-027 | Planned | - |
 | REQ-USD-001 | Explicit export/destination/overwrite/package intent | HACKATHON-P0 | MS5 | AT-028, AT-029 | Planned | - |

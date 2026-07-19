@@ -27,6 +27,7 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-017 | 2026-07-18 | Scene truth | Persist a monotonic revision floor in the protected bridge descriptor so Blender reconnects cannot move project scene truth backward. | Approved | REQ-BLENDER-003, REQ-BLENDER-004, REQ-BLENDER-007 |
 | DEC-018 | 2026-07-18 | Security | Apply a strict complete Electron fuse policy with current `@electron/fuses`, then inspect the packaged binary. | Approved | REQ-SECURITY-001, REQ-SECURITY-002 |
 | DEC-019 | 2026-07-19 | Product UX | Use the owner-directed three-column workspace contract: conversation rail, central mode-aware authoring surface, and contextual viewport/activity/validation/export dock; keep credentials in Settings and active routing visible. | Approved | REQ-AI-008 through REQ-AI-010, REQ-UX-001 through REQ-UX-009, REQ-VIEW-001 through REQ-VIEW-004 |
+| DEC-020 | 2026-07-19 | Validation and recovery | Materialize Blender geometry evidence in versioned snapshots, keep findings/fixes append-only in SQLite, allow only preconditioned `SAFE_LOCAL` operations without approval, and restore complete checkpoints only through exact approval plus a pre-restore checkpoint. | Approved | REQ-VALIDATION-001 through REQ-VALIDATION-005, REQ-FIX-001 through REQ-FIX-004, REQ-HISTORY-001, REQ-HISTORY-002 |
 
 ## Architecture Decision Details
 
@@ -113,8 +114,33 @@ history, viewport, docking, and responsive integration remain MS6. This records 
 owner interpretation of existing scope and does not change requirement priorities or
 milestone approval gates.
 
+### DEC-020: Deterministic validation and complete recovery
+
+**Context.** Chat text and screenshots cannot prove geometry state. Corrections also
+need a machine-enforced boundary between localized reversible work and changes that
+alter scene structure or physical interpretation.
+
+**Decision.** Fresh Blender snapshots now include metric settings, world bounds,
+visibility, mesh counts/topology evidence, materials, and external file existence.
+Eighteen stable `GEO-*` rules emit entity paths and deterministic evidence. A root
+object's Z=0 support-plane correction is `SAFE_LOCAL` only when its exact revision,
+object, and location preconditions still match. Applying scale is structural and uses
+the existing exact plan/arguments/revision approval. Findings, runs, and fixes are
+append-only SQLite records; successful fixes always checkpoint and revalidate.
+
+Complete checkpoints add a consistent project-database backup and SHA-256 inventory of
+the portable manifest, references, and generated scripts to the Blender save-copy.
+Restore verifies those hashes, creates a pre-restore checkpoint, requires exact
+approval, restores mutable project/task state and files, then refreshes and revalidates.
+
+**Consequences.** Bounding-box overlap is explicitly conservative and support-plane
+Z=0 is a displayed assumption. Robotics semantics and visual review remain separate
+MS4 evidence channels; USD inspection remains MS5. No visual/model assertion is
+promoted to deterministic evidence.
+
 ## Approval Record
 
 The project owner approved the full SimForge Documentation and Architecture Baseline
-on 2026-07-18, then explicitly instructed Codex to implement MS1 and MS2. Starting MS3
-still requires a separate owner instruction after this milestone closes.
+on 2026-07-18, then explicitly instructed Codex to implement MS1 and MS2. On 2026-07-19
+the owner instructed Codex to continue in Goal Mode through the remaining milestones;
+the milestone evidence/checkpoint workflow remains mandatory.

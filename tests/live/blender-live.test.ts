@@ -16,6 +16,7 @@ import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
 import { ProjectManager, type ProjectHandle } from '../../src/main/storage/project-repository';
 import type { BridgeEvent } from '../../src/shared/contracts';
 import { sha256Text } from '../../src/shared/hash';
+import { ValidationService } from '../../src/main/validation/validation-service';
 
 const blenderPath = process.env.SIMFORGE_BLENDER_PATH;
 const liveDescribe = blenderPath ? describe : describe.skip;
@@ -89,6 +90,14 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
       activities,
       new ApprovedScriptArchive(project),
     );
+    const validation = new ValidationService(
+      project,
+      scene,
+      executor,
+      approvals,
+      checkpoints,
+      activities,
+    );
     const initial = await scene.refresh();
     expect(initial.snapshot.sceneRevision).toBe(0);
 
@@ -115,7 +124,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
       },
       new Set(['object.create_primitive']),
       (name, args) => executor.execute(name, {
-        ...args, primitive: 'CUBE', name: 'Real SimForge Cube', location: [0, 0, 1],
+        ...args, primitive: 'CUBE', name: 'Real SimForge Cube', location: [0, 0, 2],
       }, {
         projectId: project!.manifest.projectId,
         mode: 'build',
@@ -129,7 +138,29 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     expect(afterCreate.snapshot.sceneRevision).toBeGreaterThan(0);
     expect(afterCreate.snapshot.objects.some((object) => object.name === 'Real SimForge Cube')).toBe(true);
 
-    const staleRevision = afterCreate.snapshot.sceneRevision;
+    const validationRun = await validation.run();
+    const realCubeId = afterCreate.snapshot.objects.find((object) => object.name === 'Real SimForge Cube')!.id;
+    const contactFinding = validationRun.findings.find((finding) => (
+      finding.ruleId === 'GEO-CONTACT-001' &&
+      finding.entityPath === `/objects/${realCubeId}`
+    ));
+    expect(contactFinding?.proposedFix).toMatchObject({
+      fixClass: 'SAFE_LOCAL',
+      toolId: 'object.set_location',
+      reversible: true,
+    });
+    const correctedRun = await validation.applyFix(contactFinding!.id, null, null);
+    expect(correctedRun.findings.some((finding) => (
+      finding.ruleId === 'GEO-CONTACT-001' && finding.entityPath === contactFinding!.entityPath
+    ))).toBe(false);
+    const correctedCube = scene.current!.objects.find((object) => object.name === 'Real SimForge Cube');
+    expect(correctedCube?.worldBounds?.min[2]).toBeCloseTo(0, 6);
+    const undoneRun = await validation.undoLatestSafeFix();
+    expect(undoneRun.findings.some((finding) => (
+      finding.ruleId === 'GEO-CONTACT-001' && finding.entityPath === contactFinding!.entityPath
+    ))).toBe(true);
+
+    const staleRevision = scene.current!.sceneRevision;
     const manualEventPromise = once(server, 'scene-event');
     await writeFile(path.join(control, 'manual-edit.request'), 'edit', 'utf8');
     const eventValues = await withTimeout(
@@ -236,6 +267,15 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const inspected = await scene.refresh();
     expect(inspected.snapshot.sceneRevision).toBeGreaterThan(recovered.snapshot.sceneRevision);
     expect(inspected.snapshot.objects.some((object) => object.name === 'Approved Python Object')).toBe(true);
+
+    project.repository.setMode('build');
+    const restorePlan = `restore:${recovery.id}`;
+    const restoreApproval = validation.approveCheckpointRestore(recovery.id, restorePlan);
+    const restoredRun = await validation.restoreCheckpoint(recovery.id, restorePlan, restoreApproval);
+    expect(restoredRun.sceneRevision).toBeGreaterThan(inspected.snapshot.sceneRevision);
+    expect(scene.current!.objects.some((object) => object.name === 'Manual Sphere')).toBe(true);
+    expect(scene.current!.objects.some((object) => object.name === 'Approved Python Object')).toBe(false);
+    expect(project.repository.listCheckpoints(project.manifest.projectId).length).toBeGreaterThanOrEqual(2);
 
     const finalExit = once(secondBlender, 'exit');
     await writeFile(path.join(reconnectControl, 'stop.request'), 'stop', 'utf8');

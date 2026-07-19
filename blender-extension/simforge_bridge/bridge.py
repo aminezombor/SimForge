@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Any
 
 import bpy
+import bmesh
+from mathutils import Vector
 
 from .protocol import FrameDecoder, PROTOCOL_VERSION, encode_frame
 
@@ -202,6 +204,25 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             raise BridgeOperationError("CHECKPOINT_EXISTS", "Checkpoint path already exists")
         bpy.ops.wm.save_as_mainfile(filepath=str(filepath), copy=True)
         return {"filepath": str(filepath)}, [], False
+    if operation == "checkpoint.restore":
+        filepath = _safe_project_path(str(payload.get("filepath", "")))
+        destination = _safe_project_path(str(payload.get("destination", "")))
+        if not filepath.is_file() or filepath.suffix.lower() != ".blend":
+            raise BridgeOperationError("CHECKPOINT_MISSING", "Checkpoint Blender source is unavailable")
+        if destination.suffix.lower() != ".blend":
+            raise BridgeOperationError("INVALID_DESTINATION", "Restored Blender source requires a .blend destination")
+        _INTERNAL_MUTATION = True
+        try:
+            bpy.ops.wm.open_mainfile(filepath=str(filepath), load_ui=False)
+            bpy.ops.wm.save_as_mainfile(filepath=str(destination), check_existing=False)
+            bpy.context.view_layer.update()
+            return {
+                "filepath": str(filepath),
+                "destination": str(destination),
+                "restored": True,
+            }, [], True
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "object.create_primitive":
         primitive = str(payload.get("primitive", "CUBE")).upper()
         name = str(payload.get("name", "SimForge Primitive"))[:128]
@@ -237,6 +258,62 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             bpy.context.view_layer.update()
             return {"objectId": object_id}, [object_id], True
         finally:
+            _INTERNAL_MUTATION = False
+    if operation == "object.set_location":
+        object_id = str(payload.get("objectId", ""))
+        obj = _object_by_id(object_id)
+        if obj is None:
+            raise BridgeOperationError("OBJECT_NOT_FOUND", "Object was not found")
+        location = _vector(payload.get("location"))
+        _INTERNAL_MUTATION = True
+        try:
+            previous = list(obj.location)
+            obj.location = location
+            bpy.context.view_layer.update()
+            return {
+                "objectId": object_id,
+                "previousLocation": previous,
+                "location": list(obj.location),
+            }, [object_id], True
+        finally:
+            _INTERNAL_MUTATION = False
+    if operation == "object.apply_scale":
+        object_id = str(payload.get("objectId", ""))
+        obj = _object_by_id(object_id)
+        if obj is None:
+            raise BridgeOperationError("OBJECT_NOT_FOUND", "Object was not found")
+        if obj.type != "MESH":
+            raise BridgeOperationError("OBJECT_TYPE_UNSUPPORTED", "Scale application requires a mesh object")
+        _INTERNAL_MUTATION = True
+        selected = list(bpy.context.selected_objects)
+        active = bpy.context.view_layer.objects.active
+        previous_scale = list(obj.scale)
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+            with bpy.context.temp_override(
+                object=obj,
+                active_object=obj,
+                selected_objects=[obj],
+                selected_editable_objects=[obj],
+            ):
+                result = bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+            if "FINISHED" not in result:
+                raise BridgeOperationError("APPLY_SCALE_FAILED", "Blender did not apply object scale")
+            bpy.context.view_layer.update()
+            return {
+                "objectId": object_id,
+                "previousScale": previous_scale,
+                "scale": list(obj.scale),
+            }, [object_id], True
+        finally:
+            bpy.ops.object.select_all(action="DESELECT")
+            for selected_object in selected:
+                if selected_object.name in bpy.context.scene.objects:
+                    selected_object.select_set(True)
+            if active and active.name in bpy.context.scene.objects:
+                bpy.context.view_layer.objects.active = active
             _INTERNAL_MUTATION = False
     if operation == "python.execute":
         script = payload.get("script")
@@ -285,6 +362,9 @@ def _snapshot() -> dict[str, Any]:
                 "rotation": list(obj.rotation_euler),
                 "scale": list(obj.scale),
                 "dimensions": list(obj.dimensions),
+                "visible": not obj.hide_get() and not obj.hide_viewport and not obj.hide_render,
+                "worldBounds": _world_bounds(obj),
+                "mesh": _mesh_evidence(obj),
                 "materialNames": [slot.material.name for slot in obj.material_slots if slot.material],
             }
         )
@@ -295,8 +375,70 @@ def _snapshot() -> dict[str, Any]:
         "sceneName": bpy.context.scene.name,
         "blenderFile": bpy.data.filepath or None,
         "capturedAt": _utc_now(),
+        "unitSystem": bpy.context.scene.unit_settings.system,
+        "unitScale": bpy.context.scene.unit_settings.scale_length,
+        "lengthUnit": bpy.context.scene.unit_settings.length_unit,
+        "upAxis": "Z",
+        "externalFiles": _external_files(),
         "objects": objects,
     }
+
+
+def _world_bounds(obj) -> dict[str, list[float]] | None:
+    if obj.type != "MESH" or not obj.bound_box:
+        return None
+    corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    return {
+        "min": [min(corner[axis] for corner in corners) for axis in range(3)],
+        "max": [max(corner[axis] for corner in corners) for axis in range(3)],
+    }
+
+
+def _mesh_evidence(obj) -> dict[str, int] | None:
+    if obj.type != "MESH" or obj.data is None:
+        return None
+    mesh = obj.data
+    working = bmesh.new()
+    try:
+        working.from_mesh(mesh)
+        working.normal_update()
+        loose_vertices = sum(1 for vertex in working.verts if not vertex.link_edges)
+        non_manifold = sum(1 for edge in working.edges if not edge.is_manifold)
+        degenerate_faces = sum(1 for face in working.faces if face.calc_area() <= 1e-12)
+        zero_edges = sum(1 for edge in working.edges if edge.calc_length() <= 1e-9)
+        normal_issues = sum(1 for face in working.faces if face.normal.length_squared <= 1e-18)
+        return {
+            "vertexCount": len(working.verts),
+            "edgeCount": len(working.edges),
+            "polygonCount": len(working.faces),
+            "looseVertexCount": loose_vertices,
+            "nonManifoldEdgeCount": non_manifold,
+            "degenerateFaceCount": degenerate_faces,
+            "zeroLengthEdgeCount": zero_edges,
+            "normalIssueCount": normal_issues,
+        }
+    finally:
+        working.free()
+
+
+def _external_files() -> list[dict[str, Any]]:
+    files: list[dict[str, Any]] = []
+    for image in sorted(bpy.data.images, key=lambda item: item.name):
+        if image.source != "FILE":
+            continue
+        raw_path = image.filepath or ""
+        resolved = bpy.path.abspath(raw_path) if raw_path else ""
+        packed = image.packed_file is not None
+        files.append(
+            {
+                "kind": "image",
+                "datablock": image.name,
+                "path": raw_path,
+                "exists": bool(resolved) and Path(resolved).is_file(),
+                "packed": packed,
+            }
+        )
+    return files
 
 
 def _safe_project_path(raw: str) -> Path:

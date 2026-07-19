@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { access } from 'node:fs/promises';
 import path from 'node:path';
-import type { AppState, BridgeEvent, Mode, ModelDescriptor } from '../shared/contracts';
+import type {
+  AppState,
+  BridgeEvent,
+  Mode,
+  ModelDescriptor,
+  ValidationRun,
+} from '../shared/contracts';
 import type {
   ApprovalInput as DesktopApprovalInput,
   ChatMessageView,
@@ -30,6 +36,7 @@ import { ElectronCredentialStore } from './security/credential-store';
 import { containsLikelySecret } from './security/secret-redaction';
 import { GlobalRepository } from './storage/global-repository';
 import { ProjectManager, type ProjectHandle } from './storage/project-repository';
+import { ValidationService, type CheckpointView } from './validation/validation-service';
 
 export class AppRuntime {
   private project: ProjectHandle | null = null;
@@ -41,6 +48,7 @@ export class AppRuntime {
   private executor: ToolExecutor | null = null;
   private jobs: JobOrchestrator | null = null;
   private checkpoints: CheckpointService | null = null;
+  private validation: ValidationService | null = null;
   private providers: ProviderService | null = null;
   private closed = false;
   private readonly mockProvider = new MockProviderAdapter();
@@ -90,6 +98,14 @@ export class AppRuntime {
       checkpoints,
       this.activities,
       new ApprovedScriptArchive(project),
+    );
+    this.validation = new ValidationService(
+      project,
+      this.sceneState,
+      this.executor,
+      this.approvals,
+      checkpoints,
+      this.activities,
     );
     this.bridge.on('connected', () => {
       this.requireActivities().record('bridge', 'connected', 'Blender connected');
@@ -146,6 +162,43 @@ export class AppRuntime {
       changed: diff?.changed.length ?? 0,
     });
     return this.getState();
+  }
+
+  getLatestValidation(): ValidationRun | null {
+    return this.requireValidation().latest();
+  }
+
+  runValidation(): Promise<ValidationRun> {
+    return this.requireValidation().run();
+  }
+
+  applyValidationFix(
+    findingId: string,
+    planHash: string | null,
+    approvalId: string | null,
+  ): Promise<ValidationRun> {
+    return this.requireValidation().applyFix(findingId, planHash, approvalId);
+  }
+
+  undoLatestValidationFix(): Promise<ValidationRun> {
+    return this.requireValidation().undoLatestSafeFix();
+  }
+
+  listCheckpoints(): CheckpointView[] {
+    return this.requireValidation().listCheckpoints();
+  }
+
+  async approveCheckpointRestore(checkpointId: string, planHash: string): Promise<string> {
+    await this.requireSceneState().refresh();
+    return this.requireValidation().approveCheckpointRestore(checkpointId, planHash);
+  }
+
+  restoreCheckpoint(
+    checkpointId: string,
+    planHash: string,
+    approvalId: string,
+  ): Promise<ValidationRun> {
+    return this.requireValidation().restoreCheckpoint(checkpointId, planHash, approvalId);
   }
 
   async executeTool(input: ToolExecutionInput): Promise<AppState> {
@@ -497,6 +550,11 @@ export class AppRuntime {
   private requireProviders(): ProviderService {
     if (!this.providers) throw new Error('Provider service is not initialized');
     return this.providers;
+  }
+
+  private requireValidation(): ValidationService {
+    if (!this.validation) throw new Error('Validation service is not initialized');
+    return this.validation;
   }
 
   private goalView(state: ReturnType<JobOrchestrator['get']>): GoalJobView {

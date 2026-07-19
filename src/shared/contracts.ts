@@ -31,15 +31,38 @@ export const ActivitySchema = Type.Object({
 });
 export type Activity = Static<typeof ActivitySchema>;
 
+export const Vector3Schema = Type.Tuple([Type.Number(), Type.Number(), Type.Number()]);
+
+export const WorldBoundsSchema = Type.Object({
+  min: Vector3Schema,
+  max: Vector3Schema,
+});
+export type WorldBounds = Static<typeof WorldBoundsSchema>;
+
+export const MeshEvidenceSchema = Type.Object({
+  vertexCount: Type.Integer({ minimum: 0 }),
+  edgeCount: Type.Integer({ minimum: 0 }),
+  polygonCount: Type.Integer({ minimum: 0 }),
+  looseVertexCount: Type.Integer({ minimum: 0 }),
+  nonManifoldEdgeCount: Type.Integer({ minimum: 0 }),
+  degenerateFaceCount: Type.Integer({ minimum: 0 }),
+  zeroLengthEdgeCount: Type.Integer({ minimum: 0 }),
+  normalIssueCount: Type.Integer({ minimum: 0 }),
+});
+export type MeshEvidence = Static<typeof MeshEvidenceSchema>;
+
 export const SceneObjectSchema = Type.Object({
   id: Type.String({ minLength: 1 }),
   name: Type.String({ minLength: 1 }),
   type: Type.String({ minLength: 1 }),
   parentId: Type.Union([Type.String(), Type.Null()]),
-  location: Type.Tuple([Type.Number(), Type.Number(), Type.Number()]),
-  rotation: Type.Tuple([Type.Number(), Type.Number(), Type.Number()]),
-  scale: Type.Tuple([Type.Number(), Type.Number(), Type.Number()]),
-  dimensions: Type.Tuple([Type.Number(), Type.Number(), Type.Number()]),
+  location: Vector3Schema,
+  rotation: Vector3Schema,
+  scale: Vector3Schema,
+  dimensions: Vector3Schema,
+  visible: Type.Boolean(),
+  worldBounds: Type.Union([WorldBoundsSchema, Type.Null()]),
+  mesh: Type.Union([MeshEvidenceSchema, Type.Null()]),
   materialNames: Type.Array(Type.String()),
 });
 export type SceneObject = Static<typeof SceneObjectSchema>;
@@ -51,9 +74,122 @@ export const SceneSnapshotSchema = Type.Object({
   sceneName: Type.String(),
   blenderFile: Type.Union([Type.String(), Type.Null()]),
   capturedAt: Type.String({ format: 'date-time' }),
+  unitSystem: Type.String(),
+  unitScale: Type.Number({ exclusiveMinimum: 0 }),
+  lengthUnit: Type.String(),
+  upAxis: Type.Literal('Z'),
+  externalFiles: Type.Array(Type.Object({
+    kind: Type.String({ minLength: 1 }),
+    datablock: Type.String({ minLength: 1 }),
+    path: Type.String(),
+    exists: Type.Boolean(),
+    packed: Type.Boolean(),
+  })),
   objects: Type.Array(SceneObjectSchema),
 });
 export type SceneSnapshot = Static<typeof SceneSnapshotSchema>;
+
+export const ValidationSeveritySchema = Type.Union([
+  Type.Literal('blocker'),
+  Type.Literal('error'),
+  Type.Literal('warning'),
+  Type.Literal('info'),
+]);
+export type ValidationSeverity = Static<typeof ValidationSeveritySchema>;
+
+export const FixClassSchema = Type.Union([
+  Type.Literal('SAFE_LOCAL'),
+  Type.Literal('STRUCTURAL'),
+  Type.Literal('CREATIVE'),
+  Type.Literal('DESTRUCTIVE'),
+  Type.Literal('UNKNOWN'),
+]);
+export type FixClass = Static<typeof FixClassSchema>;
+
+export const FindingStatusSchema = Type.Union([
+  Type.Literal('OPEN'),
+  Type.Literal('FIXED'),
+  Type.Literal('ACCEPTED'),
+  Type.Literal('SUPPRESSED'),
+]);
+export type FindingStatus = Static<typeof FindingStatusSchema>;
+
+export const ProposedFixSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  label: Type.String({ minLength: 1 }),
+  fixClass: FixClassSchema,
+  toolId: Type.String({ minLength: 1 }),
+  args: Type.Record(Type.String(), Type.Unknown()),
+  preconditions: Type.Object({
+    sceneRevision: Type.Integer({ minimum: 0 }),
+    objectId: Type.Optional(Type.String({ minLength: 1 })),
+    expectedLocation: Type.Optional(Vector3Schema),
+    expectedScale: Type.Optional(Vector3Schema),
+  }),
+  reversible: Type.Boolean(),
+  approvalRequired: Type.Boolean(),
+});
+export type ProposedFix = Static<typeof ProposedFixSchema>;
+
+export const ValidationFindingSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  runId: Type.String({ minLength: 1 }),
+  ruleId: Type.String({ minLength: 1 }),
+  domain: Type.Union([
+    Type.Literal('geometry'),
+    Type.Literal('topology'),
+    Type.Literal('scene'),
+    Type.Literal('materials'),
+    Type.Literal('references'),
+  ]),
+  severity: ValidationSeveritySchema,
+  entityPath: Type.String({ minLength: 1 }),
+  message: Type.String({ minLength: 1 }),
+  deterministicEvidence: Type.Record(Type.String(), Type.Unknown()),
+  assumptions: Type.Array(Type.String()),
+  proposedFix: Type.Union([ProposedFixSchema, Type.Null()]),
+  status: FindingStatusSchema,
+  createdAt: Type.String({ format: 'date-time' }),
+});
+export type ValidationFinding = Static<typeof ValidationFindingSchema>;
+
+export const ValidationRunSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  projectId: Type.String({ minLength: 1 }),
+  sceneRevision: Type.Integer({ minimum: 0 }),
+  startedAt: Type.String({ format: 'date-time' }),
+  completedAt: Type.String({ format: 'date-time' }),
+  status: Type.Literal('COMPLETED'),
+  channels: Type.Array(Type.String({ minLength: 1 })),
+  summary: Type.Object({
+    blocker: Type.Integer({ minimum: 0 }),
+    error: Type.Integer({ minimum: 0 }),
+    warning: Type.Integer({ minimum: 0 }),
+    info: Type.Integer({ minimum: 0 }),
+  }),
+  findings: Type.Array(ValidationFindingSchema),
+});
+export type ValidationRun = Static<typeof ValidationRunSchema>;
+
+export interface ValidationFixRecord {
+  id: string;
+  projectId: string;
+  sourceRunId: string;
+  findingId: string;
+  fixId: string;
+  fixClass: FixClass;
+  toolId: string;
+  args: Record<string, unknown>;
+  inverseToolId: string | null;
+  inverseArgs: Record<string, unknown> | null;
+  checkpointId: string | null;
+  preRevision: number;
+  postRevision: number;
+  resultRunId: string;
+  status: 'APPLIED' | 'UNDONE';
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const BridgeHandshakeSchema = Type.Object({
   protocolVersion: Type.Literal(ProtocolVersion),
