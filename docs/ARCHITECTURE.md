@@ -149,10 +149,11 @@ counter is seeded from the app-persisted monotonic revision floor on reconnect. 
 mutating request with a mismatched expected revision returns `STALE_SCENE`, causing
 refresh and replanning rather than overwrite.
 
-The MS1-MS3 operation set covers evidence-rich snapshot, complete checkpoint
+The MS1-MS4 operation set covers evidence-rich snapshot, complete checkpoint
 copy/restore, primitive creation, exact object location, approved scale application,
-object deletion, and controlled Python fallback. Later milestones add the remaining
-typed collection/material/robot/import/export/render operations. Python
+object deletion, controlled Python fallback, exact-approved robot materialization and
+link-pose correction, and revision-stamped materialized review rendering. Later
+milestones add the remaining typed collection/import/export operations. Python
 fallback is disabled in Plan Mode and requires displayed intent, exact approval,
 pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
 audit entry, and post-execution snapshot. It is privileged, not sandboxed.
@@ -191,8 +192,22 @@ snapshots. Snapshots include units, Z-up convention, visibility, world bounds, m
 counts and topology evidence, materials, and local external-file existence. Findings,
 runs, and correction records persist in dedicated SQLite tables. Conservative AABB
 overlap remains an informational review signal, and Z=0 ground contact is an explicit
-project assumption. Robotics rules/renders arrive in MS4 and OpenUSD evidence in MS5;
-the channel separation prevents partial evidence from claiming complete readiness.
+project assumption.
+
+MS4 adds a versioned `RobotGraph` with stable IDs for links, joints, collisions,
+materials, sensors, conventions, and source-tagged physical values. Blender materializes
+the actual hierarchy plus renderable sensor representations through exact-approved
+structured operations. Stable `ROB-*` findings compare graph intent with fresh world
+poses, parenting, joint topology/axes/limits/drives, collision/contact policy,
+dynamic/static flags, physics material IDs, mass, center of mass, inertia, and sensor
+frames/FOV. Unknown or assumed values remain labeled rather than fabricated.
+
+The review service produces lit materialized three-quarter/front/side/close-up/sensor
+PNGs in a revision-unique project path, hashes them into a validated manifest, and only
+serves stored integrity-checked images to the renderer. Temporary lights, camera, and
+ground are removed without advancing the Blender revision. Visual evidence remains
+advisory. OpenUSD evidence arrives in MS5; channel separation prevents partial evidence
+from claiming complete readiness.
 
 ## USD Export Package
 

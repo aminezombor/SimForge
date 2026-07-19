@@ -149,9 +149,9 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   MS5. No new external dependency was added; mesh inspection uses Blender's bundled
   `bmesh` API.
 
-### 2026-07-19 - MS4 robotics authoring checkpoint
+### 2026-07-19 - MS4 robotics authoring and review closure
 
-- Phase/milestone: MS4, intentionally not closed
+- Phase/milestone: MS4 complete
 - Requirement/test IDs: `REQ-VALIDATION-006` through `REQ-VALIDATION-010`, `AT-016`,
   `AT-022`, `AT-023`
 - What Codex/GPT-5.6 contributed: translated the primitive-robot outcome into a versioned,
@@ -164,12 +164,17 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Time/risk saved: one live Blender sequence exercised graph creation, actual object
   counts, a deliberately raised wheel, deterministic detection, exact-approved correction,
   revalidation, checkpoint creation, render production, and stored-image integrity.
-- Human review and verification: typecheck, lint, 24 unit tests, full 28-test verification,
-  and secret scan pass. Both opt-in Blender tests passed earlier in the session.
-- Evidence: `docs/evidence/MS4_CHECKPOINT_2026-07-19.md` and
+- Human review and verification: typecheck, lint, full 28-test verification, two real
+  Blender tests, packaging/fuse/security/credential/desktop-launch smoke, and secret scan
+  pass. Human image inspection rejected a blank sensor view and then a wheel-focused
+  composition before accepting the final mounted-sensor evidence.
+- Evidence: `docs/evidence/MS4_VERIFICATION.md` and
   `docs/evidence/ms4-review/`.
-- Limitations or correction made: the retained sensor image is blank. MS4 remains open;
-  the latest code is not yet packaged into the desktop test installation.
+- Limitations or correction made: smoke isolation review found that the app overrode
+  Chromium's test user-data directory, so credential smoke could touch the normal profile.
+  Codex corrected path selection and hidden-window lifecycle, proved the primary DB hash
+  unchanged, and recorded that the NVIDIA key may need re-entry. Exported hierarchy and
+  imported integrity remain correctly assigned to MS5/MS8.
 
 ## Future Entry Template
 

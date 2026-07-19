@@ -1,17 +1,19 @@
 # SimForge
 
 SimForge is a Windows-first, local-first desktop tool for conversational robotics
-authoring in a real Blender scene. MS1 through MS3 establish the safe vertical slice:
+authoring in a real Blender scene. MS1 through MS4 establish the safe vertical slice:
 chat or an approved goal produces a structured Blender operation, the app captures
 fresh scene truth, checkpoints before mutation, rejects stale work, and records an
 auditable activity trail. Deterministic geometry findings can drive a preconditioned
 safe correction, exact-approved structural correction, inverse undo, and full recovery.
 
-Current milestone state: MS1 through MS3 are complete with deterministic, packaged,
+Current milestone state: MS1 through MS4 are complete with deterministic, packaged,
 real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nemotron
 3 Ultra model and proved streamed text plus a non-executed no-op tool call. Eighteen
 stable geometry/scene rules and approved complete checkpoint restore pass in Blender
-4.5.11. Robot generation and robotics review begin in MS4; verified USD export is MS5.
+4.5.11. A versioned primitive wheeled robot, robotics/physics/sensor rules, exact-approved
+defect correction, and five lit revision/hash-stamped review views now pass. Verified USD
+export is MS5.
 
 The current screen is an engineering preview, not the final product UI. The approved
 three-column product direction is documented in [the workspace contract](docs/UX_WORKSPACE.md)
@@ -75,6 +77,7 @@ auto-connects the authenticated local bridge, and leaves no terminal open. This 
 test convenience, not the future signed MS9 installer; Blender remains a separately
 licensed executable. Follow [the MS1/MS2 foundation test](docs/MS1_MS2_MANUAL_TEST.md)
 and [the MS3 validation/recovery test](docs/MS3_MANUAL_TEST.md).
+Use [the MS4 robot/review test](docs/MS4_MANUAL_TEST.md) for the current installed build.
 
 ## Security and Licensing
 

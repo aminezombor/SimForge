@@ -118,6 +118,7 @@ function App() {
   const [robotApproval, setRobotApproval] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewManifest | null>(null);
   const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
+  const robotBuilt = validation?.channels.includes('deterministic-robotics') ?? false;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -201,7 +202,7 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3</p><h1>{state.projectName}</h1></div>
+        <div><p className="eyebrow">SIMFORGE / MS1 + MS2 + MS3 + MS4</p><h1>{state.projectName}</h1></div>
         <div className="status-cluster">
           <span className={state.bridgeConnected ? 'status good' : 'status quiet'}>
             <i /> Blender {state.bridgeConnected ? 'connected' : 'waiting'}
@@ -308,13 +309,14 @@ function App() {
               <span className="robot-schema">RobotGraph v{robotProposal?.graph.schemaVersion ?? '-'}</span>
             </div>
             <p className="muted">{robotProposal?.summary ?? 'Preparing deterministic RobotGraph...'}. Physical values remain labeled assumptions.</p>
+            {robotBuilt && <p className="validation-state">Robot is materialized in Blender and the deterministic robotics channel is active.</p>}
             {robotProposal && <ul className="robot-facts">
               <li>{robotProposal.graph.materials.length} assigned materials</li>
               <li>{robotProposal.graph.links.filter((link) => link.collision).length} collision primitives</li>
               <li>{robotProposal.graph.assumptions.length} explicit assumptions</li>
             </ul>}
             <div className="actions wrap">
-              {!robotApproval && <button className="primary" disabled={busy || !robotProposal || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
+              {!robotBuilt && !robotApproval && <button className="primary" disabled={busy || !robotProposal || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
                 if (!robotProposal) return;
                 setRobotApproval(await window.simforge.approveAction({
                   planHash: robotProposal.planHash,
@@ -322,14 +324,14 @@ function App() {
                   args: robotProposal.args,
                 }));
               })}>Approve exact robot build</button>}
-              {robotApproval && <button className="primary" disabled={busy} onClick={() => void run(async () => {
+              {!robotBuilt && robotApproval && <button className="primary" disabled={busy} onClick={() => void run(async () => {
                 const built = await window.simforge.buildPrimitiveRobot(robotApproval);
                 setState(built.state);
                 setValidation(built.validation);
                 setRobotApproval(null);
                 setCheckpoints(await window.simforge.listCheckpoints());
               })}>Build approved robot</button>}
-              <button className="secondary top" disabled={busy || !state.bridgeConnected || state.mode === 'plan' || !validation?.channels.includes('deterministic-robotics')} onClick={() => void run(async () => {
+              <button className="secondary top" disabled={busy || !state.bridgeConnected || state.mode === 'plan' || !robotBuilt} onClick={() => void run(async () => {
                 const manifest = await window.simforge.renderPrimitiveRobotReview('Primitive robot readiness');
                 setReview(manifest);
                 const entries = await Promise.all(manifest.images.map(async (image) => [

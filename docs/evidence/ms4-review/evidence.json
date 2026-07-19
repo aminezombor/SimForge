@@ -2,15 +2,15 @@
   "robotId": "simforge-primitive-wheeled-v1",
   "before": {
     "sceneRevision": 2,
-    "sha256": "051246dae0e2562f53b57424e05e631acbea55b07770f4c387f5738b7f0b46b9"
+    "sha256": "81c233ec85af298cbc1e3844edc941f35623bbe227133fe1bb4ad3cefc614fee"
   },
   "after": {
     "sceneRevision": 3,
-    "sha256": "e1d9d88c0ad4a58b455503149bb8ac7603ab5059dc91b80c3b197bd0c14a0921"
+    "sha256": "625d7ebb09c2d1607bd607b2e637acbce76f87c6f77b6a2ad9c52a8e1d8b7ff4"
   },
   "sensor": {
     "sceneRevision": 3,
-    "sha256": "76bdf3feb0980b1af5ad004a39324daa619a95420d41872f7462b52915fb7b27"
+    "sha256": "a696dd98341a6f3dd790764043a207d57b1d65ae17094985dff4db600ce063aa"
   },
   "materialized": true,
   "advisoryOnly": true

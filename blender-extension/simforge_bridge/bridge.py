@@ -693,6 +693,18 @@ def _materialize_robot(graph: dict[str, Any]) -> dict[str, Any]:
         _parent_preserve_world(sensor_object, links[str(sensor["parentLinkId"])])
         changed_ids.append(sensor_id)
 
+        sensor_visual = _create_sensor_visual(
+            collection,
+            sensor,
+            materials.get("sensor-amber") or next(iter(materials.values())),
+        )
+        sensor_visual_id = f"{sensor_id}:visual"
+        _stable_object(sensor_visual, sensor_visual_id, robot_id, "sensor-visual")
+        sensor_visual["simforge.sensor.id"] = str(sensor["id"])
+        sensor_visual["simforge.sensor.type"] = str(sensor["type"])
+        _parent_preserve_world(sensor_visual, sensor_object)
+        changed_ids.append(sensor_visual_id)
+
     return {
         "robotId": robot_id,
         "rootObjectId": root_id,
@@ -748,6 +760,19 @@ def _create_robot_geometry(collection, name: str, geometry: dict[str, Any], pose
     collection.objects.link(obj)
     obj.data.materials.append(material)
     return obj
+
+
+def _create_sensor_visual(collection, sensor: dict[str, Any], material):
+    pose = sensor["pose"]
+    sensor_type = str(sensor["type"])
+    dimensions = [0.18, 0.13, 0.12] if sensor_type == "CAMERA" else [0.11, 0.11, 0.08]
+    return _create_robot_geometry(
+        collection,
+        f"{sensor['name']} Visual",
+        {"primitive": "BOX", "size": dimensions},
+        pose,
+        material,
+    )
 
 
 def _stable_object(obj, stable_id: str, robot_id: str, role: str) -> None:
@@ -866,10 +891,15 @@ def _render_robot_review(robot_id: str, output_directory: Path) -> list[dict[str
         sensor = next((
             obj for obj in bpy.context.scene.objects
             if obj.get("simforge.robot.id") == robot_id and obj.get("simforge.sensor.type") == "CAMERA"
+            and obj.get("simforge.role") == "sensor-visual"
         ), None)
         if sensor is not None:
             sensor_position = sensor.matrix_world.translation.copy()
-            views.append(("sensor", sensor_position, sensor_position + Vector((3, 0, -0.15))))
+            views.append((
+                "sensor",
+                sensor_position + Vector((radius * 1.05, -radius * 1.05, radius * 0.72)),
+                sensor_position,
+            ))
 
         results: list[dict[str, str]] = []
         for name, location, target in views:

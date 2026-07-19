@@ -28,6 +28,8 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-018 | 2026-07-18 | Security | Apply a strict complete Electron fuse policy with current `@electron/fuses`, then inspect the packaged binary. | Approved | REQ-SECURITY-001, REQ-SECURITY-002 |
 | DEC-019 | 2026-07-19 | Product UX | Use the owner-directed three-column workspace contract: conversation rail, central mode-aware authoring surface, and contextual viewport/activity/validation/export dock; keep credentials in Settings and active routing visible. | Approved | REQ-AI-008 through REQ-AI-010, REQ-UX-001 through REQ-UX-009, REQ-VIEW-001 through REQ-VIEW-004 |
 | DEC-020 | 2026-07-19 | Validation and recovery | Materialize Blender geometry evidence in versioned snapshots, keep findings/fixes append-only in SQLite, allow only preconditioned `SAFE_LOCAL` operations without approval, and restore complete checkpoints only through exact approval plus a pre-restore checkpoint. | Approved | REQ-VALIDATION-001 through REQ-VALIDATION-005, REQ-FIX-001 through REQ-FIX-004, REQ-HISTORY-001, REQ-HISTORY-002 |
+| DEC-021 | 2026-07-19 | Robotics authoring | Use a versioned provider-neutral `RobotGraph`, stable Blender identities, source-tagged physical values, deterministic `ROB-*` rules, and materialized advisory review renders for generated robots. | Approved | REQ-PROD-004, REQ-BLENDER-008, REQ-VALIDATION-006 through REQ-VALIDATION-010 |
+| DEC-022 | 2026-07-19 | Test isolation | Packaged smoke modes must honor an explicit isolated user-data directory, never touch the normal profile, and keep hidden renderer closure from terminating a combined smoke sequence. | Approved | REQ-SECURITY-001, REQ-SECURITY-005, REQ-GOV-005 |
 
 ## Architecture Decision Details
 
@@ -137,6 +139,39 @@ approval, restores mutable project/task state and files, then refreshes and reva
 Z=0 is a displayed assumption. Robotics semantics and visual review remain separate
 MS4 evidence channels; USD inspection remains MS5. No visual/model assertion is
 promoted to deterministic evidence.
+
+### DEC-021: Versioned robot authoring and evidence
+
+**Context.** The primitive robot must prove a general authoring seam without embedding
+warehouse-demo assumptions or allowing model prose to stand in for physical data.
+
+**Decision.** A JSON-Schema-validated `RobotGraph` records links, joints, visual and
+collision primitives, materials, sensors, conventions, self-collision policy, and
+source-tagged mass/center-of-mass/inertia values. Exact-approved structured tools
+materialize stable `simforge.*` identities and modify robot link poses. `ROB-*` rules
+compare the stored graph with a fresh Blender snapshot. Lit revision-stamped renders
+include useful angles, before/after evidence, and a materialized sensor representation;
+their manifest is hashed and explicitly advisory.
+
+**Consequences.** Assumed physical values remain visible and cannot be silently promoted
+to measured truth. The graph is reusable by MS5 USD, MS7 generated manipulation, and MS8
+imports. Exported-schema inspection remains an MS5 channel and imported-asset integrity
+remains an MS8 extension of the same rules.
+
+### DEC-022: Isolated packaged smoke profiles
+
+**Context.** Electron's Chromium `--user-data-dir` switch was overridden by the app's
+normal `%LOCALAPPDATA%\SimForge` path assignment, so a credential lifecycle smoke could
+touch the real provider profile.
+
+**Decision.** Only explicit smoke modes accept the supplied absolute user-data argument
+and set Electron's path before initialization. Combined smoke keeps the application
+alive after its hidden renderer closes. Verification hashes the primary database before
+and after and requires an isolated database to be created.
+
+**Consequences.** The pre-fix smoke may have removed the current NVIDIA credential; it
+must be entered again through Settings. Future credential/security/provider smokes must
+use isolated profiles and prove the primary profile is unchanged.
 
 ## Approval Record
 

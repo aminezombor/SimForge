@@ -78,3 +78,11 @@ remain in the packaged output.
 maintained fork to commit `06b29aafb7708acef8b3669835c8a7857ebc92d2`; the exact
 direct declaration and lock entry document the reviewed exception. No third-party asset
 is present. Full release notice generation and clean-package audit remain AT-036/MS9.
+
+## MS4 Audit Result
+
+MS4 adds no external runtime dependency or third-party asset. Robot construction,
+rendering, and inspection use Blender 4.5.11's bundled `bpy`, `bmesh`, and math utilities;
+desktop contracts/validation remain TypeScript. The package, extension ZIP, fuse policy,
+isolated credential/security smoke, and current-user installation pass at the existing
+pinned versions. OpenUSD and Three.js dependency work remains gated to MS5/MS6.

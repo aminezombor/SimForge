@@ -4,7 +4,7 @@
 
 Protect provider credentials and private project data, prevent models/renderers/imports from gaining ambient authority, prevent unintended Blender or filesystem mutation, keep recovery possible, and make cloud and privileged actions understandable to the user.
 
-## MS1/MS2 Implemented Baseline
+## MS1-MS4 Implemented Baseline
 
 Packaged evidence confirms renderer sandbox/context isolation, no renderer Node globals,
 restrictive CSP, denied remote windows/navigation/permissions, a typed narrow preload
@@ -15,6 +15,14 @@ forged/oversized bridge frames, stale/forged approvals, prompt-injected unavaila
 tools, project-path traversal, secret-like chat/script content, privileged script
 failure, and crash recovery. Import/export-specific controls remain gated in their
 later milestones because those surfaces do not yet exist.
+
+Packaged smoke tests run only with an explicit isolated user-data directory. SimForge
+sets that directory before runtime initialization, creates a separate global/project
+database, and verifies the normal profile database hash is unchanged. Security and
+credential lifecycle checks may be combined without a hidden renderer's closure ending
+the process early. A pre-fix credential smoke could touch the normal profile and may have
+removed the configured NVIDIA key; the harness is corrected and the key must be entered
+again rather than recovered or logged.
 
 ## Trust Boundaries
 

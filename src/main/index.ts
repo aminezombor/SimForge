@@ -27,8 +27,21 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 
+const smokeArguments = [
+  '--smoke-test',
+  '--security-smoke-test',
+  '--credential-smoke-test',
+  '--provider-acceptance-test',
+] as const;
+const smokeMode = smokeArguments.some((argument) => process.argv.includes(argument));
+const isolatedUserDataArgument = process.argv.find((argument) => argument.startsWith('--user-data-dir='));
 const localAppData = process.env.LOCALAPPDATA;
-if (localAppData) app.setPath('userData', path.join(localAppData, 'SimForge'));
+if (smokeMode && isolatedUserDataArgument) {
+  const isolatedUserData = path.resolve(isolatedUserDataArgument.slice('--user-data-dir='.length));
+  app.setPath('userData', isolatedUserData);
+} else if (localAppData) {
+  app.setPath('userData', path.join(localAppData, 'SimForge'));
+}
 app.enableSandbox();
 
 let runtime: AppRuntime | null = null;
@@ -195,12 +208,7 @@ void app.whenReady().then(async () => {
   runtime = new AppRuntime(app.getPath('userData'), app.isPackaged ? process.resourcesPath : process.cwd());
   await runtime.initialize();
   registerIpc(runtime);
-  if (
-    process.argv.includes('--smoke-test') ||
-    process.argv.includes('--security-smoke-test') ||
-    process.argv.includes('--credential-smoke-test') ||
-    process.argv.includes('--provider-acceptance-test')
-  ) {
+  if (smokeMode) {
     await runSmokeTest();
     await runtime.shutdown();
     app.quit();
@@ -213,7 +221,9 @@ void app.whenReady().then(async () => {
   app.quit();
 });
 
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => {
+  if (!smokeMode) app.quit();
+});
 app.on('before-quit', () => {
   void runtime?.shutdown();
 });

@@ -2,10 +2,10 @@
 
 ## Current State
 
-- Phase: MS0-MS3 complete; MS4 is in progress at a verified checkpoint
-- Overall status: Primitive RobotGraph authoring, Blender materialization, robotics validation,
-  approved defect/correction, and review-image retention are implemented and testable; MS4 is
-  not closed because the sensor-view render is blank and release/package evidence is pending
+- Phase: MS0-MS4 complete; MS5 verified USD export is next
+- Overall status: Generated primitive robot authoring, real Blender materialization,
+  deterministic robotics validation, approved defect/correction, materialized human-reviewed
+  evidence, packaging, and the installed no-terminal path pass
 - Architecture: Approved; no architecture changes were required
 - Current gate: owner authorized continuation through MS9; proceed milestone-by-milestone
 - Last updated: 2026-07-19
@@ -25,25 +25,25 @@
 | 2026-07-18 | User-local MS1/MS2 test installation | Installed hash-verified Blender 4.5.11 LTS and the validated bridge extension beside the packaged app; added a no-terminal desktop shortcut, automatic authenticated connection, disconnected descriptor renewal, and an exact manual walkthrough. Existing unrelated desktop shortcut was preserved. | `scripts/install-local-test.ps1`; `docs/MS1_MS2_MANUAL_TEST.md`; live installed-process/loopback smoke |
 | 2026-07-19 | Owner workspace review and launch correction | Confirmed the tested screen is an engineering harness, adopted the owner-directed three-column final workspace contract, moved sample goal text to a placeholder, and added a visible preview label. Replaced console-producing launch paths, fixed the authenticated bridge's 30-second idle disconnect, added extension auto-reconnect and live header polling, then reverified the installed shortcut. | `docs/UX_WORKSPACE.md`; `docs/UX_AUDIT_2026-07-19.md`; installed 35-second idle smoke; bridge regression test |
 | 2026-07-19 | MS3 deterministic validation and recovery | Added evidence-rich Blender snapshots, 18 stable geometry/scene/topology/material/reference rules, persisted runs/findings/fixes, safe preconditioned ground correction, structural approval, inverse undo, hashed complete checkpoints, approved restore, and a validation/recovery dock. | `docs/evidence/MS3_VERIFICATION.md`; 26 default tests; real Blender safe-fix/undo/restore acceptance; packaged renderer smoke |
-| 2026-07-19 | MS4 working checkpoint | Added a versioned primitive-wheeled `RobotGraph`, structured Blender materialization and link-pose tools, robotics/physics/sensor validators, exact approval policy, materialized review rendering, integrity-checked preview persistence, and renderer controls. Real Blender caught and corrected an intentionally raised wheel. | `docs/evidence/MS4_CHECKPOINT_2026-07-19.md`; 28 default tests; two live Blender tests previously passed; retained before/after renders |
+| 2026-07-19 | MS4 primitive wheeled robot and review | Added a versioned provider-neutral `RobotGraph`, structured Blender materialization/link-pose tools, stable renderable sensor representation, robotics/physics/sensor rules, exact approval, hashed materialized review, and built-state UX. Real Blender caught and corrected a raised wheel; humans rejected poor sensor views until useful. | `docs/evidence/MS4_VERIFICATION.md`; 28 default tests; 2 real Blender tests; packaged/installed smoke; reviewed PNGs |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
 | TypeScript, ESLint, unit/contract/integration suite | 28 passing; 2 live Blender tests opt-in/skipped in default suite |
-| Real Blender 4.5.11 acceptance | 1 passing; prior MS1/MS2 path plus geometry evidence, safe fix/revalidation/inverse undo, and exact-approved complete restore |
+| Real Blender 4.5.11 acceptance | 2 passing in 8.92 seconds; full prior path plus robot materialization, robotics evidence, raised-wheel detection/correction, and review integrity |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
-| Credential smoke | Protected store works; plaintext scan false before/after removal |
+| Credential smoke | Protected store works in isolated profile; plaintext scan false before/after removal; primary database SHA-256 unchanged |
 | Portable SQLite | Move/reopen plus backup/recovery passing |
 | OpenUSD | Python 3.13.14, usd-core 26.5, author/reopen passing |
 | Live NVIDIA | 119 models discovered; intended Nemotron found; text/stream/tools/reasoning controls true; vision false; no-op tool not executed |
 | Repository secret scan | Passing |
 | Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
-| User-local launch | Desktop shortcut opens installed app plus Blender 4.5.11 with zero new terminal windows; authenticated loopback connection remains established after 35 seconds idle |
+| User-local launch | Desktop shortcut opens current app plus Blender 4.5.11 with zero visible terminal windows; authenticated loopback connection remains established after 37 seconds idle |
 | MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
-| MS4 checkpoint | RobotGraph contracts, robotics rules, approval boundaries, Blender materialization, defect/correction, and five-view review pipeline implemented; retained sensor view is blank and must be corrected before closure |
+| MS4 robotics and visual review | Four links, three joints, four collisions, two sensor frames plus renderable bodies; deterministic `ROB-*` rules; five lit/hash-stamped views; visible before/after correction and useful sensor angle |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -60,44 +60,20 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
   information architecture is fixed in `docs/UX_WORKSPACE.md`; full viewport/history/
   docking integration remains MS6, with MS3/MS5 panels designed to fit it.
 - Deterministic validators and USD product export are intentionally MS3-MS5, not hidden
-  behind the current compatibility worker. Geometry validators now pass; robotics and
-  visual evidence remain MS4 and USD product export remains MS5.
+  behind the compatibility worker. Geometry/robotics/materialized-review channels pass;
+  USD composition, portability, and readiness reporting remain MS5.
 - AABB overlap is intentionally conservative and Z=0 support contact is an explicit
-  assumption; MS4 must add robot-aware collision/contact semantics instead of treating
-  these general geometry signals as simulation proof.
+  assumption; robot-aware primitive contact rules now supplement it but do not claim
+  simulator proof.
+- The pre-isolation credential smoke may have removed the current NVIDIA profile key.
+  No secret was exposed or retained; the owner must enter the key again through Settings
+  before the next live provider demonstration.
 
 ## Next Action
 
-Resume MS4 from `docs/evidence/MS4_CHECKPOINT_2026-07-19.md`. First repair the blank
-sensor-view composition and rerun the retained live-render evidence. Then finish the
-already-built-robot UI state, package the current application and extension, refresh the
-desktop test installation, run packaged/security/manual acceptance, update decisions,
-traceability, acceptance tests, roadmap, dependencies, and final MS4 evidence, and only
-then commit MS4 complete. Do not begin MS5 until that gate passes.
-
-## End-of-Day Handoff - 2026-07-19
-
-- The full repository verification passes: 28 tests passed, 2 live Blender tests were
-  intentionally skipped, and the secret scan checked 104 files.
-- Earlier in this work session both live Blender tests passed, including RobotGraph
-  materialization, robotics validation, exact-approved raised-wheel defect/correction,
-  checkpointing, and five-view render generation.
-- Human image review found the before/after wheel evidence useful and the sensor view
-  blank. The latter is a known MS4 defect, not accepted evidence.
-- The current desktop shortcut still represents the last installed MS3 package. Do not
-  treat it as the MS4 build until packaging and `scripts/install-local-test.ps1` are rerun.
-- No Git remote is configured. The checkpoint is committed locally on `main`; publishing
-  requires an owner-selected remote and must not be guessed.
-
-## Prior End-of-Day Handoff - 2026-07-19 (superseded)
-
-- Repository state is committed and verified; no uncommitted work is intentionally left.
-- The corrected **SimForge Hackathon** shortcut launches without terminals, Blender
-  reconnects automatically, and visible status follows the live bridge.
-- The current renderer is an engineering preview. `docs/UX_WORKSPACE.md` is the approved
-  final workspace direction; no full MS6 redesign has been started.
-- This pause was subsequently resumed. MS3 is now complete; the current next action is
-  MS4 as recorded above. Figma exploration remains optional and must not displace
-  milestone evidence.
-- Publishing is pending because no Git remote is configured. Add an owner-selected
-  remote before pushing; do not create or guess a repository destination.
+Begin MS5 after rereading persistent memory. Name `REQ-VALIDATION-011/012`,
+`REQ-USD-001` through `REQ-USD-006`, `REQ-EXPORT-001` through `REQ-EXPORT-006`, and
+`AT-028` through `AT-030`. Implement explicit quick/canonical destination approval,
+Blender geometry/material export, neutral physics/sensor composition, OpenUSD reopen and
+portable-reference/hash verification, machine JSON findings, and human readiness report.
+Do not begin MS6 until the complete first-cycle loop passes.

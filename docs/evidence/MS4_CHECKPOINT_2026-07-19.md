@@ -2,8 +2,8 @@
 
 ## Status
 
-MS4 is implemented far enough for deterministic and live integration testing, but it is
-not accepted or complete. This file is the restart point for the next work session.
+Superseded by `MS4_VERIFICATION.md`. This file preserves the working-checkpoint state
+that preceded final visual, packaging, security-isolation, and documentation acceptance.
 
 ## Implemented
 

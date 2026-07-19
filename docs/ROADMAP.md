@@ -41,11 +41,12 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
   persisted findings, safe preconditioned correction, exact structural approval,
   inverse undo, and complete approved checkpoint restore pass unit and real Blender
   evidence. Robotics/renders remain MS4; USD evidence remains MS5.
-- MS4: in progress at a verified checkpoint. Versioned RobotGraph authoring, structured
-  Blender materialization, explicit physical assumptions, deterministic robotics rules,
-  exact-approved defect/correction, and revision-stamped review generation work. Closure
-  still requires a nonblank sensor view, finished built-state UX, packaged/manual evidence,
-  and complete requirement/test documentation.
+- MS4: complete. Versioned RobotGraph authoring, structured Blender materialization,
+  stable sensor representation, explicit physical assumptions, deterministic robotics
+  rules, exact-approved defect/correction, five-view hashed evidence, packaging, and the
+  installed no-terminal shortcut pass.
+- MS5: next. Complete the first cycle with explicit quick/canonical USD export,
+  OpenUSD reopen/portability verification, and machine/human readiness reports.
 
 ## Post-Hackathon V1 (MS10)
 
