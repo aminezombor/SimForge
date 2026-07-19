@@ -57,3 +57,11 @@ sample has no owner path, `.codex` path, secret, or private feedback identifier.
 The owner must enter cloud credentials directly in protected Settings, complete
 `docs/OWNER_JUDGE_TEST.md`, record/review the narrated video, provide private Devpost
 identity fields and `/feedback` Session ID, approve public copy, and confirm final submit.
+
+## Publication Verification
+
+The public `aminezombor/SimForge` repository uses `main` as its default branch. Anonymous
+repository and v0.1.1 release pages load without authentication. GitHub reports all five
+assets as uploaded; their sizes and SHA-256 digests match the local release. Direct HEAD
+requests for every asset return HTTP 200. Product description and Blender, robotics,
+OpenUSD, Electron, Codex, Isaac Sim, and NVIDIA topics are set.

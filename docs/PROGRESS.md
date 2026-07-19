@@ -2,7 +2,7 @@
 
 ## Current State
 
-- Phase: MS0-MS9A and MS11A/MS11B complete; owner validation and publication are active
+- Phase: MS0-MS9A and MS11A/MS11B complete; public release is live; owner/video delivery is active
 - Overall status: SimForge 0.1.1 is a verified owner-test candidate with installer,
   portable ZIP, Blender extension, sanitized sample, release hashes, complete local
   Environment Doctor, real Blender/OpenUSD/Isaac evidence, and submission copy/script
@@ -34,6 +34,7 @@
 | 2026-07-19 | Local source-of-truth cleanup | Stopped the legacy Claude SimForge server and moved its exact project tree to the Windows Recycle Bin; preserved this Codex repository and its packaged app. | Local process/path verification; recoverable deletion |
 | 2026-07-19 | MS11A/MS11B optional Isaac feedback loop | Installed an isolated official Isaac Sim 6.0.1 runtime without changing existing Omniverse, added honest runtime/hardware Doctor status, copied-package experiments, five-frame/native visualization, deterministic stability evidence, provider-routed analysis, exact-approved checkpointed Blender correction, re-export, passing child rerun, lineage, and Guided/Balanced/Autonomous authority. | `docs/evidence/ms11a/`; `docs/evidence/ms11b/`; AT-038/AT-040; real Blender + Isaac acceptance |
 | 2026-07-19 | MS9A release candidate and delivery package | Froze 0.1.1; built installer/portable/extension/sample/hash assets; completed security, privacy, dependency, license, upgrade/uninstall, no-terminal, full Doctor, and release-sample audits; drafted owner/judge, video, pitch, release, and Devpost copy. | `docs/evidence/MS9_RELEASE_AUDIT.md`; `docs/evidence/ms9a/`; AT-031/033/036/040 |
+| 2026-07-19 | Public GitHub and v0.1.1 release | Published `main` to the public judge-facing repository, added product metadata/topics, uploaded five release assets, matched every GitHub digest to the local hash, and verified anonymous repository/release pages plus HTTP 200 asset downloads. | `https://github.com/aminezombor/SimForge`; release `v0.1.1` |
 
 ## Verification Summary
 
@@ -91,6 +92,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Complete the owner/provider procedure in `docs/OWNER_JUDGE_TEST.md`, publish the reviewed
-commit and 0.1.1 assets, record the scripted under-three-minute video, update the Devpost
-draft, resolve private owner fields, and obtain action-time confirmation before submitting.
+Complete the owner/provider procedure in `docs/OWNER_JUDGE_TEST.md`, record the scripted
+under-three-minute video, update the Devpost draft, resolve private owner fields, run the
+final cross-link audit, and obtain action-time confirmation before submitting.

@@ -11,7 +11,7 @@
 
 - [x] **Working project** - P0 acceptance tests pass with retained evidence
 - [x] **Selected hackathon category** - Developer tools entered consistently
-- [ ] **Public or judge-accessible repository** - access verified in a logged-out/judge-like session
+- [x] **Public or judge-accessible repository** - access verified in a logged-out/judge-like session
 - [x] **License and third-party notices** - Apache desktop, GPL Blender extension, dependency and asset notices complete
 - [x] **Complete README and setup instructions** - install, configure, run, test, troubleshoot, uninstall
 - [x] **Sample project or sample data** - redistributable and opens without private machine paths
@@ -39,7 +39,7 @@
 - [x] Testing evidence and acceptance summary
 - [x] Dependency/license inventory and `THIRD_PARTY_NOTICES.md`
 - [x] Codex usage log and key decisions
-- [ ] Repository history has no secret, private feedback ID, or unauthorized asset
+- [x] Repository history has no secret, private feedback ID, or unauthorized asset
 
 ## Build and Quality Gate
 
@@ -50,7 +50,7 @@
 - [x] Safe fix is reversible; structural fix is approval-gated
 - [x] Canonical USD moves, reopens, resolves references, and passes validation
 - [ ] Clean Windows/judge account follows README successfully
-- [ ] Installer and portable SHA-256 hashes published
+- [x] Installer and portable SHA-256 hashes published
 - [x] Dependency/security/license scans reviewed
 - [x] Sample project and release contain no absolute private paths
 
