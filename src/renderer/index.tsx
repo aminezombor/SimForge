@@ -9,8 +9,13 @@ import {
   type ChatModelAdapter,
   type ThreadMessageLike,
 } from '@assistant-ui/react';
-import type { AppState, Mode, ModelDescriptor, ValidationRun } from '../shared/contracts';
-import type { ChatMessageView, CheckpointView, GoalJobView } from '../shared/desktop-api';
+import type { AppState, Mode, ModelDescriptor, ReviewManifest, ValidationRun } from '../shared/contracts';
+import type {
+  ChatMessageView,
+  CheckpointView,
+  GoalJobView,
+  RobotProposal,
+} from '../shared/desktop-api';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type {
   CloudProviderId,
@@ -109,6 +114,10 @@ function App() {
   const [validationApprovals, setValidationApprovals] = useState<Record<string, string>>({});
   const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
   const [restoreApprovals, setRestoreApprovals] = useState<Record<string, string>>({});
+  const [robotProposal, setRobotProposal] = useState<RobotProposal | null>(null);
+  const [robotApproval, setRobotApproval] = useState<string | null>(null);
+  const [review, setReview] = useState<ReviewManifest | null>(null);
+  const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -166,6 +175,7 @@ function App() {
     void window.simforge.runEnvironmentDoctor().then(setDoctor).catch(() => setDoctor([]));
     void window.simforge.getLatestValidation().then(setValidation).catch(() => setValidation(null));
     void window.simforge.listCheckpoints().then(setCheckpoints).catch(() => setCheckpoints([]));
+    void window.simforge.getPrimitiveRobotProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
     void window.simforge.getChat().then((messages) => {
       setChat(messages);
       setChatReady(true);
@@ -291,6 +301,52 @@ function App() {
               setState(await window.simforge.runMockThinSlice(goal));
             })}>Run local AI-to-Blender slice</button>
           </div>
+
+          <section className="robot-card">
+            <div className="panel-heading compact">
+              <div><p className="eyebrow">ROBOTICS BUILD</p><h2>Versioned primitive wheeled robot</h2></div>
+              <span className="robot-schema">RobotGraph v{robotProposal?.graph.schemaVersion ?? '-'}</span>
+            </div>
+            <p className="muted">{robotProposal?.summary ?? 'Preparing deterministic RobotGraph...'}. Physical values remain labeled assumptions.</p>
+            {robotProposal && <ul className="robot-facts">
+              <li>{robotProposal.graph.materials.length} assigned materials</li>
+              <li>{robotProposal.graph.links.filter((link) => link.collision).length} collision primitives</li>
+              <li>{robotProposal.graph.assumptions.length} explicit assumptions</li>
+            </ul>}
+            <div className="actions wrap">
+              {!robotApproval && <button className="primary" disabled={busy || !robotProposal || !['build', 'goal'].includes(state.mode)} onClick={() => void run(async () => {
+                if (!robotProposal) return;
+                setRobotApproval(await window.simforge.approveAction({
+                  planHash: robotProposal.planHash,
+                  toolId: robotProposal.toolId,
+                  args: robotProposal.args,
+                }));
+              })}>Approve exact robot build</button>}
+              {robotApproval && <button className="primary" disabled={busy} onClick={() => void run(async () => {
+                const built = await window.simforge.buildPrimitiveRobot(robotApproval);
+                setState(built.state);
+                setValidation(built.validation);
+                setRobotApproval(null);
+                setCheckpoints(await window.simforge.listCheckpoints());
+              })}>Build approved robot</button>}
+              <button className="secondary top" disabled={busy || !state.bridgeConnected || state.mode === 'plan' || !validation?.channels.includes('deterministic-robotics')} onClick={() => void run(async () => {
+                const manifest = await window.simforge.renderPrimitiveRobotReview('Primitive robot readiness');
+                setReview(manifest);
+                const entries = await Promise.all(manifest.images.map(async (image) => [
+                  image.view,
+                  await window.simforge.getReviewImage(manifest.reviewId, image.view),
+                ] as const));
+                setReviewImages(Object.fromEntries(entries));
+              })}>Render materialized review</button>
+            </div>
+            {review && <div className="review-result">
+              <div className="review-heading"><b>{review.label}</b><span>scene r{review.sceneRevision} / advisory images</span></div>
+              <div className="review-grid">{review.images.map((image) => <figure key={image.view}>
+                {reviewImages[image.view] && <img src={reviewImages[image.view]} alt={`${image.view} materialized robot review`} />}
+                <figcaption>{image.view}</figcaption>
+              </figure>)}</div>
+            </div>}
+          </section>
 
           <section className="settings-card">
             <div className="panel-heading compact">

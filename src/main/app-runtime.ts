@@ -6,8 +6,11 @@ import type {
   BridgeEvent,
   Mode,
   ModelDescriptor,
+  ReviewManifest,
+  RobotGraph,
   ValidationRun,
 } from '../shared/contracts';
+import { sha256 } from '../shared/hash';
 import type {
   ApprovalInput as DesktopApprovalInput,
   ChatMessageView,
@@ -37,6 +40,8 @@ import { containsLikelySecret } from './security/secret-redaction';
 import { GlobalRepository } from './storage/global-repository';
 import { ProjectManager, type ProjectHandle } from './storage/project-repository';
 import { ValidationService, type CheckpointView } from './validation/validation-service';
+import { primitiveWheeledRobotGraph } from './robotics/primitive-wheeled-robot';
+import { ReviewService } from './robotics/review-service';
 
 export class AppRuntime {
   private project: ProjectHandle | null = null;
@@ -49,6 +54,7 @@ export class AppRuntime {
   private jobs: JobOrchestrator | null = null;
   private checkpoints: CheckpointService | null = null;
   private validation: ValidationService | null = null;
+  private reviews: ReviewService | null = null;
   private providers: ProviderService | null = null;
   private closed = false;
   private readonly mockProvider = new MockProviderAdapter();
@@ -107,6 +113,7 @@ export class AppRuntime {
       checkpoints,
       this.activities,
     );
+    this.reviews = new ReviewService(project, this.sceneState, this.executor, this.activities);
     this.bridge.on('connected', () => {
       this.requireActivities().record('bridge', 'connected', 'Blender connected');
     });
@@ -199,6 +206,80 @@ export class AppRuntime {
     approvalId: string,
   ): Promise<ValidationRun> {
     return this.requireValidation().restoreCheckpoint(checkpointId, planHash, approvalId);
+  }
+
+  primitiveRobotProposal(): {
+    planHash: string;
+    toolId: 'robot.materialize';
+    args: { graph: RobotGraph };
+    graph: RobotGraph;
+    summary: string;
+  } {
+    const graph = primitiveWheeledRobotGraph();
+    const args = { graph };
+    return {
+      planHash: sha256({ toolId: 'robot.materialize', args }),
+      toolId: 'robot.materialize',
+      args,
+      graph,
+      summary: `${graph.links.length} links / ${graph.joints.length} joints / ${graph.sensors.length} sensor frames`,
+    };
+  }
+
+  async buildPrimitiveRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+  }> {
+    const { snapshot } = await this.requireSceneState().refresh();
+    const proposal = this.primitiveRobotProposal();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${proposal.graph.robotId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: {
+        type: 'robot-graph',
+        graph: proposal.graph,
+        materialization: {
+          preRevision: execution.preRevision,
+          postRevision: execution.postRevision,
+          checkpointId: execution.checkpointId,
+          result: execution.result,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('robotics', 'primitive-robot-materialized', 'Primitive wheeled robot materialized and validated', {
+      robotId: proposal.graph.robotId,
+      sceneRevision: validation.sceneRevision,
+      checkpointId: execution.checkpointId,
+      blocker: validation.summary.blocker,
+      error: validation.summary.error,
+    });
+    return { state: this.getState(), validation };
+  }
+
+  renderPrimitiveRobotReview(label: string): Promise<ReviewManifest> {
+    const graph = this.requireValidation().latestRobotGraph();
+    if (!graph) throw new Error('Build a RobotGraph before rendering a materialized review');
+    return this.requireReviews().render(graph.robotId, label);
+  }
+
+  getReviewImage(reviewId: string, view: string): Promise<string> {
+    return this.requireReviews().imageData(reviewId, view);
   }
 
   async executeTool(input: ToolExecutionInput): Promise<AppState> {
@@ -555,6 +636,11 @@ export class AppRuntime {
   private requireValidation(): ValidationService {
     if (!this.validation) throw new Error('Validation service is not initialized');
     return this.validation;
+  }
+
+  private requireReviews(): ReviewService {
+    if (!this.reviews) throw new Error('Review service is not initialized');
+    return this.reviews;
   }
 
   private goalView(state: ReturnType<JobOrchestrator['get']>): GoalJobView {

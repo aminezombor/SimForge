@@ -73,6 +73,17 @@ textarea:focus { border-color: #47bfa3; box-shadow: 0 0 0 3px rgba(71, 191, 163,
 .provider-card p { margin-top: 3px; color: #718a99; font-size: 12px; }
 .icon-dot { width: 9px; height: 9px; border-radius: 50%; background: #4cbaa0; box-shadow: 0 0 14px #4cbaa0; }
 .settings-card, .doctor-card { margin: 18px 0; border: 1px solid #1d3541; border-radius: 12px; padding: 15px; background: #08151d; }
+.robot-card { margin: 18px 0; border: 1px solid #275249; border-radius: 12px; padding: 15px; background: linear-gradient(145deg, #091b1c, #08151d); }
+.robot-schema { border: 1px solid #2c5d52; border-radius: 999px; padding: 5px 8px; color: #7cd8bd; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.robot-facts { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 0; padding: 0; list-style: none; }
+.robot-facts li { border: 1px solid #1f413a; border-radius: 7px; padding: 5px 7px; color: #81ad9f; font-size: 10px; }
+.review-result { margin-top: 14px; border-top: 1px solid #1d3e38; padding-top: 12px; }
+.review-heading { display: flex; justify-content: space-between; gap: 10px; color: #b8d7ce; font-size: 11px; }
+.review-heading span { color: #668c80; font-size: 9px; text-transform: uppercase; }
+.review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 9px; }
+.review-grid figure { margin: 0; overflow: hidden; border: 1px solid #1e3b36; border-radius: 7px; background: #050d11; }
+.review-grid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.review-grid figcaption { padding: 5px 6px; color: #7da99b; font-size: 9px; text-transform: uppercase; }
 .panel-heading.compact { margin-bottom: 10px; }
 .muted, .disclosure { color: #78909f; font-size: 12px; line-height: 1.5; }
 .disclosure { margin-top: 10px; border-left: 2px solid #3e806f; padding-left: 10px; }

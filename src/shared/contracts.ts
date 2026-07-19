@@ -58,12 +58,15 @@ export const SceneObjectSchema = Type.Object({
   parentId: Type.Union([Type.String(), Type.Null()]),
   location: Vector3Schema,
   rotation: Vector3Schema,
+  worldLocation: Vector3Schema,
+  worldRotation: Vector3Schema,
   scale: Vector3Schema,
   dimensions: Vector3Schema,
   visible: Type.Boolean(),
   worldBounds: Type.Union([WorldBoundsSchema, Type.Null()]),
   mesh: Type.Union([MeshEvidenceSchema, Type.Null()]),
   materialNames: Type.Array(Type.String()),
+  metadata: Type.Record(Type.String(), Type.Unknown()),
 });
 export type SceneObject = Static<typeof SceneObjectSchema>;
 
@@ -141,6 +144,9 @@ export const ValidationFindingSchema = Type.Object({
     Type.Literal('scene'),
     Type.Literal('materials'),
     Type.Literal('references'),
+    Type.Literal('robotics'),
+    Type.Literal('physics'),
+    Type.Literal('sensors'),
   ]),
   severity: ValidationSeveritySchema,
   entityPath: Type.String({ minLength: 1 }),
@@ -190,6 +196,145 @@ export interface ValidationFixRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+export const RobotPoseSchema = Type.Object({
+  position: Vector3Schema,
+  rotationEuler: Vector3Schema,
+});
+export type RobotPose = Static<typeof RobotPoseSchema>;
+
+export const RobotValueSourceSchema = Type.Union([
+  Type.Literal('USER'),
+  Type.Literal('IMPORTED'),
+  Type.Literal('ASSUMED'),
+  Type.Literal('UNKNOWN'),
+]);
+
+export const RobotScalarSchema = Type.Object({
+  value: Type.Union([Type.Number(), Type.Null()]),
+  source: RobotValueSourceSchema,
+  note: Type.String(),
+});
+
+export const RobotVectorSchema = Type.Object({
+  value: Type.Union([Vector3Schema, Type.Null()]),
+  source: RobotValueSourceSchema,
+  note: Type.String(),
+});
+export type RobotVector = Static<typeof RobotVectorSchema>;
+
+export const RobotGeometrySchema = Type.Union([
+  Type.Object({ primitive: Type.Literal('BOX'), size: Vector3Schema }),
+  Type.Object({
+    primitive: Type.Literal('CYLINDER'),
+    radius: Type.Number({ exclusiveMinimum: 0 }),
+    depth: Type.Number({ exclusiveMinimum: 0 }),
+  }),
+  Type.Object({
+    primitive: Type.Literal('SPHERE'),
+    radius: Type.Number({ exclusiveMinimum: 0 }),
+  }),
+]);
+export type RobotGeometry = Static<typeof RobotGeometrySchema>;
+
+export const RobotMaterialSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  baseColor: Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Number()]),
+  metallic: Type.Number({ minimum: 0, maximum: 1 }),
+  roughness: Type.Number({ minimum: 0, maximum: 1 }),
+});
+
+export const RobotLinkSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  pose: RobotPoseSchema,
+  visual: RobotGeometrySchema,
+  collision: Type.Union([RobotGeometrySchema, Type.Null()]),
+  materialId: Type.String({ minLength: 1 }),
+  physicsMaterialId: Type.Union([Type.String({ minLength: 1 }), Type.Null()]),
+  massKg: RobotScalarSchema,
+  centerOfMassM: RobotVectorSchema,
+  inertiaDiagonalKgM2: RobotVectorSchema,
+  dynamic: Type.Boolean(),
+});
+export type RobotLink = Static<typeof RobotLinkSchema>;
+
+export const RobotJointSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  type: Type.Union([
+    Type.Literal('FIXED'),
+    Type.Literal('REVOLUTE'),
+    Type.Literal('CONTINUOUS'),
+    Type.Literal('PRISMATIC'),
+  ]),
+  parentLinkId: Type.String({ minLength: 1 }),
+  childLinkId: Type.String({ minLength: 1 }),
+  origin: RobotPoseSchema,
+  axis: Vector3Schema,
+  limits: Type.Union([
+    Type.Object({ lower: Type.Number(), upper: Type.Number(), effort: Type.Number({ exclusiveMinimum: 0 }) }),
+    Type.Null(),
+  ]),
+  drive: Type.Union([
+    Type.Object({ mode: Type.Union([Type.Literal('POSITION'), Type.Literal('VELOCITY')]), maxForce: Type.Number({ exclusiveMinimum: 0 }) }),
+    Type.Null(),
+  ]),
+});
+export type RobotJoint = Static<typeof RobotJointSchema>;
+
+export const RobotSensorSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  type: Type.Union([Type.Literal('CAMERA'), Type.Literal('LIDAR'), Type.Literal('IMU')]),
+  parentLinkId: Type.String({ minLength: 1 }),
+  pose: RobotPoseSchema,
+  fieldOfViewDegrees: Type.Union([Type.Number({ exclusiveMinimum: 0, maximum: 180 }), Type.Null()]),
+});
+export type RobotSensor = Static<typeof RobotSensorSchema>;
+
+export const RobotGraphSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  robotId: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  units: Type.Literal('meters-kilograms-radians'),
+  coordinateConvention: Type.Literal('right-handed-z-up-x-forward'),
+  rootLinkId: Type.String({ minLength: 1 }),
+  selfCollision: Type.Object({
+    policy: Type.Union([
+      Type.Literal('DISABLED'),
+      Type.Literal('ADJACENT_EXCLUDED'),
+      Type.Literal('ENABLED'),
+    ]),
+    note: Type.String({ minLength: 1 }),
+  }),
+  materials: Type.Array(RobotMaterialSchema, { minItems: 1 }),
+  links: Type.Array(RobotLinkSchema, { minItems: 1 }),
+  joints: Type.Array(RobotJointSchema),
+  sensors: Type.Array(RobotSensorSchema),
+  assumptions: Type.Array(Type.String()),
+});
+export type RobotGraph = Static<typeof RobotGraphSchema>;
+
+export const ReviewManifestSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  reviewId: Type.String({ minLength: 1 }),
+  robotId: Type.String({ minLength: 1 }),
+  sceneRevision: Type.Integer({ minimum: 0 }),
+  label: Type.String({ minLength: 1 }),
+  materialized: Type.Boolean(),
+  advisoryOnly: Type.Literal(true),
+  createdAt: Type.String({ format: 'date-time' }),
+  images: Type.Array(Type.Object({
+    view: Type.String({ minLength: 1 }),
+    relativePath: Type.String({ minLength: 1 }),
+    sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+  }), { minItems: 1 }),
+});
+export type ReviewManifest = Static<typeof ReviewManifestSchema>;
 
 export const BridgeHandshakeSchema = Type.Object({
   protocolVersion: Type.Literal(ProtocolVersion),

@@ -3,10 +3,13 @@ import path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import type {
   ProposedFix,
+  RobotGraph,
   ValidationFinding,
   ValidationFixRecord,
   ValidationRun,
 } from '../../shared/contracts';
+import { RobotGraphSchema } from '../../shared/contracts';
+import { assertContract } from '../../shared/validation';
 import type { SceneStateService } from '../bridge/scene-state';
 import type { ProjectHandle } from '../storage/project-repository';
 import type { ActivityService } from '../domain/activity-service';
@@ -14,6 +17,7 @@ import type { ApprovalService } from '../domain/approval-service';
 import type { CheckpointService } from '../domain/checkpoint-service';
 import type { ToolExecutor } from '../domain/tool-executor';
 import { validateGeometry } from './geometry-validation';
+import { validateRobotics } from './robotics-validation';
 
 export interface CheckpointView {
   id: string;
@@ -39,7 +43,28 @@ export class ValidationService {
 
   async run(): Promise<ValidationRun> {
     const { snapshot } = await this.sceneState.refresh();
-    const run = validateGeometry(snapshot);
+    const runId = randomUUID();
+    const now = new Date().toISOString();
+    const geometryRun = validateGeometry(snapshot, { runId, now });
+    const graph = this.latestRobotGraph();
+    const roboticsRun = graph ? validateRobotics(snapshot, graph, { runId, now }) : null;
+    const findings = [
+      ...geometryRun.findings,
+      ...(roboticsRun?.findings ?? []),
+    ].sort((left, right) => (
+      left.ruleId.localeCompare(right.ruleId) || left.entityPath.localeCompare(right.entityPath)
+    ));
+    const summary = { blocker: 0, error: 0, warning: 0, info: 0 };
+    for (const finding of findings) summary[finding.severity] += 1;
+    const run: ValidationRun = {
+      ...geometryRun,
+      channels: [...new Set([
+        ...geometryRun.channels,
+        ...(roboticsRun?.channels ?? []),
+      ])],
+      summary,
+      findings,
+    };
     this.project.repository.saveValidationRun(run);
     this.activities.record('validation', 'deterministic-run-completed', 'Deterministic geometry validation completed', {
       runId: run.id,
@@ -50,6 +75,15 @@ export class ValidationService {
       info: run.summary.info,
     });
     return run;
+  }
+
+  latestRobotGraph(): RobotGraph | null {
+    const record = [...this.project.repository.listProjectRecords(this.project.manifest.projectId)]
+      .reverse()
+      .find((candidate) => candidate.kind === 'asset' && candidate.body.type === 'robot-graph');
+    if (!record) return null;
+    assertContract<RobotGraph>(RobotGraphSchema, record.body.graph, 'stored RobotGraph');
+    return record.body.graph;
   }
 
   async applyFix(
@@ -75,6 +109,7 @@ export class ValidationService {
       planApproved: Boolean(planHash),
       sceneRevision: snapshot.sceneRevision,
       approvalId,
+      origin: fix.fixClass === 'SAFE_LOCAL' ? 'validation-safe' : 'general',
     });
     const resultRun = await this.run();
     const cleared = !resultRun.findings.some((candidate) => (
@@ -130,6 +165,7 @@ export class ValidationService {
       planApproved: false,
       sceneRevision: snapshot.sceneRevision,
       approvalId: null,
+      origin: 'history-undo',
     });
     const resultRun = await this.run();
     const now = new Date().toISOString();

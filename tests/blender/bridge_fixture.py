@@ -17,6 +17,10 @@ def _argument(name: str) -> Path:
     return Path(arguments[index + 1]).resolve()
 
 
+def _has_flag(name: str) -> bool:
+    return name in sys.argv[sys.argv.index("--") + 1 :]
+
+
 extension_root = os.environ.get("SIMFORGE_EXTENSION_ROOT")
 if not extension_root:
     raise RuntimeError("SIMFORGE_EXTENSION_ROOT is required")
@@ -29,6 +33,14 @@ control.mkdir(parents=True, exist_ok=True)
 manual_request = control / "manual-edit.request"
 manual_complete = control / "manual-edit.complete"
 stop_request = control / "stop.request"
+
+if _has_flag("--empty-metric"):
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete(use_global=False)
+    bpy.context.scene.unit_settings.system = "METRIC"
+    bpy.context.scene.unit_settings.scale_length = 1.0
+    bpy.context.scene.unit_settings.length_unit = "METERS"
+    bpy.context.view_layer.update()
 
 bridge.connect()
 deadline = time.time() + 90

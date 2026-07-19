@@ -149,6 +149,28 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   MS5. No new external dependency was added; mesh inspection uses Blender's bundled
   `bmesh` API.
 
+### 2026-07-19 - MS4 robotics authoring checkpoint
+
+- Phase/milestone: MS4, intentionally not closed
+- Requirement/test IDs: `REQ-VALIDATION-006` through `REQ-VALIDATION-010`, `AT-016`,
+  `AT-022`, `AT-023`
+- What Codex/GPT-5.6 contributed: translated the primitive-robot outcome into a versioned,
+  general `RobotGraph`; structured Blender operations; deterministic robotics, physics,
+  hierarchy, sensor, and contact rules; narrow approval policy; and integrity-checked
+  materialized review evidence.
+- Important decisions: physical values retain explicit source/assumption metadata;
+  visual review stays advisory; generic object relocation cannot bypass validation/history
+  safety policy; scene truth and approval remain revision-bound.
+- Time/risk saved: one live Blender sequence exercised graph creation, actual object
+  counts, a deliberately raised wheel, deterministic detection, exact-approved correction,
+  revalidation, checkpoint creation, render production, and stored-image integrity.
+- Human review and verification: typecheck, lint, 24 unit tests, full 28-test verification,
+  and secret scan pass. Both opt-in Blender tests passed earlier in the session.
+- Evidence: `docs/evidence/MS4_CHECKPOINT_2026-07-19.md` and
+  `docs/evidence/ms4-review/`.
+- Limitations or correction made: the retained sensor image is blank. MS4 remains open;
+  the latest code is not yet packaged into the desktop test installation.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

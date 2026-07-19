@@ -15,6 +15,7 @@ export interface ExecutionContext {
   planApproved: boolean;
   sceneRevision: number;
   approvalId: string | null;
+  origin?: 'general' | 'validation-safe' | 'history-undo';
 }
 
 export class PolicyDeniedError extends Error {
@@ -65,6 +66,16 @@ export class ToolExecutor {
     }
     if (context.mode === 'goal' && tool.mutates && (!context.planApproved || !context.planHash)) {
       throw new PolicyDeniedError('PLAN_APPROVAL_REQUIRED', 'Goal mutations require an approved plan');
+    }
+    if (
+      toolId === 'object.set_location' &&
+      context.origin !== 'validation-safe' &&
+      context.origin !== 'history-undo'
+    ) {
+      throw new PolicyDeniedError(
+        'INTERNAL_SAFE_TOOL_REQUIRED',
+        'Exact object relocation is available only to validated correction or its stored inverse',
+      );
     }
     if (tool.approval === 'exact-action') {
       if (!context.planHash) {

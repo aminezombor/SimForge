@@ -1,0 +1,183 @@
+import type { RobotGraph, RobotVector } from '../../shared/contracts';
+
+const assumedScalar = (value: number, note: string) => ({
+  value,
+  source: 'ASSUMED' as const,
+  note,
+});
+
+const assumedVector = (value: RobotVector['value'], note: string): RobotVector => ({
+  value,
+  source: 'ASSUMED',
+  note,
+});
+
+export function primitiveWheeledRobotGraph(): RobotGraph {
+  return {
+    schemaVersion: 1,
+    robotId: 'simforge-primitive-wheeled-v1',
+    name: 'SimForge Primitive Wheeled Robot',
+    units: 'meters-kilograms-radians',
+    coordinateConvention: 'right-handed-z-up-x-forward',
+    rootLinkId: 'base_link',
+    selfCollision: {
+      policy: 'ADJACENT_EXCLUDED',
+      note: 'Adjacent primitive links are excluded; non-adjacent pairs require downstream simulation review.',
+    },
+    materials: [
+      {
+        id: 'body-teal',
+        name: 'SimForge Body Teal',
+        baseColor: [0.035, 0.48, 0.39, 1],
+        metallic: 0.28,
+        roughness: 0.3,
+      },
+      {
+        id: 'wheel-rubber',
+        name: 'Engineering Rubber',
+        baseColor: [0.018, 0.024, 0.03, 1],
+        metallic: 0,
+        roughness: 0.72,
+      },
+      {
+        id: 'sensor-amber',
+        name: 'Sensor Amber',
+        baseColor: [0.95, 0.34, 0.045, 1],
+        metallic: 0.08,
+        roughness: 0.34,
+      },
+      {
+        id: 'collision-guide',
+        name: 'Collision Guide',
+        baseColor: [0.08, 0.75, 0.95, 0.18],
+        metallic: 0,
+        roughness: 0.55,
+      },
+    ],
+    links: [
+      {
+        id: 'base_link',
+        name: 'Base Link',
+        pose: { position: [0, 0, 0.42], rotationEuler: [0, 0, 0] },
+        visual: { primitive: 'BOX', size: [1.2, 0.7, 0.26] },
+        collision: { primitive: 'BOX', size: [1.18, 0.68, 0.25] },
+        materialId: 'body-teal',
+        physicsMaterialId: 'body-teal',
+        massKg: assumedScalar(18, 'Hackathon demonstration value; confirm against manufactured design.'),
+        centerOfMassM: assumedVector([0, 0, 0], 'Centered in the symmetric primitive base.'),
+        inertiaDiagonalKgM2: assumedVector(
+          [0.82875, 2.25375, 2.895],
+          'Uniform-box inertia calculated from the assumed 18 kg mass and visual dimensions.',
+        ),
+        dynamic: true,
+      },
+      {
+        id: 'left_wheel_link',
+        name: 'Left Wheel Link',
+        pose: { position: [0, 0.41, 0.22], rotationEuler: [Math.PI / 2, 0, 0] },
+        visual: { primitive: 'CYLINDER', radius: 0.22, depth: 0.12 },
+        collision: { primitive: 'CYLINDER', radius: 0.215, depth: 0.115 },
+        materialId: 'wheel-rubber',
+        physicsMaterialId: 'wheel-rubber',
+        massKg: assumedScalar(2, 'Hackathon wheel mass assumption.'),
+        centerOfMassM: assumedVector([0, 0, 0], 'Centered on the wheel axle.'),
+        inertiaDiagonalKgM2: assumedVector(
+          [0.0266, 0.0484, 0.0266],
+          'Uniform-cylinder inertia calculated from assumed wheel mass and dimensions.',
+        ),
+        dynamic: true,
+      },
+      {
+        id: 'right_wheel_link',
+        name: 'Right Wheel Link',
+        pose: { position: [0, -0.41, 0.22], rotationEuler: [Math.PI / 2, 0, 0] },
+        visual: { primitive: 'CYLINDER', radius: 0.22, depth: 0.12 },
+        collision: { primitive: 'CYLINDER', radius: 0.215, depth: 0.115 },
+        materialId: 'wheel-rubber',
+        physicsMaterialId: 'wheel-rubber',
+        massKg: assumedScalar(2, 'Hackathon wheel mass assumption.'),
+        centerOfMassM: assumedVector([0, 0, 0], 'Centered on the wheel axle.'),
+        inertiaDiagonalKgM2: assumedVector(
+          [0.0266, 0.0484, 0.0266],
+          'Uniform-cylinder inertia calculated from assumed wheel mass and dimensions.',
+        ),
+        dynamic: true,
+      },
+      {
+        id: 'rear_caster_link',
+        name: 'Rear Caster Link',
+        pose: { position: [-0.45, 0, 0.12], rotationEuler: [0, 0, 0] },
+        visual: { primitive: 'SPHERE', radius: 0.12 },
+        collision: { primitive: 'SPHERE', radius: 0.115 },
+        materialId: 'wheel-rubber',
+        physicsMaterialId: 'wheel-rubber',
+        massKg: assumedScalar(0.8, 'Hackathon caster assembly mass assumption.'),
+        centerOfMassM: assumedVector([0, 0, 0], 'Centered in the primitive caster representation.'),
+        inertiaDiagonalKgM2: assumedVector(
+          [0.004608, 0.004608, 0.004608],
+          'Uniform-sphere inertia calculated from assumed mass and radius.',
+        ),
+        dynamic: true,
+      },
+    ],
+    joints: [
+      {
+        id: 'left_wheel_joint',
+        name: 'Left Wheel Joint',
+        type: 'CONTINUOUS',
+        parentLinkId: 'base_link',
+        childLinkId: 'left_wheel_link',
+        origin: { position: [0, 0.41, 0.22], rotationEuler: [0, 0, 0] },
+        axis: [0, 1, 0],
+        limits: null,
+        drive: { mode: 'VELOCITY', maxForce: 80 },
+      },
+      {
+        id: 'right_wheel_joint',
+        name: 'Right Wheel Joint',
+        type: 'CONTINUOUS',
+        parentLinkId: 'base_link',
+        childLinkId: 'right_wheel_link',
+        origin: { position: [0, -0.41, 0.22], rotationEuler: [0, 0, 0] },
+        axis: [0, 1, 0],
+        limits: null,
+        drive: { mode: 'VELOCITY', maxForce: 80 },
+      },
+      {
+        id: 'rear_caster_joint',
+        name: 'Rear Caster Joint',
+        type: 'FIXED',
+        parentLinkId: 'base_link',
+        childLinkId: 'rear_caster_link',
+        origin: { position: [-0.45, 0, 0.12], rotationEuler: [0, 0, 0] },
+        axis: [0, 0, 0],
+        limits: null,
+        drive: null,
+      },
+    ],
+    sensors: [
+      {
+        id: 'front_camera_frame',
+        name: 'Front Camera Frame',
+        type: 'CAMERA',
+        parentLinkId: 'base_link',
+        pose: { position: [0.48, 0, 0.64], rotationEuler: [0, Math.PI / 2, -Math.PI / 2] },
+        fieldOfViewDegrees: 70,
+      },
+      {
+        id: 'base_imu_frame',
+        name: 'Base IMU Frame',
+        type: 'IMU',
+        parentLinkId: 'base_link',
+        pose: { position: [0, 0, 0.48], rotationEuler: [0, 0, 0] },
+        fieldOfViewDegrees: null,
+      },
+    ],
+    assumptions: [
+      'Physical values are explicit hackathon assumptions, not measured hardware data.',
+      'Z=0 is the support plane and X is robot-forward.',
+      'Collision primitives intentionally approximate visual primitives.',
+      'Drive force values are placeholders for downstream tuning and require human approval before behavioral use.',
+    ],
+  };
+}

@@ -1,4 +1,11 @@
-import type { AppState, Mode, ModelDescriptor, ValidationRun } from './contracts';
+import type {
+  AppState,
+  Mode,
+  ModelDescriptor,
+  ReviewManifest,
+  RobotGraph,
+  ValidationRun,
+} from './contracts';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type {
   CloudProviderId,
@@ -62,6 +69,14 @@ export interface CheckpointView {
   completeProjectState: boolean;
 }
 
+export interface RobotProposal {
+  planHash: string;
+  toolId: 'robot.materialize';
+  args: { graph: RobotGraph };
+  graph: RobotGraph;
+  summary: string;
+}
+
 export interface SimForgeDesktopApi {
   getState(): Promise<AppState>;
   setMode(mode: Mode): Promise<AppState>;
@@ -77,6 +92,13 @@ export interface SimForgeDesktopApi {
     planHash: string,
     approvalId: string,
   ): Promise<ValidationRun>;
+  getPrimitiveRobotProposal(): Promise<RobotProposal>;
+  buildPrimitiveRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+  }>;
+  renderPrimitiveRobotReview(label: string): Promise<ReviewManifest>;
+  getReviewImage(reviewId: string, view: string): Promise<string>;
   executeTool(input: ToolExecutionInput): Promise<AppState>;
   approveAction(input: ApprovalInput): Promise<string>;
   createGoal(input: GoalPlanInput): Promise<{ jobId: string; planHash: string }>;

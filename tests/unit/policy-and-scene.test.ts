@@ -30,6 +30,8 @@ function snapshot(revision: number, x: number, ids = ['one']) {
       parentId: null,
       location: [x, 0, 0] as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
+      worldLocation: [x, 0, 0] as [number, number, number],
+      worldRotation: [0, 0, 0] as [number, number, number],
       scale: [1, 1, 1] as [number, number, number],
       dimensions: [1, 1, 1] as [number, number, number],
       visible: true,
@@ -48,6 +50,7 @@ function snapshot(revision: number, x: number, ids = ['one']) {
         normalIssueCount: 0,
       },
       materialNames: [],
+      metadata: {},
     })),
   };
 }
@@ -83,11 +86,27 @@ describe('mode, approval, and privileged fallback policy', () => {
         approvalId: null,
       };
       expect(executor.availableTools('plan').map((tool) => tool.id)).toEqual(['scene.snapshot']);
-      for (const toolId of ['object.create_primitive', 'object.delete', 'python.execute', 'export.package']) {
+      for (const toolId of [
+        'object.create_primitive',
+        'object.delete',
+        'object.set_location',
+        'object.apply_scale',
+        'robot.materialize',
+        'review.render',
+        'checkpoint.restore',
+        'python.execute',
+        'export.package',
+      ]) {
         await expect(executor.execute(toolId, {}, { ...base, mode: 'plan' }))
           .rejects.toMatchObject({ code: 'MODE_DENIED' } satisfies Partial<PolicyDeniedError>);
       }
       expect(request).not.toHaveBeenCalled();
+
+      await expect(executor.execute('object.set_location', {
+        objectId: 'object', location: [0, 0, 0],
+      }, { ...base, mode: 'build' })).rejects.toMatchObject({
+        code: 'INTERNAL_SAFE_TOOL_REQUIRED',
+      } satisfies Partial<PolicyDeniedError>);
 
       await executor.execute('object.create_primitive', {}, { ...base, mode: 'build' });
       expect(createCheckpoint).toHaveBeenCalledOnce();

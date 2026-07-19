@@ -84,6 +84,19 @@ export function registerIpc(runtime: AppRuntime): void {
       return runtime.restoreCheckpoint(checkpointId, planHash, approvalId);
     },
   );
+  handle('robot:proposal-primitive', () => runtime.primitiveRobotProposal());
+  handle('robot:build-primitive', (_event, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid robot build approval');
+    return runtime.buildPrimitiveRobot(approvalId);
+  });
+  handle('robot:render-review', (_event, label: unknown) => {
+    if (typeof label !== 'string') throw new Error('Invalid review label');
+    return runtime.renderPrimitiveRobotReview(label);
+  });
+  handle('review:image', (_event, reviewId: unknown, view: unknown) => {
+    if (typeof reviewId !== 'string' || typeof view !== 'string') throw new Error('Invalid review image request');
+    return runtime.getReviewImage(reviewId, view);
+  });
   handle('tool:execute', (_event, rawInput: unknown) => {
     const input = record(rawInput, 'tool execution') as unknown as ToolExecutionInput;
     if (typeof input.toolId !== 'string') throw new Error('Invalid tool ID');

@@ -15,6 +15,10 @@ const api: SimForgeDesktopApi = {
     ipcRenderer.invoke('checkpoint:approve-restore', checkpointId, planHash),
   restoreCheckpoint: (checkpointId, planHash, approvalId) =>
     ipcRenderer.invoke('checkpoint:restore', checkpointId, planHash, approvalId),
+  getPrimitiveRobotProposal: () => ipcRenderer.invoke('robot:proposal-primitive'),
+  buildPrimitiveRobot: (approvalId) => ipcRenderer.invoke('robot:build-primitive', approvalId),
+  renderPrimitiveRobotReview: (label) => ipcRenderer.invoke('robot:render-review', label),
+  getReviewImage: (reviewId, view) => ipcRenderer.invoke('review:image', reviewId, view),
   executeTool: (input) => ipcRenderer.invoke('tool:execute', input),
   approveAction: (input) => ipcRenderer.invoke('approval:create', input),
   createGoal: (input) => ipcRenderer.invoke('job:create', input),

@@ -20,6 +20,8 @@ function meshObject(overrides: Partial<SceneObject> = {}): SceneObject {
     parentId: null,
     location: [0, 0, 1],
     rotation: [0, 0, 0],
+    worldLocation: [0, 0, 1],
+    worldRotation: [0, 0, 0],
     scale: [1, 1, 1],
     dimensions: [1, 1, 2],
     visible: true,
@@ -35,6 +37,7 @@ function meshObject(overrides: Partial<SceneObject> = {}): SceneObject {
       normalIssueCount: 0,
     },
     materialNames: ['Engineering Gray'],
+    metadata: {},
     ...overrides,
   };
 }

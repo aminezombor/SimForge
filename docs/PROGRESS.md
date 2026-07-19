@@ -2,8 +2,10 @@
 
 ## Current State
 
-- Phase: MS0-MS3 complete; MS4 is next
-- Overall status: Deterministic validation/correction/recovery verified in real Blender and packaged renderer
+- Phase: MS0-MS3 complete; MS4 is in progress at a verified checkpoint
+- Overall status: Primitive RobotGraph authoring, Blender materialization, robotics validation,
+  approved defect/correction, and review-image retention are implemented and testable; MS4 is
+  not closed because the sensor-view render is blank and release/package evidence is pending
 - Architecture: Approved; no architecture changes were required
 - Current gate: owner authorized continuation through MS9; proceed milestone-by-milestone
 - Last updated: 2026-07-19
@@ -23,12 +25,13 @@
 | 2026-07-18 | User-local MS1/MS2 test installation | Installed hash-verified Blender 4.5.11 LTS and the validated bridge extension beside the packaged app; added a no-terminal desktop shortcut, automatic authenticated connection, disconnected descriptor renewal, and an exact manual walkthrough. Existing unrelated desktop shortcut was preserved. | `scripts/install-local-test.ps1`; `docs/MS1_MS2_MANUAL_TEST.md`; live installed-process/loopback smoke |
 | 2026-07-19 | Owner workspace review and launch correction | Confirmed the tested screen is an engineering harness, adopted the owner-directed three-column final workspace contract, moved sample goal text to a placeholder, and added a visible preview label. Replaced console-producing launch paths, fixed the authenticated bridge's 30-second idle disconnect, added extension auto-reconnect and live header polling, then reverified the installed shortcut. | `docs/UX_WORKSPACE.md`; `docs/UX_AUDIT_2026-07-19.md`; installed 35-second idle smoke; bridge regression test |
 | 2026-07-19 | MS3 deterministic validation and recovery | Added evidence-rich Blender snapshots, 18 stable geometry/scene/topology/material/reference rules, persisted runs/findings/fixes, safe preconditioned ground correction, structural approval, inverse undo, hashed complete checkpoints, approved restore, and a validation/recovery dock. | `docs/evidence/MS3_VERIFICATION.md`; 26 default tests; real Blender safe-fix/undo/restore acceptance; packaged renderer smoke |
+| 2026-07-19 | MS4 working checkpoint | Added a versioned primitive-wheeled `RobotGraph`, structured Blender materialization and link-pose tools, robotics/physics/sensor validators, exact approval policy, materialized review rendering, integrity-checked preview persistence, and renderer controls. Real Blender caught and corrected an intentionally raised wheel. | `docs/evidence/MS4_CHECKPOINT_2026-07-19.md`; 28 default tests; two live Blender tests previously passed; retained before/after renders |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 26 passing; live Blender test opt-in/skipped in default suite |
+| TypeScript, ESLint, unit/contract/integration suite | 28 passing; 2 live Blender tests opt-in/skipped in default suite |
 | Real Blender 4.5.11 acceptance | 1 passing; prior MS1/MS2 path plus geometry evidence, safe fix/revalidation/inverse undo, and exact-approved complete restore |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
@@ -40,6 +43,7 @@
 | Requirements audit | 123/123 mapped; 39/39 tests referenced; 8 future-tier rows retained; 0 invalid or unmapped |
 | User-local launch | Desktop shortcut opens installed app plus Blender 4.5.11 with zero new terminal windows; authenticated loopback connection remains established after 35 seconds idle |
 | MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
+| MS4 checkpoint | RobotGraph contracts, robotics rules, approval boundaries, Blender materialization, defect/correction, and five-view review pipeline implemented; retained sensor view is blank and must be corrected before closure |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -64,11 +68,26 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Begin MS4 with persistent-memory reread and name `REQ-VALIDATION-006` through
-`REQ-VALIDATION-010`, the primitive robot requirements, `AT-016`, `AT-022`, and
-`AT-023`. Implement the smallest complete structured wheeled-robot authoring graph,
-robotics validation, material/collision/physics metadata, and materialized review slice
-without hard-coding the later warehouse manipulator.
+Resume MS4 from `docs/evidence/MS4_CHECKPOINT_2026-07-19.md`. First repair the blank
+sensor-view composition and rerun the retained live-render evidence. Then finish the
+already-built-robot UI state, package the current application and extension, refresh the
+desktop test installation, run packaged/security/manual acceptance, update decisions,
+traceability, acceptance tests, roadmap, dependencies, and final MS4 evidence, and only
+then commit MS4 complete. Do not begin MS5 until that gate passes.
+
+## End-of-Day Handoff - 2026-07-19
+
+- The full repository verification passes: 28 tests passed, 2 live Blender tests were
+  intentionally skipped, and the secret scan checked 104 files.
+- Earlier in this work session both live Blender tests passed, including RobotGraph
+  materialization, robotics validation, exact-approved raised-wheel defect/correction,
+  checkpointing, and five-view render generation.
+- Human image review found the before/after wheel evidence useful and the sensor view
+  blank. The latter is a known MS4 defect, not accepted evidence.
+- The current desktop shortcut still represents the last installed MS3 package. Do not
+  treat it as the MS4 build until packaging and `scripts/install-local-test.ps1` are rerun.
+- No Git remote is configured. The checkpoint is committed locally on `main`; publishing
+  requires an owner-selected remote and must not be guessed.
 
 ## Prior End-of-Day Handoff - 2026-07-19 (superseded)
 
