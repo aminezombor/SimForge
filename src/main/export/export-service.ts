@@ -15,6 +15,7 @@ import {
 import path from 'node:path';
 import type {
   ExportCheck,
+  EnvironmentGraph,
   ExportKind,
   ExportManifest,
   ExportResult,
@@ -27,6 +28,7 @@ import {
   ExportManifestSchema,
   ExportResultSchema,
   ReviewManifestSchema,
+  EnvironmentGraphSchema,
   RobotGraphSchema,
 } from '../../shared/contracts';
 import { sha256 } from '../../shared/hash';
@@ -44,6 +46,7 @@ export interface ExportProposal {
   overwrite: boolean;
   sceneRevision: number;
   robotId: string;
+  environmentId: string | null;
   planHash: string;
   toolId: 'export.package';
   args: Record<string, unknown>;
@@ -70,15 +73,17 @@ export class ExportService {
   async propose(kind: ExportKind, destination: string, overwrite: boolean): Promise<ExportProposal> {
     const normalized = await this.validateDestination(kind, destination, overwrite);
     const { snapshot } = await this.scene.refresh();
-    const validation = this.requirePassingValidation(snapshot.sceneRevision);
     const graph = this.requireRobotGraph();
-    if (kind === 'canonical') this.requireCurrentReview(snapshot.sceneRevision, graph.robotId);
+    const environment = this.findEnvironmentGraph();
+    const validation = this.requirePassingValidation(snapshot.sceneRevision, Boolean(environment));
+    if (kind === 'canonical') this.requireCurrentReview(snapshot.sceneRevision, graph.robotId, environment?.environmentId ?? null);
     const exportId = randomUUID();
     const stagingDirectory = path.join(this.project.root, '.simforge', 'export-staging', exportId);
     const args: Record<string, unknown> = {
       exportId,
       kind,
       robotId: graph.robotId,
+      environmentId: environment?.environmentId ?? null,
       destination: normalized,
       overwrite,
       finalPackage: kind === 'canonical',
@@ -92,6 +97,7 @@ export class ExportService {
       overwrite,
       sceneRevision: snapshot.sceneRevision,
       robotId: graph.robotId,
+      environmentId: environment?.environmentId ?? null,
       planHash: `export:${sha256(args)}`,
       toolId: 'export.package',
       args,
@@ -107,11 +113,15 @@ export class ExportService {
     if (snapshot.sceneRevision !== proposal.sceneRevision) {
       throw new ExportPolicyError('STALE_EXPORT_PROPOSAL', 'Blender changed after export approval; create a fresh proposal');
     }
-    const validation = this.requirePassingValidation(snapshot.sceneRevision);
+    const environment = this.findEnvironmentGraph();
+    const validation = this.requirePassingValidation(snapshot.sceneRevision, proposal.environmentId !== null);
     if (validation.id !== proposal.args.validationRunId) {
       throw new ExportPolicyError('VALIDATION_CHANGED', 'Export validation changed after approval');
     }
     const graph = this.requireRobotGraph();
+    if ((environment?.environmentId ?? null) !== proposal.environmentId) {
+      throw new ExportPolicyError('ENVIRONMENT_CHANGED', 'Environment graph changed after export approval');
+    }
     const execution = await this.executor.execute('export.package', proposal.args, {
       projectId: this.project.manifest.projectId,
       mode: this.project.repository.getMode(),
@@ -126,7 +136,7 @@ export class ExportService {
     const packageRoot = path.resolve(String(bridgeResult.packageRoot));
     this.assertWithin(path.resolve(this.project.root, '.simforge', 'export-staging'), stagingRoot);
     this.assertWithin(stagingRoot, packageRoot);
-    await this.copySupplementalEvidence(packageRoot, snapshot.sceneRevision, graph.robotId);
+    await this.copySupplementalEvidence(packageRoot, snapshot.sceneRevision, graph.robotId, proposal.environmentId);
     const runtime = await locateUsdRuntime(this.applicationRoot);
     const requestPath = path.join(stagingRoot, 'export-request.json');
     const quickOutput = path.join(stagingRoot, 'quick.usdc');
@@ -143,6 +153,7 @@ export class ExportService {
       project: { id: this.project.manifest.projectId, name: this.project.manifest.name },
       sceneRevision: snapshot.sceneRevision,
       graph,
+      environmentGraph: environment,
       sourceValidation: validation,
       limitations: [
         'Physical values marked ASSUMED are not measured hardware data.',
@@ -224,6 +235,7 @@ export class ExportService {
       && proposal.args.destination === proposal.destination
       && proposal.args.overwrite === proposal.overwrite
       && proposal.args.robotId === proposal.robotId
+      && proposal.args.environmentId === proposal.environmentId
       && proposal.args.finalPackage === (proposal.kind === 'canonical')
       && proposal.args.stagingDirectory === path.join(
         this.project.root,
@@ -236,13 +248,16 @@ export class ExportService {
     }
   }
 
-  private requirePassingValidation(sceneRevision: number): ValidationRun {
+  private requirePassingValidation(sceneRevision: number, environmentRequired = false): ValidationRun {
     const latest = this.project.repository.latestValidationRun(this.project.manifest.projectId);
     if (!latest || latest.sceneRevision !== sceneRevision) {
       throw new ExportPolicyError('FRESH_VALIDATION_REQUIRED', 'Run deterministic validation for the current Blender revision');
     }
     if (!latest.channels.includes('deterministic-robotics')) {
       throw new ExportPolicyError('ROBOTICS_VALIDATION_REQUIRED', 'Robotics validation is required before export');
+    }
+    if (environmentRequired && !latest.channels.includes('deterministic-environment')) {
+      throw new ExportPolicyError('ENVIRONMENT_VALIDATION_REQUIRED', 'Environment validation is required before export');
     }
     if (latest.summary.blocker + latest.summary.error > 0) {
       throw new ExportPolicyError('BLOCKING_FINDINGS', 'Resolve deterministic blockers/errors before export');
@@ -259,26 +274,44 @@ export class ExportService {
     return entry.body.graph;
   }
 
-  private requireCurrentReview(sceneRevision: number, robotId: string): ReviewManifest {
-    const review = this.findCurrentReview(sceneRevision, robotId);
+  private findEnvironmentGraph(): EnvironmentGraph | null {
+    const entry = this.project.repository.listProjectRecords(this.project.manifest.projectId)
+      .toReversed()
+      .find((candidate) => candidate.kind === 'asset' && candidate.body.type === 'environment-graph');
+    if (!entry) return null;
+    assertContract<EnvironmentGraph>(EnvironmentGraphSchema, entry.body.graph, 'stored EnvironmentGraph');
+    return entry.body.graph;
+  }
+
+  private requireCurrentReview(sceneRevision: number, robotId: string, environmentId: string | null): ReviewManifest {
+    const review = this.findCurrentReview(sceneRevision, robotId, environmentId);
     if (review) return review;
     throw new ExportPolicyError('CURRENT_REVIEW_REQUIRED', 'Render a materialized review for the current Blender revision');
   }
 
-  private findCurrentReview(sceneRevision: number, robotId: string): ReviewManifest | null {
+  private findCurrentReview(sceneRevision: number, robotId: string, environmentId: string | null = null): ReviewManifest | null {
     const reviews = this.project.repository.listProjectRecords(this.project.manifest.projectId)
       .filter((candidate) => candidate.kind === 'validation' && candidate.body.type === 'materialized-review')
       .reverse();
     for (const entry of reviews) {
       assertContract<ReviewManifest>(ReviewManifestSchema, entry.body.manifest, 'stored review manifest');
-      if (entry.body.manifest.sceneRevision === sceneRevision && entry.body.manifest.robotId === robotId) {
+      if (
+        entry.body.manifest.sceneRevision === sceneRevision &&
+        entry.body.manifest.robotId === robotId &&
+        (entry.body.manifest.environmentId ?? null) === environmentId
+      ) {
         return entry.body.manifest;
       }
     }
     return null;
   }
 
-  private async copySupplementalEvidence(packageRoot: string, sceneRevision: number, robotId: string): Promise<void> {
+  private async copySupplementalEvidence(
+    packageRoot: string,
+    sceneRevision: number,
+    robotId: string,
+    environmentId: string | null,
+  ): Promise<void> {
     const sourceRoot = path.join(packageRoot, 'source');
     const validationRoot = path.join(packageRoot, 'validation');
     await mkdir(validationRoot, { recursive: true });
@@ -303,7 +336,7 @@ export class ExportService {
         { encoding: 'utf8', flag: 'wx' },
       );
     }
-    const review = this.findCurrentReview(sceneRevision, robotId);
+    const review = this.findCurrentReview(sceneRevision, robotId, environmentId);
     if (!review) return;
     const previewRoot = path.join(validationRoot, 'preview-images');
     await mkdir(previewRoot, { recursive: true });

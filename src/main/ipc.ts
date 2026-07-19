@@ -101,6 +101,11 @@ export function registerIpc(runtime: AppRuntime): void {
     if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid robot build approval');
     return runtime.buildPrimitiveRobot(approvalId);
   });
+  handle('scene:proposal-warehouse', () => runtime.warehouseProposal());
+  handle('scene:build-warehouse', (_event, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid warehouse build approval');
+    return runtime.buildWarehouseScene(approvalId);
+  });
   handle('robot:render-review', (_event, label: unknown) => {
     if (typeof label !== 'string') throw new Error('Invalid review label');
     return runtime.renderPrimitiveRobotReview(label);

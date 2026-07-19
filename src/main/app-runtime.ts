@@ -4,6 +4,7 @@ import path from 'node:path';
 import type {
   AppState,
   BridgeEvent,
+  EnvironmentGraph,
   ExportKind,
   ExportResult,
   Mode,
@@ -54,6 +55,10 @@ import { ProjectManager, type ProjectHandle } from './storage/project-repository
 import { ValidationService, type CheckpointView } from './validation/validation-service';
 import { primitiveWheeledRobotGraph } from './robotics/primitive-wheeled-robot';
 import { ReviewService } from './robotics/review-service';
+import {
+  warehouseEnvironmentGraph,
+  warehouseMobileManipulatorGraph,
+} from './robotics/warehouse-mobile-manipulator';
 import { PreviewService } from './preview/preview-service';
 import { WorkspaceService } from './workspace/workspace-service';
 
@@ -302,10 +307,96 @@ export class AppRuntime {
     return { state: this.getState(), validation };
   }
 
+  warehouseProposal(): {
+    planHash: string;
+    toolId: 'scene.materialize_assembly';
+    args: { robotGraph: RobotGraph; environmentGraph: EnvironmentGraph };
+    robotGraph: RobotGraph;
+    environmentGraph: EnvironmentGraph;
+    summary: string;
+  } {
+    const robotGraph = warehouseMobileManipulatorGraph();
+    const environmentGraph = warehouseEnvironmentGraph();
+    const args = { robotGraph, environmentGraph };
+    return {
+      planHash: sha256({ toolId: 'scene.materialize_assembly', args }),
+      toolId: 'scene.materialize_assembly',
+      args,
+      robotGraph,
+      environmentGraph,
+      summary: `${robotGraph.links.length} links / ${robotGraph.joints.length} joints / ${robotGraph.sensors.length} sensors / ${environmentGraph.objects.length} warehouse objects`,
+    };
+  }
+
+  async buildWarehouseScene(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+  }> {
+    const { snapshot } = await this.requireSceneState().refresh();
+    const proposal = this.warehouseProposal();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${proposal.robotGraph.robotId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: {
+        type: 'robot-graph',
+        graph: proposal.robotGraph,
+        materialization: {
+          preRevision: execution.preRevision,
+          postRevision: execution.postRevision,
+          checkpointId: execution.checkpointId,
+          result: execution.result,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    project.repository.saveProjectRecord({
+      id: `environment-graph:${proposal.environmentGraph.environmentId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: {
+        type: 'environment-graph',
+        graph: proposal.environmentGraph,
+        materialization: {
+          preRevision: execution.preRevision,
+          postRevision: execution.postRevision,
+          checkpointId: execution.checkpointId,
+          result: execution.result,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('robotics', 'warehouse-assembly-materialized', 'Warehouse mobile manipulator assembly materialized and validated', {
+      robotId: proposal.robotGraph.robotId,
+      environmentId: proposal.environmentGraph.environmentId,
+      sceneRevision: validation.sceneRevision,
+      checkpointId: execution.checkpointId,
+      blocker: validation.summary.blocker,
+      error: validation.summary.error,
+    });
+    return { state: this.getState(), validation };
+  }
+
   renderPrimitiveRobotReview(label: string): Promise<ReviewManifest> {
     const graph = this.requireValidation().latestRobotGraph();
     if (!graph) throw new Error('Build a RobotGraph before rendering a materialized review');
-    return this.requireReviews().render(graph.robotId, label);
+    const environment = this.requireValidation().latestEnvironmentGraph();
+    return this.requireReviews().render(graph.robotId, label, environment?.environmentId);
   }
 
   listReviews(): ReviewManifest[] {
@@ -444,6 +535,23 @@ export class AppRuntime {
           },
         );
         await sceneState.refresh();
+        return;
+      }
+      if (task.id === 'build') {
+        if (!this.requireValidation().latestRobotGraph() || !this.requireValidation().latestEnvironmentGraph()) {
+          throw new Error('Approve and run the checkpointed warehouse build action, then retry this goal task');
+        }
+        return;
+      }
+      if (task.id === 'validate') {
+        await this.requireValidation().run();
+        return;
+      }
+      if (task.id === 'review') {
+        const graph = this.requireValidation().latestRobotGraph();
+        if (!graph) throw new Error('Build the warehouse manipulator before rendering review evidence');
+        const environment = this.requireValidation().latestEnvironmentGraph();
+        await this.requireReviews().render(graph.robotId, `Goal review at scene r${snapshot.sceneRevision}`, environment?.environmentId);
         return;
       }
       throw new Error(`Goal task ${task.id} has no approved deterministic runner`);

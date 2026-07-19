@@ -17,7 +17,7 @@ export class ReviewService {
     private readonly activities: ActivityService,
   ) {}
 
-  async render(robotId: string, label: string): Promise<ReviewManifest> {
+  async render(robotId: string, label: string, environmentId?: string): Promise<ReviewManifest> {
     const cleanLabel = label.trim();
     if (!robotId || !cleanLabel || cleanLabel.length > 128) {
       throw new Error('Robot review identity or label is invalid');
@@ -32,6 +32,7 @@ export class ReviewService {
     );
     const execution = await this.executor.execute('review.render', {
       robotId,
+      ...(environmentId ? { environmentId } : {}),
       reviewId,
       label: cleanLabel,
       outputDirectory,
@@ -73,6 +74,7 @@ export class ReviewService {
       schemaVersion: 1,
       reviewId,
       robotId,
+      ...(environmentId ? { environmentId } : {}),
       sceneRevision: snapshot.sceneRevision,
       label: cleanLabel,
       materialized: true,
@@ -97,6 +99,7 @@ export class ReviewService {
     this.activities.record('validation', 'materialized-review-completed', 'Materialized robot review rendered', {
       reviewId,
       robotId,
+      environmentId: environmentId ?? null,
       sceneRevision: snapshot.sceneRevision,
       imageCount: images.length,
       advisoryOnly: true,

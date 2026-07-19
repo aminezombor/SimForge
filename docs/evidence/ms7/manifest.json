@@ -1,0 +1,309 @@
+{
+  "appVersion": "0.1.0",
+  "assumptions": [
+    "Physical values are explicit demo assumptions, not measured hardware data.",
+    "Z=0 is the warehouse support plane and X is robot-forward.",
+    "Collision primitives are conservative approximations of the visual primitives.",
+    "Drive forces and joint limits are prepared metadata and require downstream controller tuning.",
+    "The warehouse is a generated demonstration workcell using primitive geometry.",
+    "Z=0 is the support plane; stacked cargo support is visually and deterministically reviewed.",
+    "Static collision geometry approximates shelving, pallets, cargo, floor, and safety structures."
+  ],
+  "conventions": {
+    "metersPerUnit": 1.0,
+    "robotForwardAxis": "X",
+    "upAxis": "Z"
+  },
+  "createdAt": "2026-07-19T12:42:30.093Z",
+  "entryPoint": "scene.usda",
+  "environmentId": "simforge-warehouse-demo-v1",
+  "exportId": "bca43e2f-f15d-4186-8c01-c5d503f0607a",
+  "files": [
+    {
+      "bytes": 6635,
+      "path": "environment/environment.usda",
+      "role": "usd-layer",
+      "sha256": "597acc0450ffb4a983b01073acec868d3e825232c24d38adba39d4631ff55769"
+    },
+    {
+      "bytes": 9515,
+      "path": "environment/environment_geometry.usdc",
+      "role": "usd-layer",
+      "sha256": "25b8e04b204699cb4cadd0de3935822cd8b0d904dea3c9f10f069c11c64c6bec"
+    },
+    {
+      "bytes": 109,
+      "path": "environment/textures/color_121212.hdr",
+      "role": "source-artifact",
+      "sha256": "c4c6bc7a125abb414d9336a2b03c698f9db650c7917b69068beaedb569cb2291"
+    },
+    {
+      "bytes": 67936,
+      "path": "robot/geometry/robot_geometry.usdc",
+      "role": "usd-layer",
+      "sha256": "2610990fc56098bcc1ab9c0100abf74192a3256967e1e0bbb0323fbbe96aa16f"
+    },
+    {
+      "bytes": 109,
+      "path": "robot/geometry/textures/color_121212.hdr",
+      "role": "source-artifact",
+      "sha256": "c4c6bc7a125abb414d9336a2b03c698f9db650c7917b69068beaedb569cb2291"
+    },
+    {
+      "bytes": 3611,
+      "path": "robot/materials/robot_materials.usda",
+      "role": "usd-layer",
+      "sha256": "0c7407098236c73bcb1edbc84a355619a7c161d46cfd45786318d1c255ce9da1"
+    },
+    {
+      "bytes": 27770,
+      "path": "robot/physics/robot_physics.usda",
+      "role": "usd-layer",
+      "sha256": "0185943b9cd1e73d004bd75925f808bafd09a1b1f56bd65644a4dfc8e991acbe"
+    },
+    {
+      "bytes": 677,
+      "path": "robot/robot.usda",
+      "role": "usd-layer",
+      "sha256": "bd03da5916b7bf8aadcc81992aaad4be1aaff41ac7ade67bf5642706a5c78fc8"
+    },
+    {
+      "bytes": 1612,
+      "path": "robot/sensors/robot_sensors.usda",
+      "role": "usd-layer",
+      "sha256": "7fc2181a8392fff742fabab86ceaca14a5e51d8c79740278f3375edda99a23c6"
+    },
+    {
+      "bytes": 480,
+      "path": "scene.usda",
+      "role": "usd-layer",
+      "sha256": "33f8ebb6c47ddec34e980b5dce9d5e9066e6a0e14c77e358d328fe0ed2496ded"
+    },
+    {
+      "bytes": 15210,
+      "path": "source/actions.json",
+      "role": "machine-data",
+      "sha256": "787dfb756a27d0cabc56cf6a04ffad49560877d7d4242041e017dd60fb37d7a2"
+    },
+    {
+      "bytes": 1005927,
+      "path": "source/project.blend",
+      "role": "blender-source",
+      "sha256": "836f6b3a0dbfd925fb6eca487a1740eb475cc471d838108a68be9e5ebf5406ca"
+    },
+    {
+      "bytes": 241,
+      "path": "source/simforge.project.json",
+      "role": "machine-data",
+      "sha256": "6027278190734067b888a95f664f83bbb926e68ba1c8657d8900764024fd52ec"
+    },
+    {
+      "bytes": 1479,
+      "path": "THIRD_PARTY_NOTICES.md",
+      "role": "documentation",
+      "sha256": "eb23ed949b96aa5543a1839131d435d672ec08dfd7734994247b0e2b3c2d5e56"
+    },
+    {
+      "bytes": 278562,
+      "path": "validation/preview-images/close-up.png",
+      "role": "preview",
+      "sha256": "36e8b407c68b7647b01480b29532c213aa9ee7afb13218dc57c295695ef0e4c6"
+    },
+    {
+      "bytes": 230508,
+      "path": "validation/preview-images/front.png",
+      "role": "preview",
+      "sha256": "4ad4a28ce66423c71ad8e0f4406f957bd442fd8ac3b00f7f611d14653fb7f22b"
+    },
+    {
+      "bytes": 1854,
+      "path": "validation/preview-images/review-manifest.json",
+      "role": "machine-data",
+      "sha256": "63df5064ba462b983cea4b4b9ad25b5d8e35644d68e258cf5bf9a75aa1124608"
+    },
+    {
+      "bytes": 281778,
+      "path": "validation/preview-images/sensor.png",
+      "role": "preview",
+      "sha256": "6f6f3779dfb79780e6b97d9e889941e768ca031275d718a26b3c97f86f16207c"
+    },
+    {
+      "bytes": 238826,
+      "path": "validation/preview-images/side.png",
+      "role": "preview",
+      "sha256": "5d45c499c7f66200efeccb35985b6bd8b56ccaf9bbf08ad14a3584dd95556d85"
+    },
+    {
+      "bytes": 274145,
+      "path": "validation/preview-images/three-quarter.png",
+      "role": "preview",
+      "sha256": "f6965f07f2ce715736374f91f14472297eb1279c86e4d117c53d86a1e6b26015"
+    },
+    {
+      "bytes": 276439,
+      "path": "validation/preview-images/warehouse-overview.png",
+      "role": "preview",
+      "sha256": "36cb8c9c3b992b474d236ef9ae416fb9c5704bfbdbe3f39bd3073e6c596e4c53"
+    },
+    {
+      "bytes": 1801,
+      "path": "validation/readiness-report.md",
+      "role": "documentation",
+      "sha256": "17f20feb055ded3bc91e9d78ae1759dd34208f37adda98329b4069e2d1130cbf"
+    },
+    {
+      "bytes": 72617,
+      "path": "validation/validation-results.json",
+      "role": "machine-data",
+      "sha256": "323c8564fe4331f6433352651698fec9c5350a92cf879aeae5027ddbc1d801a2"
+    }
+  ],
+  "kind": "canonical",
+  "limitations": [
+    "Physical values marked ASSUMED are not measured hardware data.",
+    "Primitive collision/contact checks are not simulator proof.",
+    "Isaac Sim execution is a V2 extension and is not required for this export."
+  ],
+  "project": {
+    "id": "d1566a48-e4f5-4428-ba41-b4a413ecd31d",
+    "name": "Warehouse Manipulator"
+  },
+  "robotId": "simforge-warehouse-manipulator-v1",
+  "sceneRevision": 3,
+  "schemaVersion": 1,
+  "sourceValidationRunId": "2d5b04ca-07b6-4b67-938c-556f7a07baad",
+  "validation": {
+    "checks": [
+      {
+        "evidence": {
+          "missing": [],
+          "required": [
+            "scene.usda",
+            "robot/robot.usda",
+            "robot/geometry/robot_geometry.usdc",
+            "robot/materials/robot_materials.usda",
+            "robot/physics/robot_physics.usda",
+            "robot/sensors/robot_sensors.usda",
+            "environment/environment.usda",
+            "environment/environment_geometry.usdc"
+          ]
+        },
+        "id": "USD-LAYERS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1.0,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "invalid": [],
+          "references": [
+            {
+              "asset": "./environment/environment.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./robot/robot.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./geometry/robot_geometry.usdc",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./environment_geometry.usdc",
+              "layer": "environment/environment.usda"
+            }
+          ]
+        },
+        "id": "USD-REFERENCES-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "joints": 11,
+          "links": 12,
+          "visualAndPhysicsLinkPrims": 24
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "collisions": 12,
+          "massSchemas": 12
+        },
+        "id": "USD-PHYSICS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "materials": 5
+        },
+        "id": "USD-MATERIAL-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "sensors": 3
+        },
+        "id": "USD-SENSOR-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "environmentId": "simforge-warehouse-demo-v1",
+          "expectedObjects": 15,
+          "objects": 15,
+          "placeholder": false
+        },
+        "id": "USD-ENVIRONMENT-001",
+        "status": "PASS"
+      }
+    ],
+    "summary": {
+      "blocker": 0,
+      "error": 0,
+      "info": 77,
+      "warning": 0
+    }
+  }
+}

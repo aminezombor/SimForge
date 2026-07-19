@@ -33,6 +33,8 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-023 | 2026-07-19 | USD export | Compose and validate neutral staged layers, then preverify, atomically promote, final-reopen, and roll back on failure under exact export approval. | Approved | REQ-VALIDATION-011, REQ-VALIDATION-012, REQ-USD-001 through REQ-USD-006 |
 | DEC-024 | 2026-07-19 | OpenUSD runtime | Package a relocatable Python 3.13.14 plus `usd-core` 26.5 resource and invoke its fixed JSON worker without a shell or runtime download. | Approved | REQ-PLATFORM-001, REQ-SECURITY-004, REQ-USD-005 |
 | DEC-025 | 2026-07-19 | Bridge lifecycle | Await bridge shutdown before app exit and remove dead, expired, or malformed descriptors before issuing a fresh token. | Approved | REQ-BLENDER-002, REQ-SECURITY-003, REQ-SECURITY-006 |
+| DEC-026 | 2026-07-19 | Workspace | Bind embedded inspection and capability routing to observed revisions/capabilities while keeping project/global privacy controls separate. | Approved | REQ-AI-007 through REQ-AI-010, REQ-VIEW-001 through REQ-VIEW-004, REQ-SECURITY-003 |
+| DEC-027 | 2026-07-19 | Generated environment | Use a versioned `EnvironmentGraph` and atomic exact-approved assembly operation; author real environment geometry into the neutral USD package. | Approved | REQ-PROD-004, REQ-PROD-005, REQ-VALIDATION-009, REQ-USD-003 |
 
 ## Architecture Decision Details
 
@@ -241,6 +243,22 @@ Settings. Project deletion uses exact-name confirmation and the Windows Recycle 
 does not gain filesystem/provider authority. No React rendering wrapper was required;
 direct Three.js keeps the preview seam small. Cycle-two content can expand inside the
 approved information architecture without a major architecture change.
+
+### DEC-027: Versioned environment assembly and USD layer
+
+**Context.** The warehouse demonstration must prove reusable environment authoring rather
+than a one-off Blender script, and its exported environment cannot remain a placeholder.
+
+**Decision.** Add a JSON-Schema-validated `EnvironmentGraph` for stable objects,
+materials, primitive collisions, support classes, static state, conventions, and
+assumptions. One exact-approved checkpointed tool materializes the robot and environment
+as an atomic assembly, with rollback of newly created collections on failure. Fresh
+`ENV-*` rules validate graph-to-scene agreement. Blender exports selected environment
+geometry and the fixed OpenUSD worker composes and reopens it through a relative layer.
+
+**Consequences.** The generated warehouse is sample data over general contracts, not a
+hard-coded execution script. Environment edits remain revision/approval-bound. Detailed
+mesh imports and imported-asset integrity extend these same boundaries in MS8.
 
 ## Approval Record
 

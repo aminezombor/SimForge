@@ -3,7 +3,7 @@
 ## Status and Quality Attributes
 
 - Status: Approved baseline (DEC-004 through DEC-011)
-- Implementation: MS1-MS6 implemented, packaged, and verified; MS7 active
+- Implementation: MS1-MS7 implemented, packaged, and verified; MS8 active
 - Target: Windows 11 x64, separately installed Blender 4.5 LTS
 - Priorities: scene truth, safety, recovery, testability, judge reproducibility, delivery speed, future Linux/Isaac extension
 
@@ -162,11 +162,11 @@ counter is seeded from the app-persisted monotonic revision floor on reconnect. 
 mutating request with a mismatched expected revision returns `STALE_SCENE`, causing
 refresh and replanning rather than overwrite.
 
-The MS1-MS4 operation set covers evidence-rich snapshot, complete checkpoint
+The MS1-MS7 operation set covers evidence-rich snapshot, complete checkpoint
 copy/restore, primitive creation, exact object location, approved scale application,
-object deletion, controlled Python fallback, exact-approved robot materialization and
-link-pose correction, and revision-stamped materialized review rendering. Later
-milestones add the remaining typed collection/import/export operations. Python
+object deletion, controlled Python fallback, exact-approved robot and robot/environment
+assembly materialization, link-pose correction, and revision-stamped materialized review
+rendering. Later milestones add the remaining typed staging/import operations. Python
 fallback is disabled in Plan Mode and requires displayed intent, exact approval,
 pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
 audit entry, and post-execution snapshot. It is privileged, not sandboxed.
@@ -228,6 +228,13 @@ process rechecks fresh Blender truth before declaring it current or linking a se
 stale previews remain visible but are labeled and cannot drive a silent mutation. Stored
 review manifests provide before/after comparison. Three.js is only an inspector--Blender
 remains the authoritative editor and **Open in Blender** is always available.
+
+MS7 adds a versioned provider-neutral `EnvironmentGraph` containing stable primitive
+objects, materials, collision intent, static state, support classification, conventions,
+and assumptions. The exact-approved assembly operation materializes robot and environment
+atomically and removes newly created collections on failure. Stable `ENV-*` rules compare
+fresh Blender identities, poses, materials, collision/static metadata, and Z=0 support.
+The review service adds a warehouse overview while retaining robot-specific angles.
 
 Workspace privacy operations stay in the main process. Portable project export copies
 contained data and creates a consistent SQLite backup while excluding global storage and

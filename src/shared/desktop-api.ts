@@ -1,5 +1,6 @@
 import type {
   AppState,
+  EnvironmentGraph,
   ExportKind,
   ExportResult,
   Mode,
@@ -161,6 +162,15 @@ export interface RobotProposal {
   summary: string;
 }
 
+export interface WarehouseProposal {
+  planHash: string;
+  toolId: 'scene.materialize_assembly';
+  args: { robotGraph: RobotGraph; environmentGraph: EnvironmentGraph };
+  robotGraph: RobotGraph;
+  environmentGraph: EnvironmentGraph;
+  summary: string;
+}
+
 export interface SimForgeDesktopApi {
   getState(): Promise<AppState>;
   setMode(mode: Mode): Promise<AppState>;
@@ -178,6 +188,11 @@ export interface SimForgeDesktopApi {
   ): Promise<ValidationRun>;
   getPrimitiveRobotProposal(): Promise<RobotProposal>;
   buildPrimitiveRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+  }>;
+  getWarehouseProposal(): Promise<WarehouseProposal>;
+  buildWarehouseScene(approvalId: string): Promise<{
     state: AppState;
     validation: ValidationRun;
   }>;

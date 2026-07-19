@@ -58,11 +58,11 @@ import type {
   ExportProposal,
   GoalJobView,
   MemoryView,
-  RobotProposal,
   SimForgeDesktopApi,
   TimelineEventView,
   UsageSummaryView,
   VersionView,
+  WarehouseProposal,
   WorkspaceSettings,
 } from '../shared/desktop-api';
 import type { DoctorCheck } from '../main/environment-doctor';
@@ -79,7 +79,9 @@ const MODES: Array<{ id: Mode; label: string; hint: string }> = [
 const PLAN_TASKS = [
   { id: 'inspect', description: 'Read a fresh Blender scene snapshot.' },
   { id: 'checkpoint', description: 'Create a recovery checkpoint.' },
-  { id: 'create', description: 'Create one structured cube primitive.' },
+  { id: 'build', description: 'Materialize the exact-approved robot and warehouse graphs.' },
+  { id: 'validate', description: 'Run deterministic geometry, robotics, and environment checks.' },
+  { id: 'review', description: 'Render materialized robot and warehouse evidence.' },
   { id: 'verify', description: 'Refresh scene truth and report the revision.' },
 ];
 
@@ -109,7 +111,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [goalText, setGoalText] = useState('');
   const [job, setJob] = useState<GoalJobView | null>(null);
-  const [robotProposal, setRobotProposal] = useState<RobotProposal | null>(null);
+  const [robotProposal, setRobotProposal] = useState<WarehouseProposal | null>(null);
   const [robotApproval, setRobotApproval] = useState<string | null>(null);
   const [validation, setValidation] = useState<ValidationRun | null>(null);
   const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
@@ -164,7 +166,7 @@ function App() {
     if (nextState.activeGoalJobId) {
       desktop.getGoal(nextState.activeGoalJobId).then(setJob).catch(() => setJob(null));
     }
-    desktop.getPrimitiveRobotProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
+    desktop.getWarehouseProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
   }, [activeConversationId, search]);
 
   const loadConversation = useCallback(async (conversationId: string) => {
@@ -280,7 +282,7 @@ function App() {
       }));
       return;
     }
-    const result = await desktop.buildPrimitiveRobot(robotApproval);
+    const result = await desktop.buildWarehouseScene(robotApproval);
     setState(result.state);
     setValidation(result.validation);
     setRobotApproval(null);
@@ -418,6 +420,7 @@ function App() {
               const result = await desktop.commandGoal(job.jobId, command);
               setJob(await desktop.getGoal(result.jobId));
             })} />}
+            {state.mode === 'goal' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
             {state.mode === 'build' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
           </div>
 
@@ -523,8 +526,9 @@ function GoalCard({ job, onNext, onCommand }: { job: GoalJobView | null; onNext:
   return <section className="workflow-card"><header><span><Play size={19} weight="fill" /></span><div><small>GOAL MODE · PERSISTENT</small><h3>{job.status === 'completed' ? 'Goal completed' : 'Approved execution plan'}</h3></div><span className={`job-status ${job.status}`}>{job.status}</span></header><ol className="task-list">{job.tasks.map((task) => <li className={task.status} key={`${task.taskIndex}-${task.id}`}><span>{task.status === 'completed' ? <Check size={13} /> : task.taskIndex + 1}</span><div>{task.description}<small>{task.status}{task.error ? ` · ${task.error}` : ''}</small></div></li>)}</ol><div className="card-actions"><button className="primary-action" onClick={onNext} disabled={!['running', 'approved'].includes(job.status)}><Play size={15} /> Run next task</button>{job.status === 'running' ? <button onClick={() => onCommand('pause')}><Pause size={15} /> Pause</button> : <button onClick={() => onCommand('start')}><Play size={15} /> Resume</button>}<button onClick={() => onCommand('branch')}><GitBranch size={15} /> Branch</button></div></section>;
 }
 
-function BuildCard({ proposal, approved, validation, onBuild, onValidate, onPreview, busy }: { proposal: RobotProposal | null; approved: boolean; validation: ValidationRun | null; onBuild: () => void; onValidate: () => void; onPreview: () => void; busy: string }) {
-  return <section className="workflow-card"><header><span><Robot size={20} weight="duotone" /></span><div><small>BUILD MODE · CHECKPOINTED</small><h3>Primitive wheeled robot</h3></div>{validation?.channels.includes('deterministic-robotics') && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> built</span>}</header><p>{proposal?.summary ?? 'Loading deterministic RobotGraph…'}</p><div className="card-actions"><button className="primary-action" onClick={onBuild} disabled={!proposal || busy === 'robot'}>{approved ? <><Robot size={15} /> Build checkpointed robot</> : <><Check size={15} /> Review & approve build</>}</button><button onClick={onValidate}><ListChecks size={15} /> Validate</button><button onClick={onPreview}><CubeFocus size={15} /> Preview</button></div></section>;
+function BuildCard({ proposal, approved, validation, onBuild, onValidate, onPreview, busy }: { proposal: WarehouseProposal | null; approved: boolean; validation: ValidationRun | null; onBuild: () => void; onValidate: () => void; onPreview: () => void; busy: string }) {
+  const verified = validation?.channels.includes('deterministic-robotics') && validation.channels.includes('deterministic-environment');
+  return <section className="workflow-card"><header><span><Robot size={20} weight="duotone" /></span><div><small>STRUCTURED ASSEMBLY · CHECKPOINTED</small><h3>Warehouse mobile manipulator</h3></div>{verified && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> built</span>}</header><p>{proposal?.summary ?? 'Loading deterministic robot and environment graphs…'}</p><div className="card-actions"><button className="primary-action" onClick={onBuild} disabled={!proposal || busy === 'robot'}>{approved ? <><Robot size={15} /> Build checkpointed scene</> : <><Check size={15} /> Review & approve build</>}</button><button onClick={onValidate}><ListChecks size={15} /> Validate</button><button onClick={onPreview}><CubeFocus size={15} /> Preview</button></div></section>;
 }
 
 function ThreeViewport({ dataUrl, manifest, selectedId, onSelect }: { dataUrl: string; manifest: ScenePreviewManifest; selectedId: string | null; onSelect: (id: string | null) => void }) {
@@ -799,6 +803,12 @@ function createDemoApi(): SimForgeDesktopApi {
     { id: 't2', kind: 'activity', title: 'Robot hierarchy validated', detail: 'validation · completed', sceneRevision: 12, actor: 'SimForge', createdAt: new Date(Date.now() - 80_000).toISOString() },
     { id: 't3', kind: 'checkpoint', title: 'Before wheel correction', detail: 'Recoverable checkpoint', sceneRevision: 11, actor: 'SimForge', createdAt: new Date(Date.now() - 180_000).toISOString() },
   ];
+  const demoValidation: ValidationRun = {
+    id: 'demo-validation', projectId: 'demo-project', sceneRevision: 12,
+    startedAt: now, completedAt: now, status: 'COMPLETED',
+    channels: ['fresh-blender-snapshot', 'deterministic-geometry', 'deterministic-robotics', 'deterministic-environment'],
+    summary: { blocker: 0, error: 0, warning: 0, info: 4 }, findings: [],
+  };
   const handler: ProxyHandler<Record<string, unknown>> = { get: (_target, property) => {
     const methods: Record<string, (...args: never[]) => unknown> = {
       getState: async () => state(),
@@ -824,6 +834,8 @@ function createDemoApi(): SimForgeDesktopApi {
       getLatestValidation: async () => null, listCheckpoints: async () => [], listVersions: async () => [], getTimeline: async () => timeline, listExports: async () => [],
       listReviews: async () => [],
       getPrimitiveRobotProposal: async () => ({ planHash: 'demo', toolId: 'robot.materialize', args: { graph: {} }, graph: {}, summary: '6 links / 5 joints / 2 sensor frames' }),
+      getWarehouseProposal: async () => ({ planHash: 'demo-warehouse', toolId: 'scene.materialize_assembly', args: { robotGraph: {}, environmentGraph: {} }, robotGraph: {}, environmentGraph: {}, summary: '12 links / 11 joints / 3 sensors / 15 warehouse objects' }),
+      buildWarehouseScene: async () => ({ state: state(), validation: demoValidation }),
       runEnvironmentDoctor: async () => [
         { id: 'blender', ok: true, summary: 'Detected and compatible', path: 'C:\\Program Files\\Blender Foundation\\Blender 4.5' },
         { id: 'python', ok: true, summary: 'Python 3.13 runtime is ready', path: null },

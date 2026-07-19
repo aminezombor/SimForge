@@ -101,3 +101,14 @@ Fiber. A custom `@assistant-ui/react` local runtime retained project SQLite and 
 neutrality. Packaged tests prove the renderer remains sandboxed despite the expanded
 workspace API, while exact-revision previews and runtime capability routing fail stale or
 unprobed work closed.
+
+## MS7 Research Gate Result
+
+The approved contracts were sufficient without an architecture or dependency change.
+A reusable `EnvironmentGraph` plus the existing `RobotGraph` materializes atomically in
+Blender, deterministic graph-to-scene rules detect a deliberately displaced gripper
+finger, and source-tagged assumed mass/inertia remain explicit. Blender can export a
+selected environment geometry layer beside robot geometry; the pinned OpenUSD worker
+composes 15 stable environment identities and reopens the complete package after it is
+moved. This proves the generated P0 path while leaving parser and hostile-reference risk
+isolated to the bounded MS8 import work.

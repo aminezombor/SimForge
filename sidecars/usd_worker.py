@@ -328,14 +328,33 @@ def _author_robot(path: Path, graph: dict[str, Any], geometry_info: dict[str, An
     stage.GetRootLayer().Save()
 
 
-def _author_environment(path: Path) -> None:
+def _author_environment(
+    path: Path,
+    graph: dict[str, Any] | None,
+    geometry_info: dict[str, Any] | None,
+) -> None:
     from pxr import Usd, UsdGeom
 
     stage = Usd.Stage.CreateNew(str(path))
     _set_conventions(stage)
     root = UsdGeom.Xform.Define(stage, "/Environment")
     stage.SetDefaultPrim(root.GetPrim())
-    root.GetPrim().SetCustomDataByKey("simforge:placeholder", True)
+    if graph is None:
+        root.GetPrim().SetCustomDataByKey("simforge:placeholder", True)
+    else:
+        root.GetPrim().SetCustomDataByKey("simforge:environmentId", graph["environmentId"])
+        root.GetPrim().SetCustomDataByKey("simforge:units", graph["units"])
+        root.GetPrim().SetCustomDataByKey("simforge:coordinateConvention", graph["coordinateConvention"])
+        root.GetPrim().SetCustomDataByKey("simforge:geometryDefaultPrim", geometry_info["defaultPrim"])
+        visual = UsdGeom.Xform.Define(stage, "/Environment/Visual")
+        visual.GetPrim().GetReferences().AddReference("./environment_geometry.usdc")
+        for entry in graph["objects"]:
+            prim = UsdGeom.Xform.Define(stage, f"/Environment/Objects/{_identifier(entry['id'])}").GetPrim()
+            prim.SetCustomDataByKey("simforge:objectId", entry["id"])
+            prim.SetCustomDataByKey("simforge:category", entry["category"])
+            prim.SetCustomDataByKey("simforge:static", bool(entry["static"]))
+            prim.SetCustomDataByKey("simforge:materialId", entry["materialId"])
+            prim.SetCustomDataByKey("simforge:hasCollision", entry.get("collision") is not None)
     stage.GetRootLayer().Save()
 
 
@@ -355,7 +374,11 @@ def _author_scene(path: Path, request: dict[str, Any]) -> None:
     stage.GetRootLayer().Save()
 
 
-def _core_checks(package_root: Path, graph: dict[str, Any]) -> list[dict[str, Any]]:
+def _core_checks(
+    package_root: Path,
+    graph: dict[str, Any],
+    environment_graph: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     from pxr import Usd, UsdGeom, UsdPhysics
 
     checks: list[dict[str, Any]] = []
@@ -372,6 +395,8 @@ def _core_checks(package_root: Path, graph: dict[str, Any]) -> list[dict[str, An
         "robot/sensors/robot_sensors.usda",
         "environment/environment.usda",
     ]
+    if environment_graph is not None:
+        required.append("environment/environment_geometry.usdc")
     missing = [value for value in required if not (package_root / value).is_file()]
     add("USD-LAYERS-001", not missing, {"required": required, "missing": missing})
     stage = Usd.Stage.Open(str(package_root / "scene.usda"))
@@ -454,6 +479,28 @@ def _core_checks(package_root: Path, graph: dict[str, Any]) -> list[dict[str, An
         if prim.GetCustomDataByKey("simforge:sensorId") is not None
     ] if robot_stage else []
     add("USD-SENSOR-001", len(sensor_prims) == len(graph["sensors"]), {"sensors": len(sensor_prims)})
+    environment_stage = Usd.Stage.Open(str(package_root / "environment/environment.usda"))
+    environment_prims = [
+        prim for prim in environment_stage.Traverse()
+        if prim.GetCustomDataByKey("simforge:objectId") is not None
+    ] if environment_stage else []
+    expected_environment_objects = len(environment_graph["objects"]) if environment_graph else 0
+    environment_root = environment_stage.GetPrimAtPath("/Environment") if environment_stage else None
+    environment_identity = environment_root.GetCustomDataByKey("simforge:environmentId") if environment_root else None
+    add(
+        "USD-ENVIRONMENT-001",
+        (
+            environment_stage is not None and
+            len(environment_prims) == expected_environment_objects and
+            environment_identity == (environment_graph["environmentId"] if environment_graph else None)
+        ),
+        {
+            "environmentId": environment_identity,
+            "objects": len(environment_prims),
+            "expectedObjects": expected_environment_objects,
+            "placeholder": environment_graph is None,
+        },
+    )
     return checks
 
 
@@ -467,6 +514,7 @@ def _readiness_markdown(request: dict[str, Any], checks: list[dict[str, Any]]) -
         f"- Export ID: `{request['exportId']}`",
         f"- Project: {request['project']['name']} (`{request['project']['id']}`)",
         f"- Robot: `{request['graph']['robotId']}`",
+        f"- Environment: `{request['environmentGraph']['environmentId']}`" if request.get("environmentGraph") else "- Environment: none (neutral placeholder layer)",
         f"- Blender scene revision: `{request['sceneRevision']}`",
         f"- Ready: **{'YES' if ready else 'NO'}**",
         "- Convention: Z-up, meters-per-unit 1.0, right-handed X-forward robot graph",
@@ -487,7 +535,10 @@ def _readiness_markdown(request: dict[str, Any], checks: list[dict[str, Any]]) -
         "## Physical Assumptions",
         "",
     ])
-    lines.extend(f"- {value}" for value in request["graph"].get("assumptions", []))
+    assumptions = list(request["graph"].get("assumptions", []))
+    if request.get("environmentGraph"):
+        assumptions.extend(request["environmentGraph"].get("assumptions", []))
+    lines.extend(f"- {value}" for value in assumptions)
     lines.extend(["", "## Known Limitations", ""])
     lines.extend(f"- {value}" for value in request.get("limitations", []))
     lines.extend([
@@ -526,13 +577,16 @@ def _file_inventory(package_root: Path) -> list[dict[str, Any]]:
 
 
 def _validation_document(request: dict[str, Any], checks: list[dict[str, Any]]) -> dict[str, Any]:
+    assumptions = list(request["graph"].get("assumptions", []))
+    if request.get("environmentGraph"):
+        assumptions.extend(request["environmentGraph"].get("assumptions", []))
     return {
         "schemaVersion": 1,
         "exportId": request["exportId"],
         "sceneRevision": request["sceneRevision"],
         "sourceValidation": request["sourceValidation"],
         "usdChecks": checks,
-        "assumptions": request["graph"].get("assumptions", []),
+        "assumptions": assumptions,
         "limitations": request.get("limitations", []),
         "modelAssertionUsedAsEvidence": False,
     }
@@ -548,20 +602,35 @@ def author_export(request_path: Path) -> int:
     if not geometry_path.is_file():
         raise FileNotFoundError("Blender geometry layer is missing")
     graph = request["graph"]
+    environment_graph = request.get("environmentGraph")
     geometry_info = _normalize_geometry(geometry_path)
+    environment_geometry_path = package_root / "environment/environment_geometry.usdc"
+    environment_geometry_info = None
+    if environment_graph is not None:
+        environment_geometry_path = _contained(package_root, environment_geometry_path)
+        if not environment_geometry_path.is_file():
+            raise FileNotFoundError("Blender environment geometry layer is missing")
+        environment_geometry_info = _normalize_geometry(environment_geometry_path)
     _author_materials(package_root / "robot/materials/robot_materials.usda", graph)
     link_paths = _author_physics(package_root / "robot/physics/robot_physics.usda", graph)
     _author_sensors(package_root / "robot/sensors/robot_sensors.usda", graph, link_paths)
     _author_robot(package_root / "robot/robot.usda", graph, geometry_info)
-    _author_environment(package_root / "environment/environment.usda")
+    _author_environment(
+        package_root / "environment/environment.usda",
+        environment_graph,
+        environment_geometry_info,
+    )
     _author_scene(package_root / "scene.usda", request)
 
-    checks = _core_checks(package_root, graph)
+    checks = _core_checks(package_root, graph, environment_graph)
     validation_path = package_root / "validation/validation-results.json"
     report_path = package_root / "validation/readiness-report.md"
     _write_json(validation_path, _validation_document(request, checks))
     report_path.write_text(_readiness_markdown(request, checks), encoding="utf-8")
     files = _file_inventory(package_root)
+    assumptions = list(graph.get("assumptions", []))
+    if environment_graph is not None:
+        assumptions.extend(environment_graph.get("assumptions", []))
     manifest = {
         "schemaVersion": 1,
         "exportId": request["exportId"],
@@ -575,10 +644,12 @@ def author_export(request_path: Path) -> int:
         "conventions": {"upAxis": "Z", "metersPerUnit": 1.0, "robotForwardAxis": "X"},
         "sourceValidationRunId": request["sourceValidation"]["id"],
         "validation": {"checks": checks, "summary": request["sourceValidation"]["summary"]},
-        "assumptions": graph.get("assumptions", []),
+        "assumptions": assumptions,
         "limitations": request.get("limitations", []),
         "files": files,
     }
+    if environment_graph is not None:
+        manifest["environmentId"] = environment_graph["environmentId"]
     _write_json(package_root / "manifest.json", manifest)
 
     output_path: Path = package_root
@@ -590,13 +661,21 @@ def author_export(request_path: Path) -> int:
         if stage is None:
             raise RuntimeError("Canonical stage could not be opened for flattening")
         stage.Flatten(addSourceFileComment=False).Export(str(output_path))
-    result = verify_path(output_path, graph if request["kind"] == "quick" else None)
+    result = verify_path(
+        output_path,
+        graph if request["kind"] == "quick" else None,
+        environment_graph if request["kind"] == "quick" else None,
+    )
     result.update({"manifest": manifest, "output": str(output_path)})
     _emit(result)
     return 0 if result["ok"] else 1
 
 
-def _quick_checks(path: Path, graph: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+def _quick_checks(
+    path: Path,
+    graph: dict[str, Any] | None = None,
+    environment_graph: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     from pxr import Usd, UsdGeom, UsdPhysics
 
     stage = Usd.Stage.Open(str(path))
@@ -632,14 +711,28 @@ def _quick_checks(path: Path, graph: dict[str, Any] | None = None) -> list[dict[
             "visualAndPhysicsLinkPrims": len(identified_links),
         },
     )
+    if environment_graph is not None:
+        environment_prims = [
+            prim for prim in stage.Traverse()
+            if prim.GetCustomDataByKey("simforge:objectId") is not None
+        ]
+        add(
+            "USD-ENVIRONMENT-001",
+            len(environment_prims) == len(environment_graph["objects"]),
+            {"objects": len(environment_prims), "expectedObjects": len(environment_graph["objects"])},
+        )
     add("USD-HASH-001", True, {"sha256": _sha256(path), "bytes": path.stat().st_size})
     return checks
 
 
-def verify_path(path: Path, graph: dict[str, Any] | None = None) -> dict[str, Any]:
+def verify_path(
+    path: Path,
+    graph: dict[str, Any] | None = None,
+    environment_graph: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     path = path.resolve()
     if path.is_file():
-        checks = _quick_checks(path, graph)
+        checks = _quick_checks(path, graph, environment_graph)
         return {
             "ok": all(check["status"] == "PASS" for check in checks),
             "kind": "quick",

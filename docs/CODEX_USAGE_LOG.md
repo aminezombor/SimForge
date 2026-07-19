@@ -224,6 +224,29 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   renderer config and produced an invalid unstyled capture; it was rejected and recaptured
   through the production renderer config. Signing and clean-account release remain MS9.
 
+### 2026-07-19 - MS7 warehouse mobile-manipulator closure
+
+- Phase/milestone: MS7 complete; generated cycle-two path stable
+- Requirement/test IDs: `REQ-PROD-004/005`, `REQ-VALIDATION-008/009`, `AT-017`,
+  `AT-022`, `AT-023`, `AT-029`, `AT-039`
+- What Codex/GPT-5.6 contributed: extended the provider-neutral authoring model with a
+  reusable environment contract, atomic Blender assembly operation, deterministic
+  environment rules, warehouse sample, complete manipulator, review framing, and real
+  environment USD composition.
+- Important decisions: environment content uses general schema/contracts rather than a
+  one-off Python script; robot and environment creation share one exact approval and
+  rollback boundary; OpenUSD environment identity is reopened deterministically.
+- Time/risk saved: one ten-second live Blender test built 58 stable scene entities,
+  injected/caught/corrected a visible gripper defect, rendered before/after/overview,
+  generated a GLB, exported robot plus environment, moved the package, and reopened it.
+- Human review and verification: `pnpm verify` (40 passing), TypeScript, ESLint, secret
+  scan, Blender 4.5.11 acceptance, image inspection, 12 USD checks, package/extension
+  build, isolated packaged smoke, and nine-fuse inspection pass.
+- Evidence: `docs/evidence/MS7_VERIFICATION.md` and `docs/evidence/ms7/`.
+- Limitations or correction made: a first packaged-smoke shell invocation did not wait
+  for the Windows GUI process; the harness was rerun with a hidden waited process. No app
+  failure or product-data change occurred. Imported-asset integrity remains MS8.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

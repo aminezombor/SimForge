@@ -294,6 +294,42 @@ export const RobotSensorSchema = Type.Object({
 });
 export type RobotSensor = Static<typeof RobotSensorSchema>;
 
+export const EnvironmentObjectSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  category: Type.Union([
+    Type.Literal('FLOOR'),
+    Type.Literal('SHELF'),
+    Type.Literal('PALLET'),
+    Type.Literal('CARGO'),
+    Type.Literal('SAFETY'),
+    Type.Literal('STRUCTURE'),
+  ]),
+  pose: RobotPoseSchema,
+  visual: RobotGeometrySchema,
+  collision: Type.Union([RobotGeometrySchema, Type.Null()]),
+  materialId: Type.String({ minLength: 1 }),
+  static: Type.Boolean(),
+  support: Type.Union([
+    Type.Literal('GROUND'),
+    Type.Literal('STACKED'),
+    Type.Literal('STRUCTURAL'),
+  ]),
+});
+export type EnvironmentObject = Static<typeof EnvironmentObjectSchema>;
+
+export const EnvironmentGraphSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  environmentId: Type.String({ minLength: 1 }),
+  name: Type.String({ minLength: 1 }),
+  units: Type.Literal('meters'),
+  coordinateConvention: Type.Literal('right-handed-z-up'),
+  materials: Type.Array(RobotMaterialSchema, { minItems: 1 }),
+  objects: Type.Array(EnvironmentObjectSchema, { minItems: 1 }),
+  assumptions: Type.Array(Type.String()),
+});
+export type EnvironmentGraph = Static<typeof EnvironmentGraphSchema>;
+
 export const RobotGraphSchema = Type.Object({
   schemaVersion: Type.Literal(1),
   robotId: Type.String({ minLength: 1 }),
@@ -321,6 +357,7 @@ export const ReviewManifestSchema = Type.Object({
   schemaVersion: Type.Literal(1),
   reviewId: Type.String({ minLength: 1 }),
   robotId: Type.String({ minLength: 1 }),
+  environmentId: Type.Optional(Type.String({ minLength: 1 })),
   sceneRevision: Type.Integer({ minimum: 0 }),
   label: Type.String({ minLength: 1 }),
   materialized: Type.Boolean(),
@@ -368,6 +405,7 @@ export const ExportManifestSchema = Type.Object({
   entryPoint: Type.String({ minLength: 1 }),
   project: Type.Object({ id: Type.String({ minLength: 1 }), name: Type.String({ minLength: 1 }) }),
   robotId: Type.String({ minLength: 1 }),
+  environmentId: Type.Optional(Type.String({ minLength: 1 })),
   sceneRevision: Type.Integer({ minimum: 0 }),
   conventions: Type.Object({
     upAxis: Type.Literal('Z'),

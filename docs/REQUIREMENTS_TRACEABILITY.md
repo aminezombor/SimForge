@@ -11,8 +11,8 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-PROD-001 | Standalone local-first conversational robotics desktop app | HACKATHON-P0 | MS1 | AT-006, AT-034 | Tested | Packaged app, assistant-ui local chat, portable persistence; clean-judge AT-034 remains MS9 |
 | REQ-PROD-002 | Complete approved plan-to-verified-USD loop | HACKATHON-P0 | MS5 | AT-016, AT-021, AT-024, AT-029, AT-030 | Tested | Real Blender robot path through exact-approved export, fresh validation, reports, move, and OpenUSD reopen |
 | REQ-PROD-003 | Real Blender scene is authoritative and changes are tracked | HACKATHON-P0 | MS2 | AT-012, AT-013 | Tested | Real Blender snapshot/manual-edit/diff/stale tests |
-| REQ-PROD-004 | General product beyond warehouse example | HACKATHON-P0 | MS7 | AT-017, AT-020 | In progress | Provider-neutral `RobotGraph` and general Blender/validation tools pass for the primitive robot; environment/import breadth remains MS7/MS8 |
-| REQ-PROD-005 | Complete warehouse mobile-manipulator demonstration content | HACKATHON-P0 | MS7 | AT-017 | Planned | - |
+| REQ-PROD-004 | General product beyond warehouse example | HACKATHON-P0 | MS7 | AT-017, AT-020 | In progress | Provider-neutral robot/environment graphs and general structured Blender/validation/export tools pass primitive and warehouse samples; licensed import breadth remains MS8 |
+| REQ-PROD-005 | Complete warehouse mobile-manipulator demonstration content | HACKATHON-P0 | MS7 | AT-017 | Tested | Real Blender evidence: 12 links, 11 joints, 3 sensors, 15 warehouse objects, materials/collisions/physics, visible defect/correction, review, and moved verified USD |
 | REQ-PROD-006 | Transparent, reliable, approval-aware, reversible automation | HACKATHON-P0 | MS3 | AT-008, AT-010, AT-026 | Tested | Findings/fix/checkpoint UI, append-only activity, exact gates, inverse undo, and complete restore evidence |
 | REQ-PROD-007 | Deterministic evidence and human approval for ambiguity | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-025 | Tested | Stable geometry evidence and fix classification; conservative/ambiguous findings retain assumptions and approval |
 | REQ-PROD-008 | Preserve future Isaac feedback loop outside hackathon | V2-ISAAC-SIM | MS11 | AT-038 | Planned | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
@@ -80,8 +80,8 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-VALIDATION-005 | Validate materials/textures/files/naming/hierarchy | HACKATHON-P0 | MS3 | AT-021 | Tested | Material assignment, missing image file, name suffix/duplicate, absent parent, and cycle rules |
 | REQ-VALIDATION-006 | Materialized multi-view visual review | HACKATHON-P1 | MS4 | AT-022 | Tested | Lit materialized three-quarter/front/side/close-up/sensor and before/after PNGs; revision/hash manifest and human image review |
 | REQ-VALIDATION-007 | No material-less screenshot as final evidence | HACKATHON-P0 | MS4 | AT-022 | Tested | Blender review rejects missing link materials; retained evidence uses assigned teal/rubber/amber materials and lights |
-| REQ-VALIDATION-008 | Validate kinematic/joint/articulation structure | HACKATHON-P0 | MS4 | AT-023 | In progress | Fresh graph/scene hierarchy, root, link/joint tree, axes/types/limits/drives pass; exported hierarchy inspection completes in MS5 |
-| REQ-VALIDATION-009 | Validate collision/body/contact/physics/import integrity | HACKATHON-P0 | MS4 | AT-023 | In progress | Generated robot collisions, dynamic flags, physics materials, self-collision note and Z=0 support pass; imported integrity completes in MS8 |
+| REQ-VALIDATION-008 | Validate kinematic/joint/articulation structure | HACKATHON-P0 | MS4 | AT-023 | Tested | Fresh graph/scene hierarchy, root, 12-link/11-joint tree, axes/types/limits/drives and exported UsdPhysics articulation pass |
+| REQ-VALIDATION-009 | Validate collision/body/contact/physics/import integrity | HACKATHON-P0 | MS4 | AT-023 | In progress | Generated robot/environment collision, static/dynamic, physics-material, mass/inertia and Z=0 support evidence passes; imported integrity completes in MS8 |
 | REQ-VALIDATION-010 | Validate physical/sensor/convention data and mark assumptions | HACKATHON-P0 | MS4 | AT-023 | Tested | Deterministic mass/COM/inertia/convention/sensor/FOV rules; source-tagged unknown/assumed fixtures never fabricate values |
 | REQ-VALIDATION-011 | Reopen and deeply validate USD stage/package | HACKATHON-P0 | MS5 | AT-029 | Tested | Layer/reference containment, conventions, articulation, link/joint/collision/material/sensor counts, hashes, move and deep reopen pass |
 | REQ-VALIDATION-012 | Machine and human reports; model assertion is not evidence | HACKATHON-P0 | MS5 | AT-030 | Tested | `validation-results.json` and `readiness-report.md` agree on stable check IDs/statuses; model evidence flag is false |
@@ -122,10 +122,10 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-GOV-001 | Clean repository/docs are source of truth; no prior code | HACKATHON-P0 | MS0 | AT-002 | Tested | `AGENTS.md`, Git tree |
 | REQ-GOV-002 | Maintain and reread persistent documents | HACKATHON-P0 | MS0 | AT-001, AT-039 | Tested | `AGENTS.md`, complete `docs/` tree; reread before MS1/MS2 planning |
 | REQ-GOV-003 | Every requirement has ID/priority/milestone/test/status/evidence | HACKATHON-P0 | MS0 | AT-001 | Tested | This matrix; completeness audit |
-| REQ-GOV-004 | Small milestone workflow with checkpoint/test/docs/commit/risks | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS5 checkpoints, tests, progress, decisions, evidence, and risk logs retained |
-| REQ-GOV-005 | No completion without reproducible non-model-only evidence | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS5 automated, real-Blender, packaged, deterministic, OpenUSD, and human visual evidence retained |
-| REQ-GOV-006 | Required integration-test coverage | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS5 integration/security/recovery/robotics/export coverage passes; cycle-two suites remain milestone-bound |
-| REQ-GOV-007 | Two-cycle delivery strategy | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS5 complete the approved first cycle; MS6 begins cycle two |
+| REQ-GOV-004 | Small milestone workflow with checkpoint/test/docs/commit/risks | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS7 checkpoints, tests, progress, decisions, evidence, and risk logs retained |
+| REQ-GOV-005 | No completion without reproducible non-model-only evidence | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS7 automated, real-Blender, packaged, deterministic, OpenUSD, browser, and human visual evidence retained |
+| REQ-GOV-006 | Required integration-test coverage | HACKATHON-P0 | MS9 | AT-039 | In progress | MS1-MS7 integration/security/recovery/robotics/environment/export coverage passes; MS8/MS9 suites remain milestone-bound |
+| REQ-GOV-007 | Two-cycle delivery strategy | HACKATHON-P0 | MS9 | AT-039 | In progress | MS0-MS5 complete cycle one; MS6-MS7 establish the workspace and generated cycle-two path; MS8-MS9 remain |
 | REQ-GOV-008 | Primary research, alternatives, risks, approval before implementation | HACKATHON-P0 | MS0 | AT-001, AT-036, AT-039 | Tested | `docs/RESEARCH.md`, `docs/DECISIONS.md`, approved plan |
 | REQ-V2-001 | Isaac imports package and configures tasks | V2-ISAAC-SIM | MS11 | AT-038 | Planned | `docs/ARCHITECTURE.md` extension point |
 | REQ-V2-002 | Run simulations and capture evidence/failures | V2-ISAAC-SIM | MS11 | AT-038 | Planned | - |
@@ -173,7 +173,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 
 ## Completeness Audit
 
-Latest mechanical audit: 2026-07-18 after MS1/MS2 implementation.
+Latest mechanical audit: 2026-07-19 after MS7 implementation.
 
 - Product requirement rows: 123
 - Traceability rows: 123

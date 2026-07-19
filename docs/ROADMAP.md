@@ -52,8 +52,11 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
   routing/settings, exact-revision GLB inspection, Blender selection linkage, stale state,
   comparisons, versions/timeline, responsive drawers, and privacy controls pass unit,
   real-Blender, browser, packaged-security, and recoverable-deletion evidence.
-- MS7: active. Build and verify the generated warehouse mobile manipulator inside the
-  stable MS6 workspace without changing the approved architecture.
+- MS7: complete. General robot/environment graphs, exact-approved assembly materialization,
+  deterministic environment/robotics evidence, visible gripper defect/correction, six-view
+  review, and robot-plus-environment USD pass in real Blender without architecture change.
+- MS8: active. Add the licensed imported-robot path through staging and `RobotGraph` while
+  preserving the generated P0 path.
 
 ## Post-Hackathon V1 (MS10)
 

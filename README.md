@@ -1,14 +1,14 @@
 # SimForge
 
 SimForge is a Windows-first, local-first desktop tool for conversational robotics
-authoring in a real Blender scene. MS1 through MS6 establish the complete first cycle
-and the final workspace foundation:
+authoring in a real Blender scene. MS1 through MS7 establish the complete first cycle,
+the final workspace foundation, and the generated warehouse demonstration:
 chat or an approved goal produces a structured Blender operation, the app captures
 fresh scene truth, checkpoints before mutation, rejects stale work, and records an
 auditable activity trail. Deterministic geometry findings can drive a preconditioned
 safe correction, exact-approved structural correction, inverse undo, and full recovery.
 
-Current milestone state: MS1 through MS6 are complete with deterministic, packaged,
+Current milestone state: MS1 through MS7 are complete with deterministic, packaged,
 real-Blender, and live NVIDIA evidence. Runtime discovery found the intended Nemotron
 3 Ultra model and proved streamed text plus a non-executed no-op tool call. Eighteen
 stable geometry/scene rules and approved complete checkpoint restore pass in Blender
@@ -18,8 +18,12 @@ quick and canonical USD exports include neutral physics/sensor layers, source/pr
 machine and human reports, hashes, and deep relocated OpenUSD reopen evidence. The
 owner-approved three-column workspace now adds persistent conversations, scoped memory,
 capability-aware routing, an exact-revision Three.js/GLB inspector with Blender selection
-linkage, responsive context drawers, named history, and packaged privacy controls. MS7
-adds the generated warehouse mobile manipulator inside this stable architecture.
+linkage, responsive context drawers, named history, and packaged privacy controls. A
+general `EnvironmentGraph` now joins the reusable `RobotGraph` path: the exact-approved
+warehouse assembly contains 12 links, 11 joints, 3 sensors, and 15 collision-backed
+environment objects. A visible gripper defect is detected and corrected under policy,
+and the moved canonical USD reopens with robot and environment evidence passing. MS8 is
+the licensed imported-robot path.
 
 The product information architecture is documented in
 [the workspace contract](docs/UX_WORKSPACE.md) and its MS6 implementation has passed
@@ -87,6 +91,7 @@ licensed executable. Follow [the MS1/MS2 foundation test](docs/MS1_MS2_MANUAL_TE
 and [the MS3 validation/recovery test](docs/MS3_MANUAL_TEST.md).
 Use [the MS4 robot/review test](docs/MS4_MANUAL_TEST.md) for the current installed build.
 Use [the MS5 verified export test](docs/MS5_MANUAL_TEST.md) for quick/canonical USD.
+Use [the MS7 warehouse test](docs/MS7_MANUAL_TEST.md) for the generated demonstration.
 
 ## Security and Licensing
 

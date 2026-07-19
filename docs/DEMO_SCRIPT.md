@@ -32,13 +32,16 @@ Show one deterministic, visually legible, end-to-end warehouse mobile-manipulato
 
 ### 1:40-2:10 - Intelligent Inspection
 
-**Visual:** Run validation. Highlight one pre-rehearsed real defect, preferably missing mass, bad ground contact, or invalid collision/hierarchy. Show rule ID and deterministic evidence plus a materialized review image.
+**Visual:** Run validation. Show the prepared left gripper finger visibly displaced,
+then highlight `ROB-LINK-POSE-001`, its exact pose evidence, and the materialized
+before-review image.
 
 **Narration:** “SimForge refreshes the scene before checking it. Deterministic rules catch this real problem; the rendered review is supporting evidence, not a substitute for the structural check.”
 
 ### 2:10-2:30 - Safe Correction
 
-**Visual:** Show automatic eligibility or structural approval, apply, rerun validation, and display undo/checkpoint.
+**Visual:** Approve the exact structural pose restoration, apply it, rerun validation,
+and show the corrected review plus checkpoint.
 
 **Narration:** “Only clear, local, reversible fixes run automatically. Structural or behavioral changes pause for approval. The correction is logged, undoable, and verified again.”
 

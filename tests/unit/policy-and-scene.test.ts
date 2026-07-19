@@ -92,6 +92,8 @@ describe('mode, approval, and privileged fallback policy', () => {
         'object.set_location',
         'object.apply_scale',
         'robot.materialize',
+        'scene.materialize_assembly',
+        'robot.set_link_pose',
         'review.render',
         'checkpoint.restore',
         'python.execute',

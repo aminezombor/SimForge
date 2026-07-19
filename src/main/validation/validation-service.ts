@@ -2,13 +2,14 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import type {
+  EnvironmentGraph,
   ProposedFix,
   RobotGraph,
   ValidationFinding,
   ValidationFixRecord,
   ValidationRun,
 } from '../../shared/contracts';
-import { RobotGraphSchema } from '../../shared/contracts';
+import { EnvironmentGraphSchema, RobotGraphSchema } from '../../shared/contracts';
 import { assertContract } from '../../shared/validation';
 import type { SceneStateService } from '../bridge/scene-state';
 import type { ProjectHandle } from '../storage/project-repository';
@@ -17,6 +18,7 @@ import type { ApprovalService } from '../domain/approval-service';
 import type { CheckpointService } from '../domain/checkpoint-service';
 import type { ToolExecutor } from '../domain/tool-executor';
 import { validateGeometry } from './geometry-validation';
+import { validateEnvironment } from './environment-validation';
 import { validateRobotics } from './robotics-validation';
 
 export interface CheckpointView {
@@ -48,9 +50,12 @@ export class ValidationService {
     const geometryRun = validateGeometry(snapshot, { runId, now });
     const graph = this.latestRobotGraph();
     const roboticsRun = graph ? validateRobotics(snapshot, graph, { runId, now }) : null;
+    const environment = this.latestEnvironmentGraph();
+    const environmentRun = environment ? validateEnvironment(snapshot, environment, { runId, now }) : null;
     const findings = [
       ...geometryRun.findings,
       ...(roboticsRun?.findings ?? []),
+      ...(environmentRun?.findings ?? []),
     ].sort((left, right) => (
       left.ruleId.localeCompare(right.ruleId) || left.entityPath.localeCompare(right.entityPath)
     ));
@@ -61,6 +66,7 @@ export class ValidationService {
       channels: [...new Set([
         ...geometryRun.channels,
         ...(roboticsRun?.channels ?? []),
+        ...(environmentRun?.channels ?? []),
       ])],
       summary,
       findings,
@@ -83,6 +89,15 @@ export class ValidationService {
       .find((candidate) => candidate.kind === 'asset' && candidate.body.type === 'robot-graph');
     if (!record) return null;
     assertContract<RobotGraph>(RobotGraphSchema, record.body.graph, 'stored RobotGraph');
+    return record.body.graph;
+  }
+
+  latestEnvironmentGraph(): EnvironmentGraph | null {
+    const record = [...this.project.repository.listProjectRecords(this.project.manifest.projectId)]
+      .reverse()
+      .find((candidate) => candidate.kind === 'asset' && candidate.body.type === 'environment-graph');
+    if (!record) return null;
+    assertContract<EnvironmentGraph>(EnvironmentGraphSchema, record.body.graph, 'stored EnvironmentGraph');
     return record.body.graph;
   }
 

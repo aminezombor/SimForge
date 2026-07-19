@@ -17,6 +17,10 @@ import { locateUsdRuntime, runUsdWorker } from '../../src/main/export/usd-runtim
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
 import { PreviewService } from '../../src/main/preview/preview-service';
 import { primitiveWheeledRobotGraph } from '../../src/main/robotics/primitive-wheeled-robot';
+import {
+  warehouseEnvironmentGraph,
+  warehouseMobileManipulatorGraph,
+} from '../../src/main/robotics/warehouse-mobile-manipulator';
 import { ReviewService } from '../../src/main/robotics/review-service';
 import { ProjectManager, type ProjectHandle } from '../../src/main/storage/project-repository';
 import { ValidationService } from '../../src/main/validation/validation-service';
@@ -567,4 +571,202 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
     await withTimeout(exit, 20_000, 'robot Blender exit');
   }, 120_000);
+
+  it('materializes, corrects, reviews, and exports the warehouse mobile manipulator assembly', async () => {
+    sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-real-warehouse-'));
+    const localAppData = path.join(sandbox, 'localappdata');
+    const runtime = path.join(localAppData, 'SimForge', 'runtime');
+    const control = path.join(sandbox, 'control');
+    project = await new ProjectManager().create(path.join(sandbox, 'project'), 'Warehouse Manipulator');
+    project.repository.setMode('build');
+    server = new BlenderBridgeServer();
+    await server.start(runtime, project.manifest.projectId, project.root);
+    const connected = once(server, 'connected');
+    const blender = startBlender(localAppData, control, undefined, ['--empty-metric']);
+    await withTimeout(connected, 20_000, 'warehouse Blender connection');
+
+    const scene = new SceneStateService(project.manifest.projectId, server, project.repository);
+    const activities = new ActivityService(project.manifest.projectId, project.repository);
+    const approvals = new ApprovalService(project.repository);
+    const checkpoints = new CheckpointService(project, server);
+    const executor = new ToolExecutor(server, approvals, checkpoints, activities);
+    const validation = new ValidationService(project, scene, executor, approvals, checkpoints, activities);
+    const reviews = new ReviewService(project, scene, executor, activities);
+    const previews = new PreviewService(project, server, scene, activities);
+    const initial = await scene.refresh();
+    expect(initial.snapshot.objects).toEqual([]);
+
+    const robot = warehouseMobileManipulatorGraph();
+    const environment = warehouseEnvironmentGraph();
+    const buildArgs = { robotGraph: robot, environmentGraph: environment };
+    const buildPlan = sha256({ toolId: 'scene.materialize_assembly', args: buildArgs });
+    const buildApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: buildPlan,
+      toolId: 'scene.materialize_assembly',
+      args: buildArgs,
+      sceneRevision: initial.snapshot.sceneRevision,
+      risk: 'structural',
+    });
+    const build = await executor.execute('scene.materialize_assembly', buildArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: buildPlan,
+      planApproved: true,
+      sceneRevision: initial.snapshot.sceneRevision,
+      approvalId: buildApproval,
+    });
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${robot.robotId}:${build.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: { type: 'robot-graph', graph: robot, materialization: build.result },
+      createdAt: now,
+      updatedAt: now,
+    });
+    project.repository.saveProjectRecord({
+      id: `environment-graph:${environment.environmentId}:${build.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: { type: 'environment-graph', graph: environment, materialization: build.result },
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const passing = await validation.run();
+    expect(passing.channels).toEqual(expect.arrayContaining([
+      'deterministic-robotics',
+      'deterministic-environment',
+    ]));
+    expect(passing.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
+    const objects = scene.current!.objects;
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'link')).toHaveLength(12);
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'joint')).toHaveLength(11);
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'collision')).toHaveLength(12);
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'sensor')).toHaveLength(3);
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'environment-object')).toHaveLength(15);
+    expect(objects.filter((object) => object.metadata['simforge.role'] === 'environment-collision')).toHaveLength(15);
+
+    const leftFinger = robot.links.find((link) => link.id === 'left_finger_link')!;
+    const defectArgs = {
+      robotId: robot.robotId,
+      linkId: leftFinger.id,
+      position: [leftFinger.pose.position[0], leftFinger.pose.position[1] + 0.22, leftFinger.pose.position[2]],
+      rotationEuler: leftFinger.pose.rotationEuler,
+      reason: 'Acceptance fixture: visibly separate the left gripper finger before deterministic correction',
+    };
+    const defectPlan = sha256({ toolId: 'robot.set_link_pose', args: defectArgs });
+    const defectApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: defectPlan,
+      toolId: 'robot.set_link_pose',
+      args: defectArgs,
+      sceneRevision: passing.sceneRevision,
+      risk: 'structural',
+    });
+    await executor.execute('robot.set_link_pose', defectArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: defectPlan,
+      planApproved: true,
+      sceneRevision: passing.sceneRevision,
+      approvalId: defectApproval,
+    });
+    const defective = await validation.run();
+    expect(defective.findings).toEqual(expect.arrayContaining([
+      expect.objectContaining({ ruleId: 'ROB-LINK-POSE-001', severity: 'error' }),
+    ]));
+    const beforeReview = await reviews.render(robot.robotId, 'Before gripper correction', environment.environmentId);
+    expect(beforeReview.environmentId).toBe(environment.environmentId);
+    expect(beforeReview.images.map((image) => image.view)).toContain('warehouse-overview');
+
+    const correctionArgs = {
+      robotId: robot.robotId,
+      linkId: leftFinger.id,
+      position: leftFinger.pose.position,
+      rotationEuler: leftFinger.pose.rotationEuler,
+      reason: 'Restore the exact approved RobotGraph gripper pose after deterministic finding',
+    };
+    const correctionPlan = sha256({ toolId: 'robot.set_link_pose', args: correctionArgs });
+    const correctionApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: correctionPlan,
+      toolId: 'robot.set_link_pose',
+      args: correctionArgs,
+      sceneRevision: defective.sceneRevision,
+      risk: 'structural',
+    });
+    await executor.execute('robot.set_link_pose', correctionArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: correctionPlan,
+      planApproved: true,
+      sceneRevision: defective.sceneRevision,
+      approvalId: correctionApproval,
+    });
+    const corrected = await validation.run();
+    expect(corrected.findings.some((finding) => finding.ruleId === 'ROB-LINK-POSE-001')).toBe(false);
+    expect(corrected.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
+    const afterReview = await reviews.render(robot.robotId, 'After gripper correction', environment.environmentId);
+    expect(afterReview.images).toHaveLength(6);
+    const preview = await previews.generate();
+    expect(preview.sceneRevision).toBe(corrected.sceneRevision);
+    expect(preview.objects.length).toBeGreaterThanOrEqual(27);
+
+    const canonicalDestination = path.join(sandbox, 'warehouse-canonical-package');
+    const exportService = new ExportService(project, scene, executor, activities, process.cwd());
+    const proposal = await exportService.propose('canonical', canonicalDestination, false);
+    expect(proposal.environmentId).toBe(environment.environmentId);
+    const exportApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: proposal.planHash,
+      toolId: proposal.toolId,
+      args: proposal.args,
+      sceneRevision: proposal.sceneRevision,
+      risk: 'structural',
+    });
+    const exported = await exportService.execute(proposal, exportApproval);
+    expect(exported.verified).toBe(true);
+    expect(exported.manifest.environmentId).toBe(environment.environmentId);
+    expect(exported.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'USD-ENVIRONMENT-001', status: 'PASS' }),
+    ]));
+    await expect(access(path.join(canonicalDestination, 'environment', 'environment_geometry.usdc')))
+      .resolves.toBeUndefined();
+    const movedDestination = path.join(sandbox, 'moved-warehouse-package');
+    await rename(canonicalDestination, movedDestination);
+    const usdRuntime = await locateUsdRuntime(process.cwd());
+    const movedVerification = await runUsdWorker(usdRuntime, ['verify', '--path', movedDestination]);
+    expect(movedVerification.ok).toBe(true);
+
+    const evidenceDirectory = process.env.SIMFORGE_MS7_EVIDENCE_DIR;
+    if (evidenceDirectory) {
+      await mkdir(evidenceDirectory, { recursive: true });
+      const beforeImage = beforeReview.images.find((image) => image.view === 'close-up')!;
+      const afterImage = afterReview.images.find((image) => image.view === 'close-up')!;
+      const overviewImage = afterReview.images.find((image) => image.view === 'warehouse-overview')!;
+      await Promise.all([
+        copyFile(path.join(project.root, ...beforeImage.relativePath.split('/')), path.join(evidenceDirectory, 'before-gripper-correction.png')),
+        copyFile(path.join(project.root, ...afterImage.relativePath.split('/')), path.join(evidenceDirectory, 'after-gripper-correction.png')),
+        copyFile(path.join(project.root, ...overviewImage.relativePath.split('/')), path.join(evidenceDirectory, 'warehouse-overview.png')),
+        copyFile(path.join(movedDestination, 'manifest.json'), path.join(evidenceDirectory, 'manifest.json')),
+        copyFile(path.join(movedDestination, 'validation', 'validation-results.json'), path.join(evidenceDirectory, 'validation-results.json')),
+        copyFile(path.join(movedDestination, 'validation', 'readiness-report.md'), path.join(evidenceDirectory, 'readiness-report.md')),
+        writeFile(path.join(evidenceDirectory, 'acceptance.json'), `${JSON.stringify({
+          robotId: robot.robotId,
+          environmentId: environment.environmentId,
+          counts: { links: 12, joints: 11, sensors: 3, environmentObjects: 15 },
+          defect: { ruleId: 'ROB-LINK-POSE-001', sceneRevision: defective.sceneRevision },
+          correctedSceneRevision: corrected.sceneRevision,
+          review: { before: beforeImage.sha256, after: afterImage.sha256, overview: overviewImage.sha256 },
+          export: { exportId: exported.exportId, checks: exported.checks, movedReopen: movedVerification.ok },
+        }, null, 2)}\n`, 'utf8'),
+      ]);
+    }
+
+    const exit = once(blender, 'exit');
+    await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
+    await withTimeout(exit, 20_000, 'warehouse Blender exit');
+  }, 180_000);
 });

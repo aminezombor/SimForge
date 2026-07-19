@@ -72,6 +72,16 @@ const TOOLS: ToolDefinition[] = [
     bridgeOperation: 'robot.materialize',
   },
   {
+    id: 'scene.materialize_assembly',
+    description: 'Materialize approved versioned robot and environment graphs as one scene assembly',
+    mutates: true,
+    risk: 'structural',
+    allowedModes: ['build', 'goal'],
+    approval: 'exact-action',
+    checkpoint: 'before',
+    bridgeOperation: 'scene.materialize_assembly',
+  },
+  {
     id: 'review.render',
     description: 'Render a revision-stamped materialized robot review into a unique project directory',
     mutates: true,

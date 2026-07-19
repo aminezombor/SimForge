@@ -328,6 +328,34 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             return result, result["changedEntityIds"], True
         finally:
             _INTERNAL_MUTATION = False
+    if operation == "scene.materialize_assembly":
+        graph = payload.get("robotGraph")
+        environment = payload.get("environmentGraph")
+        _validate_robot_graph(graph)
+        _validate_environment_graph(environment)
+        robot_id = str(graph["robotId"])
+        environment_id = str(environment["environmentId"])
+        if any(obj.get("simforge.robot.id") == robot_id for obj in bpy.context.scene.objects):
+            raise BridgeOperationError("ROBOT_EXISTS", "A robot with this stable ID already exists")
+        if any(obj.get("simforge.environment.id") == environment_id for obj in bpy.context.scene.objects):
+            raise BridgeOperationError("ENVIRONMENT_EXISTS", "An environment with this stable ID already exists")
+        existing_collections = {collection.name for collection in bpy.data.collections}
+        _INTERNAL_MUTATION = True
+        try:
+            robot_result = _materialize_robot(graph)
+            environment_result = _materialize_environment(environment)
+            bpy.context.view_layer.update()
+            changed_ids = robot_result["changedEntityIds"] + environment_result["changedEntityIds"]
+            return {
+                "robot": robot_result,
+                "environment": environment_result,
+                "changedEntityIds": changed_ids,
+            }, changed_ids, True
+        except Exception:
+            _remove_collections_created_after(existing_collections)
+            raise
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "robot.set_link_pose":
         robot_id = str(payload.get("robotId", ""))
         link_id = str(payload.get("linkId", ""))
@@ -423,6 +451,7 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         return {"objectId": object_id, "name": target.name}, [], False
     if operation == "review.render":
         robot_id = str(payload.get("robotId", ""))
+        environment_id = str(payload.get("environmentId", ""))
         label = str(payload.get("label", ""))
         review_id = str(payload.get("reviewId", ""))
         output_directory = _safe_project_path(str(payload.get("outputDirectory", "")))
@@ -431,11 +460,12 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         if output_directory.exists():
             raise BridgeOperationError("REVIEW_EXISTS", "Review output directory already exists")
         output_directory.mkdir(parents=True, exist_ok=False)
-        files = _render_robot_review(robot_id, output_directory)
+        files = _render_robot_review(robot_id, environment_id or None, output_directory)
         return {
             "robotId": robot_id,
             "reviewId": review_id,
             "label": label,
+            "environmentId": environment_id or None,
             "files": files,
             "width": 512,
             "height": 512,
@@ -457,10 +487,18 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         ]
         if not visual_objects:
             raise BridgeOperationError("ROBOT_NOT_FOUND", "Robot geometry is unavailable for export")
+        environment_id = str(payload.get("environmentId", ""))
+        environment_objects = [
+            obj for obj in bpy.context.scene.objects
+            if environment_id and obj.get("simforge.environment.id") == environment_id and
+            obj.get("simforge.role") == "environment-object"
+        ]
         package_root = staging_directory / "package"
         geometry_path = package_root / "robot" / "geometry" / "robot_geometry.usdc"
+        environment_geometry_path = package_root / "environment" / "environment_geometry.usdc"
         source_path = package_root / "source" / "project.blend"
         geometry_path.parent.mkdir(parents=True, exist_ok=False)
+        environment_geometry_path.parent.mkdir(parents=True, exist_ok=False)
         source_path.parent.mkdir(parents=True, exist_ok=False)
         selected = list(bpy.context.selected_objects)
         active = bpy.context.view_layer.objects.active
@@ -488,14 +526,38 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             )
             if "FINISHED" not in export_result or not geometry_path.is_file():
                 raise BridgeOperationError("USD_GEOMETRY_EXPORT_FAILED", "Blender USD geometry export failed")
+            if environment_objects:
+                bpy.ops.object.select_all(action="DESELECT")
+                for obj in environment_objects:
+                    obj.select_set(True)
+                bpy.context.view_layer.objects.active = environment_objects[0]
+                environment_result = bpy.ops.wm.usd_export(
+                    filepath=str(environment_geometry_path),
+                    selected_objects_only=True,
+                    visible_objects_only=False,
+                    export_animation=False,
+                    export_materials=True,
+                    export_meshes=True,
+                    export_custom_properties=True,
+                    custom_properties_namespace="simforge",
+                    relative_paths=True,
+                    root_prim_path="/BlenderEnvironmentGeometry",
+                    meters_per_unit=1.0,
+                    convert_scene_units="CUSTOM",
+                )
+                if "FINISHED" not in environment_result or not environment_geometry_path.is_file():
+                    raise BridgeOperationError("USD_ENVIRONMENT_EXPORT_FAILED", "Blender environment USD export failed")
             return {
                 "exportId": export_id,
                 "kind": export_kind,
                 "robotId": robot_id,
                 "packageRoot": str(package_root),
                 "geometryPath": str(geometry_path),
+                "environmentId": environment_id or None,
+                "environmentGeometryPath": str(environment_geometry_path) if environment_objects else None,
                 "sourcePath": str(source_path),
                 "geometryObjectCount": len(visual_objects),
+                "environmentObjectCount": len(environment_objects),
             }, [], False
         finally:
             bpy.ops.object.select_all(action="DESELECT")
@@ -701,6 +763,42 @@ def _validate_robot_geometry(geometry: Any) -> None:
         raise BridgeOperationError("INVALID_ROBOT_GRAPH", "Robot sphere radius is invalid")
 
 
+def _validate_environment_graph(graph: Any) -> None:
+    if not isinstance(graph, dict) or graph.get("schemaVersion") != 1:
+        raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "EnvironmentGraph schema version is unsupported")
+    environment_id = graph.get("environmentId")
+    if not isinstance(environment_id, str) or not environment_id or len(environment_id) > 128:
+        raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "Environment stable ID is invalid")
+    materials = graph.get("materials")
+    objects = graph.get("objects")
+    if not isinstance(materials, list) or not materials or len(materials) > 64:
+        raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "Environment materials are invalid")
+    if not isinstance(objects, list) or not objects or len(objects) > 512:
+        raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "Environment objects are invalid")
+    for name, values in (("materials", materials), ("objects", objects)):
+        identifiers = [value.get("id") for value in values if isinstance(value, dict)]
+        if len(identifiers) != len(values) or any(
+            not isinstance(value, str) or not value or len(value) > 128 for value in identifiers
+        ) or len(set(identifiers)) != len(identifiers):
+            raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", f"Environment {name} IDs are invalid")
+    material_ids = {material["id"] for material in materials}
+    for entry in objects:
+        if entry.get("materialId") not in material_ids or not isinstance(entry.get("static"), bool):
+            raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "Environment object metadata is invalid")
+        _validate_robot_geometry(entry.get("visual"))
+        if entry.get("collision") is not None:
+            _validate_robot_geometry(entry.get("collision"))
+
+
+def _remove_collections_created_after(existing: set[str]) -> None:
+    for collection in list(bpy.data.collections):
+        if collection.name in existing:
+            continue
+        for obj in list(collection.objects):
+            bpy.data.objects.remove(obj, do_unlink=True)
+        bpy.data.collections.remove(collection)
+
+
 def _materialize_robot(graph: dict[str, Any]) -> dict[str, Any]:
     robot_id = str(graph["robotId"])
     collection = bpy.data.collections.new(f"SF Robot - {graph['name']}")
@@ -837,8 +935,78 @@ def _materialize_robot(graph: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _materialize_environment(graph: dict[str, Any]) -> dict[str, Any]:
+    environment_id = str(graph["environmentId"])
+    collection = bpy.data.collections.new(f"SF Environment - {graph['name']}")
+    bpy.context.scene.collection.children.link(collection)
+    materials = {
+        str(spec["id"]): _environment_material(environment_id, spec)
+        for spec in graph["materials"]
+    }
+    collision_material = materials.get("collision-guide") or next(iter(materials.values()))
+    root = bpy.data.objects.new(str(graph["name"]), None)
+    collection.objects.link(root)
+    root_id = f"{environment_id}:root"
+    _stable_environment_object(root, root_id, environment_id, "environment-root")
+    root["simforge.environment.units"] = str(graph["units"])
+    root["simforge.environment.coordinate_convention"] = str(graph["coordinateConvention"])
+    root["simforge.environment.assumptions"] = json.dumps(graph.get("assumptions", []), separators=(",", ":"))
+    changed_ids = [root_id]
+    collision_count = 0
+    for entry in graph["objects"]:
+        visual = _create_robot_geometry(
+            collection,
+            str(entry["name"]),
+            entry["visual"],
+            entry["pose"],
+            materials[str(entry["materialId"])],
+        )
+        stable_id = f"{environment_id}:object:{entry['id']}"
+        _stable_environment_object(visual, stable_id, environment_id, "environment-object")
+        visual["simforge.environment.object.id"] = str(entry["id"])
+        visual["simforge.environment.category"] = str(entry["category"])
+        visual["simforge.environment.material_id"] = str(entry["materialId"])
+        visual["simforge.environment.static"] = bool(entry["static"])
+        visual["simforge.environment.support"] = str(entry["support"])
+        _parent_preserve_world(visual, root)
+        changed_ids.append(stable_id)
+        if entry.get("collision") is None:
+            continue
+        collision = _create_robot_geometry(
+            collection,
+            f"{entry['name']} Collision",
+            entry["collision"],
+            entry["pose"],
+            collision_material,
+        )
+        collision_id = f"{environment_id}:collision:{entry['id']}"
+        _stable_environment_object(collision, collision_id, environment_id, "environment-collision")
+        collision["simforge.environment.collision.object_id"] = str(entry["id"])
+        collision.display_type = "WIRE"
+        collision.hide_render = True
+        _parent_preserve_world(collision, visual)
+        changed_ids.append(collision_id)
+        collision_count += 1
+    return {
+        "environmentId": environment_id,
+        "rootObjectId": root_id,
+        "objectCount": len(graph["objects"]),
+        "collisionCount": collision_count,
+        "changedEntityIds": changed_ids,
+    }
+
+
 def _robot_material(robot_id: str, spec: dict[str, Any]):
     name = f"SF {robot_id} - {spec['name']}"
+    material = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    material.diffuse_color = tuple(float(value) for value in spec["baseColor"])
+    material.metallic = float(spec["metallic"])
+    material.roughness = float(spec["roughness"])
+    return material
+
+
+def _environment_material(environment_id: str, spec: dict[str, Any]):
+    name = f"SF {environment_id} - {spec['name']}"
     material = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     material.diffuse_color = tuple(float(value) for value in spec["baseColor"])
     material.metallic = float(spec["metallic"])
@@ -902,6 +1070,12 @@ def _stable_object(obj, stable_id: str, robot_id: str, role: str) -> None:
     obj["simforge.role"] = role
 
 
+def _stable_environment_object(obj, stable_id: str, environment_id: str, role: str) -> None:
+    obj["simforge.id"] = stable_id
+    obj["simforge.environment.id"] = environment_id
+    obj["simforge.role"] = role
+
+
 def _set_physical_metadata(obj, link: dict[str, Any]) -> None:
     mass = link["massKg"]
     obj["simforge.mass.source"] = str(mass["source"])
@@ -926,7 +1100,11 @@ def _parent_preserve_world(child, parent) -> None:
     child.matrix_world = world
 
 
-def _render_robot_review(robot_id: str, output_directory: Path) -> list[dict[str, str]]:
+def _render_robot_review(
+    robot_id: str,
+    environment_id: str | None,
+    output_directory: Path,
+) -> list[dict[str, str]]:
     visual_objects = [
         obj for obj in bpy.context.scene.objects
         if obj.get("simforge.robot.id") == robot_id and obj.get("simforge.role") == "link"
@@ -935,6 +1113,15 @@ def _render_robot_review(robot_id: str, output_directory: Path) -> list[dict[str
         raise BridgeOperationError("ROBOT_NOT_FOUND", "Robot visual links are unavailable for review")
     if any(not obj.material_slots or not any(slot.material for slot in obj.material_slots) for obj in visual_objects):
         raise BridgeOperationError("MATERIALS_REQUIRED", "Materialized review rejects material-less robot links")
+    environment_objects = [
+        obj for obj in bpy.context.scene.objects
+        if environment_id and obj.get("simforge.environment.id") == environment_id and
+        obj.get("simforge.role") == "environment-object"
+    ]
+    if environment_id and not environment_objects:
+        raise BridgeOperationError("ENVIRONMENT_NOT_FOUND", "Environment visuals are unavailable for review")
+    if any(not obj.material_slots or not any(slot.material for slot in obj.material_slots) for obj in environment_objects):
+        raise BridgeOperationError("MATERIALS_REQUIRED", "Materialized review rejects material-less environment objects")
 
     scene = bpy.context.scene
     original = {
@@ -1020,6 +1207,17 @@ def _render_robot_review(robot_id: str, output_directory: Path) -> list[dict[str
                 "sensor",
                 sensor_position + Vector((radius * 1.05, -radius * 1.05, radius * 0.72)),
                 sensor_position,
+            ))
+        if environment_objects:
+            scene_bounds = [value for value in (_world_bounds(obj) for obj in [*visual_objects, *environment_objects]) if value]
+            scene_minimum = Vector([min(value["min"][axis] for value in scene_bounds) for axis in range(3)])
+            scene_maximum = Vector([max(value["max"][axis] for value in scene_bounds) for axis in range(3)])
+            scene_center = (scene_minimum + scene_maximum) * 0.5
+            scene_radius = max((scene_maximum - scene_minimum).length, 2.0)
+            views.append((
+                "warehouse-overview",
+                scene_center + Vector((scene_radius * 0.72, -scene_radius * 0.72, scene_radius * 0.5)),
+                scene_center,
             ))
 
         results: list[dict[str, str]] = []
