@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Validate the v0.1.1 release through normal UI controls. Do not paste credentials into
+Validate the v0.1.2 release through normal UI controls. Do not paste credentials into
 Codex, chat, terminals, screenshots, or this document. Record failures with the visible
 message, current scene revision, and screenshot only.
 
@@ -32,24 +32,24 @@ cropped if needed.
 If discovery fails, retain the exact error, confirm network/key access, and use the
 disclosed local deterministic fallback for the demo. Do not repeatedly expose or copy the key.
 
-## Guided Warehouse Loop (6–10 minutes)
+## Guided Conversational Loop (6–10 minutes)
 
-1. Settings → AI providers → **Guided** authority → save. In the main mode switcher,
-   select **Build**.
-2. In **Warehouse mobile manipulator**, click **Review & approve build**, inspect the
-   exact scope (12 links, 11 joints, 3 sensors, 15 warehouse objects), then click
-   **Build checkpointed scene**.
-3. Expected: Blender visibly shows the workcell; Activity records a checkpoint and scene
-   revision; the embedded preview is revision-stamped.
-4. Open Validate → **Run**. Expected: deterministic geometry, robotics, and environment
-   channels; no model claim is treated as evidence.
-5. Use the prepared gripper defect/correction path. Expected: `ROB-LINK-POSE-001` names
-   the affected link and exact pose; Guided authority waits before structural correction;
-   applying it creates a checkpoint and rerun clears the error.
-6. Open Export, choose **Canonical**, select an empty destination, and review the exact
-   destination/overwrite proposal. Approve and export. Expected: verified package,
-   `scene.usda`, relative layers, `manifest.json`, validation JSON, readiness report,
-   previews, source, and notices. Copy the package to a new folder and reopen it.
+1. Confirm **Guided** authority beneath the composer. A new workspace must show only the
+   empty conversational prompt; advanced fixtures remain behind **Advanced**.
+2. Enter `prepare for me in blender a wheeled robot with a gripper hand`. Review
+   **Approve plan & build**, inspect the exact scope (12 links, 11 joints, 3 sensors,
+   15 warehouse objects), and confirm the native approval dialog.
+3. Expected: the blank metric Blender scene visibly becomes the robot/workcell; no factory
+   Cube, Camera, or Light remains. Activity records a checkpoint and scene `r1`; the
+   embedded preview and deterministic validation bind to that revision.
+4. Enter `export this robot to USD for simulation`, choose an empty parent folder, and
+   confirm the exact destination. Expected: verified package, `scene.usda`, relative
+   layers, `manifest.json`, validation JSON, readiness report, previews, source, and
+   notices, plus 12 passing reopen checks.
+5. Enter `send it to simulation in Isaac Sim`, approve the fixed task, and review the
+   retained stability failure. Approve the bounded checkpointed arm correction, export
+   scene `r2` to a new folder, and rerun. Expected: `PASSED`, retained checks/frames, and
+   a native Isaac viewport showing the robot move through the 1.2 m waypoint task.
 
 ## Authority Acceptance (3 minutes)
 
@@ -95,7 +95,7 @@ If Isaac is unavailable, show the retained sanitized before/after evidence in
   validation/export still works without cloud inference.
 - **Stale scene:** refresh/review again after any manual Blender edit; old approval is invalid.
 - **SmartScreen:** use **More info → Run anyway** only if SHA-256 matches, or use the
-  portable ZIP. The v0.1.1 installer is intentionally disclosed as unsigned.
+  portable ZIP. The v0.1.2 installer is intentionally disclosed as unsigned.
 - **Isaac limited/unavailable:** core authoring remains supported. Larger experiments may
   require at least NVIDIA's published 32 GB RAM / 16 GB VRAM baseline.
 

@@ -64,7 +64,7 @@ provider, validation, and export contracts. Blender writes visual layers; a bund
 Python 3.13 / usd-core 26.5 sidecar authors neutral physics/composition layers and reopens
 the result. Optional Isaac Sim runs a fixed local task against a copied, hash-bound package.
 
-Codex with GPT‑5.6 translated the master brief into 125 atomic requirements and 40
+Codex with GPT‑5.6 translated the master brief and owner refinements into 133 atomic requirements and 42
 acceptance scenarios, evaluated the architecture and licenses, implemented the vertical
 slices, operated real Blender/OpenUSD/Isaac acceptance, diagnosed packaging and security
 defects, and maintained decisions, traceability, tests, and submission evidence. Model
@@ -72,13 +72,15 @@ self-evaluation was never used as completion evidence.
 
 ## Testing Instructions
 
-1. Download v0.1.1 installer or portable ZIP and verify `SHA256SUMS.txt`.
+1. Download v0.1.2 installer or portable ZIP and verify `SHA256SUMS.txt`.
 2. Install Blender 4.5 LTS and the release Blender extension ZIP.
 3. Launch SimForge and run Settings → Environment → Recheck.
 4. Optional: enter an NVIDIA key directly in protected Settings and discover models.
-5. Use Guided authority to review/build the warehouse scene, run deterministic validation,
-   approve the prepared correction, and explicitly export canonical USD.
-6. Confirm the package reports verified and inspect the relocated reopen/readiness report.
+5. In chat, request `prepare for me in blender a wheeled robot with a gripper hand`,
+   review the plan, and approve the checkpointed Blender build.
+6. Request USD export, choose/approve an empty destination, and confirm 12 reopen checks.
+7. With Isaac configured, request simulation, inspect the real retained stability failure,
+   approve its bounded Blender correction, re-export, and rerun the passing waypoint task.
 
 Detailed expected states and fallback evidence: `docs/OWNER_JUDGE_TEST.md`.
 

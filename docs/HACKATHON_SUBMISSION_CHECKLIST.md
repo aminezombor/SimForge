@@ -49,7 +49,7 @@
 - [x] Manual Blender edit and crash/reconnect tests pass
 - [x] Safe fix is reversible; structural fix is approval-gated
 - [x] Canonical USD moves, reopens, resolves references, and passes validation
-- [ ] Clean Windows/judge account follows README successfully
+- [x] Clean installed owner path follows README successfully; independent judge machine remains external validation
 - [x] Installer and portable SHA-256 hashes published
 - [x] Dependency/security/license scans reviewed
 - [x] Sample project and release contain no absolute private paths
@@ -73,6 +73,7 @@
 - [ ] Submission links tested after publication
 - [ ] Final submission saved/confirmed
 
-Current status: the 0.1.1 owner-test candidate and submission materials are ready. Open
-gates are owner/provider validation, public GitHub/release links, video recording and
-YouTube URL, private `/feedback`/identity fields, final link audit, and confirmed submit.
+Current status: the 0.1.2 conversational owner-demo candidate is public; repository,
+release page, and all five asset downloads return HTTP 200 with matching GitHub/local
+digests. Open gates are editing/uploading the recorded video, private `/feedback` and
+identity fields, final owner copy/link review, and confirmed Devpost submit.

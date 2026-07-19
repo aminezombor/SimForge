@@ -367,6 +367,21 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   hardware remains below NVIDIA's published minimum; the final video still needs editing
   and upload.
 
+### 2026-07-19 - Public conversational release
+
+- Phase/milestone: MS9C release publication complete
+- Requirement/test IDs: `REQ-SUBMISSION-002`, `REQ-SUBMISSION-004`; `AT-034`, `AT-035`
+- What Codex/GPT-5.6 contributed: rebuilt the installer/portable/extension/sample asset
+  set from the owner-tested package, generated checksums, published v0.1.2, compared every
+  GitHub digest with the local artifact, and verified unauthenticated HTTP access.
+- Important decisions: publish the conversation-first build as the latest judge release
+  while retaining the full 0.1.1 workspace release and preservation branch.
+- Human review and verification: public repository, release page, and all five direct
+  asset URLs returned HTTP 200; installer, portable, extension, and sample digests match.
+- Evidence: Git commit `d1a2cd4`, public release `v0.1.2`, local `SHA256SUMS.txt`.
+- Limitations or correction made: publishing is complete; video edit/upload, private
+  submission fields, and final owner-confirmed Devpost submission remain.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:
