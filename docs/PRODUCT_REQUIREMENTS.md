@@ -70,6 +70,14 @@ Requirements describe outcomes and constraints, not implementation choices. Allo
 | REQ-UX-008 | Separate project memory from global memory and let users inspect, edit, export, disable, or delete memory. | HACKATHON-P1 | Brief 11 |
 | REQ-UX-009 | Provide undo/revision controls, useful empty and waiting states, friendly errors, and actionable recovery guidance. | HACKATHON-P0 | Brief 11 |
 | REQ-UX-010 | Never store or display secrets in conversation history. | HACKATHON-P0 | Brief 11 |
+| REQ-UX-011 | Open each new submission-edition conversation as an uncluttered chat; keep sample/import/developer workflows hidden behind an Advanced control. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-012 | Present the primary conversational journey as Plan, Build, Export, and Simulate without requiring users to manage internal workflow modes. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-013 | Recognize a natural-language request for a wheeled robot with a gripper and return a concise, reviewable build proposal. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-014 | After exact user approval, materialize the proposed wheeled manipulator and a useful default generated environment visibly in Blender. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-015 | Let chat propose bounded primitive additions with exact positions, checkpoint the edit, and apply it to Blender only after user confirmation. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-016 | Recognize chat export intent and guide exact destination/approval through canonical USD physics authoring and reopen verification. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-017 | Recognize chat simulation intent, gate the exact Isaac run, open the retained experiment, and return evidence-grounded feedback in the workspace. | HACKATHON-P0 | Owner direction 2026-07-19 |
+| REQ-UX-018 | Start a new generated workspace from a clean metric Blender scene and remove only recognizable untouched factory Cube, Camera, and Light boilerplate during an approved build so it cannot obscure the authored robot. | HACKATHON-P0 | Owner direction 2026-07-19 |
 
 ## Projects and Local Data
 
@@ -234,3 +242,4 @@ acceptance is required before the release-candidate review gate.
 | Date | Requirement IDs | Change | Approval/decision |
 | ---- | --------------- | ------ | ----------------- |
 | 2026-07-18 | All | Extracted the complete master brief into 123 stable requirements and assigned priority tiers. | Approved MS0 plan; DEC-003 through DEC-014 |
+| 2026-07-19 | REQ-UX-011 through REQ-UX-017 | Added the owner-approved simplified hackathon conversation path while preserving the full 0.1.1 workspace for later. | DEC-033 |

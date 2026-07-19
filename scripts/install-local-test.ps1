@@ -12,6 +12,7 @@ $appDestination = Join-Path $installRoot 'app'
 $blenderDestination = Join-Path $installRoot 'blender'
 $launcherDestination = Join-Path $installRoot 'launch-simforge.ps1'
 $windowlessLauncherDestination = Join-Path $installRoot 'launch-simforge.vbs'
+$starterSceneDestination = Join-Path $installRoot 'SimForge Starter.blend'
 $desktop = [Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path $desktop 'SimForge.lnk'
 $legacyShortcutPath = Join-Path $desktop 'SimForge Hackathon.lnk'
@@ -60,6 +61,20 @@ $installedBlender = Join-Path $blenderDestination 'blender.exe'
 if ($LASTEXITCODE -ne 0) {
     throw "Blender extension installation failed (exit $LASTEXITCODE)"
 }
+& $installedBlender --background --python-expr "import bpy; bpy.context.preferences.view.show_splash = False; bpy.ops.wm.save_userpref()"
+if ($LASTEXITCODE -ne 0) {
+    throw "Blender no-splash preference setup failed (exit $LASTEXITCODE)"
+}
+$env:SIMFORGE_STARTER_SCENE_PATH = $starterSceneDestination
+try {
+    & $installedBlender --background --factory-startup --python-expr "import bpy, os; bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False); bpy.context.scene.unit_settings.system='METRIC'; bpy.context.scene.unit_settings.scale_length=1.0; bpy.context.scene.unit_settings.length_unit='METERS'; bpy.ops.wm.save_as_mainfile(filepath=os.environ['SIMFORGE_STARTER_SCENE_PATH'])"
+    if ($LASTEXITCODE -ne 0) {
+        throw "SimForge clean starter scene creation failed (exit $LASTEXITCODE)"
+    }
+}
+finally {
+    Remove-Item Env:SIMFORGE_STARTER_SCENE_PATH -ErrorAction SilentlyContinue
+}
 
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
@@ -85,6 +100,7 @@ if (Test-Path -LiteralPath $legacyShortcutPath) {
     Application = Join-Path $appDestination 'SimForge.exe'
     Blender = $installedBlender
     BlenderExtension = 'simforge_bridge enabled in user_default'
+    StarterScene = $starterSceneDestination
     Shortcut = $shortcutPath
     LegacyShortcutRemoved = -not (Test-Path -LiteralPath $legacyShortcutPath)
 }

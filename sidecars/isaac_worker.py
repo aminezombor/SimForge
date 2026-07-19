@@ -161,6 +161,42 @@ def _create_probe(stage: Any, camera_eye: list[float], camera_target: list[float
     return probe.GetPrim(), camera.GetPrim()
 
 
+def _create_waypoint_task(stage: Any) -> dict[str, Any]:
+    from pxr import Gf, UsdGeom
+
+    robot = stage.GetPrimAtPath("/World/Robot")
+    if not robot:
+        raise ValueError("The canonical package has no /World/Robot task root")
+    start = _world_position(robot)
+    distance = 1.2
+    target = [start[0] + distance, start[1], start[2]]
+    marker = UsdGeom.Cylinder.Define(stage, "/World/SimForgeTaskTarget")
+    marker.CreateAxisAttr("Z")
+    marker.CreateRadiusAttr(0.22)
+    marker.CreateHeightAttr(0.04)
+    marker.CreateDisplayColorAttr([(1.0, 0.55, 0.05)])
+    marker.AddTranslateOp().Set(Gf.Vec3d(target[0], target[1], 0.02))
+    command = UsdGeom.Xformable(robot).AddTranslateOp(opSuffix="simforgeWaypoint")
+    command.Set(Gf.Vec3d(0.0, 0.0, 0.0))
+    return {
+        "robot": robot,
+        "command": command,
+        "start": start,
+        "target": target,
+        "distance": distance,
+    }
+
+
+def _set_waypoint_progress(app: Any, task: dict[str, Any], progress: float) -> list[float]:
+    from pxr import Gf
+
+    bounded = max(0.0, min(1.0, progress))
+    task["command"].Set(Gf.Vec3d(task["distance"] * bounded, 0.0, 0.0))
+    for _ in range(12):
+        app.update()
+    return _world_position(task["robot"])
+
+
 def _capture(app: Any, camera_path: str, output: Path) -> bool:
     from omni.kit.viewport.utility import capture_viewport_to_file, get_active_viewport
 
@@ -256,8 +292,9 @@ def run(request_path: Path) -> int:
         raise FileNotFoundError("Copied canonical USD entry point is missing")
 
     task = request.get("task")
-    if not isinstance(task, dict) or task.get("id") != "static-settle-v1":
-        raise ValueError("Only the fixed static-settle-v1 task is supported")
+    if not isinstance(task, dict) or task.get("id") not in {"static-settle-v1", "drive-to-waypoint-v1"}:
+        raise ValueError("Only fixed SimForge Isaac tasks are supported")
+    task_id = str(task["id"])
     steps = int(task.get("steps", 240))
     if steps < 60 or steps > 600:
         raise ValueError("Simulation steps must be between 60 and 600")
@@ -313,6 +350,7 @@ def run(request_path: Path) -> int:
     stability_check, stability_metrics = _robot_stability(stage)
     camera_eye, camera_target = _project_view(stage)
     probe, camera = _create_probe(stage, camera_eye, camera_target)
+    waypoint = _create_waypoint_task(stage) if task_id == "drive-to-waypoint-v1" else None
     initial = _world_position(probe)
     camera_path = camera.GetPath().pathString
     captured_media: list[Path] = []
@@ -324,7 +362,7 @@ def run(request_path: Path) -> int:
     timeline.set_time_codes_per_second(60.0)
     timeline.play()
     samples: list[list[float]] = []
-    capture_steps = {max(1, round(steps * fraction / 4)) for fraction in range(1, 5)}
+    capture_steps = {max(1, round(steps * fraction / 4)) for fraction in range(1, 5)} if waypoint is None else set()
     frame_index = 1
     for index in range(steps):
         app.update()
@@ -341,6 +379,16 @@ def run(request_path: Path) -> int:
     timeline.pause()
     for _ in range(8):
         app.update()
+    waypoint_final: list[float] | None = None
+    waypoint_error: float | None = None
+    if waypoint is not None:
+        for progress in (0.5, 1.0):
+            waypoint_final = _set_waypoint_progress(app, waypoint, progress)
+            frame_path = media_root / f"frame-{frame_index:03d}.png"
+            if _capture(app, camera_path, frame_path):
+                captured_media.append(frame_path)
+            frame_index += 1
+        waypoint_error = math.dist(waypoint_final or waypoint["start"], waypoint["target"])
     final = _world_position(probe)
     media_path = captured_media[-1] if captured_media else media_root / "frame-final.png"
     media_captured = bool(captured_media) or _capture(app, camera_path, media_path)
@@ -351,6 +399,19 @@ def run(request_path: Path) -> int:
     vertical_drop = initial[2] - final[2]
     settled_height_error = abs(final[2] - 0.25)
     lateral_drift = math.hypot(final[0] - initial[0], final[1] - initial[1])
+    task_check = {
+        "id": "ISAAC-TASK-001",
+        "status": "PASS" if waypoint is not None and waypoint_error is not None and waypoint_error <= 0.03 else ("WARN" if waypoint is None else "FAIL"),
+        "evidence": {
+            "controller": "fixed kinematic waypoint command",
+            "startPositionM": waypoint["start"] if waypoint is not None else None,
+            "targetPositionM": waypoint["target"] if waypoint is not None else None,
+            "finalPositionM": waypoint_final,
+            "commandedDistanceM": waypoint["distance"] if waypoint is not None else None,
+            "targetErrorM": waypoint_error,
+            "autonomousNavigation": False,
+        },
+    }
     checks = [
         {
             "id": "ISAAC-STAGE-001",
@@ -363,6 +424,7 @@ def run(request_path: Path) -> int:
             },
         },
         stability_check,
+        task_check,
         {
             "id": "ISAAC-PHYSICS-001",
             "status": "PASS" if finite and vertical_drop > 1.0 and settled_height_error <= 0.08 else "FAIL",
@@ -392,7 +454,7 @@ def run(request_path: Path) -> int:
         "schemaVersion": 1,
         "experimentId": request["experimentId"],
         "task": {
-            "id": "static-settle-v1",
+            "id": task_id,
             "seed": int(task.get("seed", 20260719)),
             "steps": steps,
             "timeCodesPerSecond": 60,
@@ -413,6 +475,7 @@ def run(request_path: Path) -> int:
             "lateralDriftM": lateral_drift,
             "sampleCount": len(samples),
             "robotStability": stability_metrics,
+            "waypointTask": task_check["evidence"],
         },
         "checks": checks,
         "media": [
@@ -488,13 +551,25 @@ def view(request_path: Path) -> int:
         raise RuntimeError("Isaac Sim returned no interactive stage")
     camera_eye, camera_target = _project_view(stage)
     _, camera = _create_probe(stage, camera_eye, camera_target)
+    task = request.get("task") if isinstance(request.get("task"), dict) else {}
+    waypoint = _create_waypoint_task(stage) if task.get("id") == "drive-to-waypoint-v1" else None
     viewport = get_active_viewport()
     if viewport is not None:
         viewport.camera_path = camera.GetPath().pathString
     timeline = omni.timeline.get_timeline_interface()
     timeline.set_time_codes_per_second(60.0)
-    timeline.play()
+    if waypoint is None:
+        timeline.play()
+    frame = 0
     while app.is_running():
+        if waypoint is not None:
+            from pxr import Gf
+
+            cycle = frame % 360
+            progress = min(cycle / 180.0, 1.0) if cycle < 300 else 0.0
+            eased = progress * progress * (3.0 - 2.0 * progress)
+            waypoint["command"].Set(Gf.Vec3d(waypoint["distance"] * eased, 0.0, 0.0))
+            frame += 1
         app.update()
     timeline.stop()
     sys.stdout.flush()

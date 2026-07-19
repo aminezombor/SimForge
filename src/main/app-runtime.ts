@@ -20,6 +20,7 @@ import type {
   ValidationRun,
 } from '../shared/contracts';
 import { sha256 } from '../shared/hash';
+import { actionGuidance, classifyChatIntent } from '../shared/chat-intents';
 import type {
   AttachmentView,
   ApprovalInput as DesktopApprovalInput,
@@ -82,6 +83,8 @@ import {
   type IsaacExperimentProposal,
 } from './isaac/isaac-service';
 
+const NVIDIA_PREFERENCE_MIGRATION = 'migration:0.1.2:nvidia-preferred';
+
 export class AppRuntime {
   private project: ProjectHandle | null = null;
   private globalRepository: GlobalRepository | null = null;
@@ -109,7 +112,8 @@ export class AppRuntime {
 
   constructor(
     private readonly userDataDirectory: string,
-    private readonly applicationRoot: string = process.cwd(),
+    private readonly applicationRoot: string,
+    private readonly appVersion: string,
   ) {}
 
   async initialize(): Promise<void> {
@@ -140,6 +144,13 @@ export class AppRuntime {
     this.imports = new UrdfImportService(project, this.applicationRoot);
     this.nativeImports = new NativeImportService(project, this.applicationRoot);
     this.workspace.ensureInitialConversation();
+    if (
+      (await this.providers.status('nvidia')).configured &&
+      this.globalRepository.getState<boolean>(NVIDIA_PREFERENCE_MIGRATION) !== true
+    ) {
+      this.workspace.preferNvidiaRoute();
+      this.globalRepository.setState(NVIDIA_PREFERENCE_MIGRATION, true);
+    }
     this.approvals = new ApprovalService(project.repository);
     this.jobs = new JobOrchestrator(project.manifest.projectId, project.repository);
     this.bridge = new BlenderBridgeServer();
@@ -172,6 +183,7 @@ export class AppRuntime {
       this.executor,
       this.activities,
       this.applicationRoot,
+      this.appVersion,
     );
     this.isaac = new IsaacExperimentService(
       project,
@@ -252,7 +264,10 @@ export class AppRuntime {
     planHash: string | null,
     approvalId: string | null,
   ): Promise<ValidationRun> {
-    return this.requireValidation().applyFix(findingId, planHash, approvalId);
+    return this.requireValidation().applyFix(findingId, planHash, approvalId).then(async (validation) => {
+      await this.persistCurrentScene(validation.sceneRevision, 'validation correction');
+      return validation;
+    });
   }
 
   undoLatestValidationFix(): Promise<ValidationRun> {
@@ -330,6 +345,7 @@ export class AppRuntime {
     });
     await this.requireSceneState().refresh();
     const validation = await this.requireValidation().run();
+    await this.persistCurrentScene(validation.sceneRevision, 'primitive robot build');
     this.requireActivities().record('robotics', 'primitive-robot-materialized', 'Primitive wheeled robot materialized and validated', {
       robotId: proposal.graph.robotId,
       sceneRevision: validation.sceneRevision,
@@ -647,6 +663,7 @@ export class AppRuntime {
     });
     await this.requireSceneState().refresh();
     const validation = await this.requireValidation().run();
+    await this.persistCurrentScene(validation.sceneRevision, 'warehouse robot build');
     this.requireActivities().record('robotics', 'warehouse-assembly-materialized', 'Warehouse mobile manipulator assembly materialized and validated', {
       robotId: proposal.robotGraph.robotId,
       environmentId: proposal.environmentGraph.environmentId,
@@ -875,6 +892,7 @@ export class AppRuntime {
     });
     await this.requireSceneState().refresh();
     const validation = await this.requireValidation().run();
+    await this.persistCurrentScene(validation.sceneRevision, 'Isaac correction');
     this.requireActivities().record('simulation', 'isaac-correction-applied', 'Applied approved simulation correction in Blender and revalidated the scene', {
       sourceExperimentId: proposal.sourceExperimentId,
       rootLinkId: proposal.args.rootLinkId,
@@ -900,7 +918,8 @@ export class AppRuntime {
       sceneRevision: state.sceneRevision,
       approvalId: input.approvalId,
     });
-    await this.requireSceneState().refresh();
+    const refreshed = await this.requireSceneState().refresh();
+    await this.persistCurrentScene(refreshed.snapshot.sceneRevision, input.toolId);
     return this.getState();
   }
 
@@ -1173,6 +1192,7 @@ export class AppRuntime {
     const attachments = workspace.attachments(attachmentIds, conversationId);
     if (this.activeChats.has(conversationId)) throw new Error('This conversation already has a response in progress');
     const settings = workspace.settings();
+    const intent = classifyChatIntent(trimmed);
     let route = await this.requireModelRouter().select(settings, 'conversation', ['text', 'streaming']);
     if (route.providerId !== 'local' && attachments.length > 0) {
       if (settings.routingMode === 'manual') {
@@ -1228,7 +1248,18 @@ export class AppRuntime {
       requestId,
       modelId: route.modelId,
       purpose: cloud ? 'Project conversation' : 'Local non-mutating conversation',
-      messages: workspace.dispatchMessages(conversationId),
+      messages: [{
+        role: 'system' as const,
+        parts: [{
+          type: 'text' as const,
+          text: [
+            'You are SimForge, a concise robotics authoring copilot.',
+            'Separate suggestions from completed work. Never claim Blender, USD, or Isaac work occurred unless deterministic tool evidence is present.',
+            'For build, export, or simulation requests, explain the proposed outcome in at most three short bullets. The desktop application presents the exact approval action separately.',
+            'Prefer practical language and ask at most one question only when the requested outcome is genuinely ambiguous.',
+          ].join(' '),
+        }],
+      }, ...workspace.dispatchMessages(conversationId)],
       tools: [],
     };
     const localController = new AbortController();
@@ -1252,6 +1283,8 @@ export class AppRuntime {
     } finally {
       this.activeChats.delete(conversationId);
     }
+    const guidance = actionGuidance(intent);
+    if (guidance) responseText = responseText.trim() ? `${responseText.trim()}\n\n${guidance}` : guidance;
     project.repository.addMessage({
       id: randomUUID(),
       conversationId,
@@ -1402,6 +1435,17 @@ export class AppRuntime {
       : path.resolve(project.root, fromScene ?? project.manifest.blenderFile);
   }
 
+  private async persistCurrentScene(sceneRevision: number, reason: string): Promise<void> {
+    const project = this.requireProject();
+    const target = path.resolve(project.root, ...project.manifest.blenderFile.split('/'));
+    await this.requireBridge().request('scene.save_project', { filepath: target }, sceneRevision, 30_000);
+    await this.requireSceneState().refresh();
+    this.requireActivities().record('scene', 'project-scene-saved', `Saved the current Blender project after ${reason}`, {
+      sceneRevision,
+      projectRelativePath: project.manifest.blenderFile,
+    });
+  }
+
   listVersions(): VersionView[] {
     return this.requireWorkspace().listVersions();
   }
@@ -1418,8 +1462,23 @@ export class AppRuntime {
     return this.requireProviders().status(providerId);
   }
 
-  configureProvider(providerId: CloudProviderId, credential: string): Promise<ProviderStatus> {
-    return this.requireProviders().configure(providerId, credential);
+  async configureProvider(providerId: CloudProviderId, credential: string): Promise<ProviderStatus> {
+    await this.requireProviders().configure(providerId, credential);
+    if (providerId === 'nvidia') {
+      const intendedModel = 'nvidia/nemotron-3-ultra-550b-a55b';
+      this.requireWorkspace().preferNvidiaRoute();
+      this.globalRepository?.setState(NVIDIA_PREFERENCE_MIGRATION, true);
+      try {
+        const models = await this.requireProviders().discover('nvidia');
+        if (models.some((model) => model.modelId === intendedModel)) {
+          await this.requireProviders().probe('nvidia', intendedModel);
+        }
+      } catch {
+        // The credential remains protected and the local route remains available;
+        // Environment Doctor reports discovery or connectivity failures explicitly.
+      }
+    }
+    return this.requireProviders().status(providerId);
   }
 
   removeProvider(providerId: CloudProviderId): Promise<ProviderStatus> {

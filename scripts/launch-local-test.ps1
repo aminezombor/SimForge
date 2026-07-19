@@ -7,6 +7,8 @@ $appWorkingDirectory = Join-Path $installRoot 'app'
 $blenderPath = Join-Path $installRoot 'blender\blender.exe'
 $blenderLauncherPath = Join-Path $installRoot 'blender\blender-launcher.exe'
 $runtimeDirectory = Join-Path $env:LOCALAPPDATA 'SimForge\runtime'
+$projectScenePath = Join-Path $env:LOCALAPPDATA 'SimForge\projects\default\scene\main.blend'
+$starterScenePath = Join-Path $installRoot 'SimForge Starter.blend'
 
 function Show-LaunchError([string] $message) {
     Add-Type -AssemblyName PresentationFramework
@@ -27,6 +29,9 @@ try {
     }
     if (-not (Test-Path -LiteralPath $blenderLauncherPath -PathType Leaf)) {
         throw "The windowless Blender launcher is missing at $blenderLauncherPath"
+    }
+    if (-not (Test-Path -LiteralPath $starterScenePath -PathType Leaf)) {
+        throw "The clean SimForge starter scene is missing at $starterScenePath"
     }
 
     $env:SIMFORGE_BLENDER_PATH = $blenderPath
@@ -68,7 +73,12 @@ try {
     $blenderRunning = @(Get-Process -Name 'blender' -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -eq $blenderPath }).Count -gt 0
     if (-not $blenderRunning) {
-        Start-Process -FilePath $blenderLauncherPath -WorkingDirectory (Split-Path -Parent $blenderPath) | Out-Null
+        if (Test-Path -LiteralPath $projectScenePath -PathType Leaf) {
+            Start-Process -FilePath $blenderLauncherPath -ArgumentList @("`"$projectScenePath`"") -WorkingDirectory (Split-Path -Parent $blenderPath) | Out-Null
+        }
+        else {
+            Start-Process -FilePath $blenderLauncherPath -ArgumentList @("`"$starterScenePath`"") -WorkingDirectory (Split-Path -Parent $blenderPath) | Out-Null
+        }
     }
 }
 catch {

@@ -42,6 +42,12 @@ if _has_flag("--empty-metric"):
     bpy.context.scene.unit_settings.length_unit = "METERS"
     bpy.context.view_layer.update()
 
+if _has_flag("--metric-defaults"):
+    bpy.context.scene.unit_settings.system = "METRIC"
+    bpy.context.scene.unit_settings.scale_length = 1.0
+    bpy.context.scene.unit_settings.length_unit = "METERS"
+    bpy.context.view_layer.update()
+
 bridge.connect()
 deadline = time.time() + 90
 while time.time() < deadline and not stop_request.exists():

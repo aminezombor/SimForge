@@ -312,7 +312,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     server = new BlenderBridgeServer();
     await server.start(runtime, project.manifest.projectId, project.root);
     const connected = once(server, 'connected');
-    const blender = startBlender(localAppData, control, undefined, ['--empty-metric']);
+    const blender = startBlender(localAppData, control, undefined, ['--metric-defaults']);
     await withTimeout(connected, 20_000, 'robot Blender connection');
 
     const scene = new SceneStateService(project.manifest.projectId, server, project.repository);
@@ -331,7 +331,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const reviews = new ReviewService(project, scene, executor, activities);
     const previews = new PreviewService(project, server, scene, activities);
     const initial = await scene.refresh();
-    expect(initial.snapshot.objects).toEqual([]);
+    expect(initial.snapshot.objects.map((object) => object.name).sort()).toEqual(['Camera', 'Cube', 'Light']);
     expect(initial.snapshot.unitSystem).toBe('METRIC');
 
     const graph = primitiveWheeledRobotGraph();
@@ -443,6 +443,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const corrected = await validation.run();
     expect(corrected.findings.some((finding) => finding.ruleId === 'ROB-LINK-POSE-001')).toBe(false);
     const afterReview = await reviews.render(graph.robotId, 'After wheel correction');
+    expect((await scene.refresh()).snapshot.sceneRevision).toBe(corrected.sceneRevision);
     expect(reviews.list().slice(0, 2).map((entry) => entry.label)).toEqual([
       'After wheel correction', 'Before wheel correction',
     ]);
@@ -588,7 +589,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     server = new BlenderBridgeServer();
     await server.start(runtime, project.manifest.projectId, project.root);
     const connected = once(server, 'connected');
-    const blender = startBlender(localAppData, control, undefined, ['--empty-metric']);
+    const blender = startBlender(localAppData, control, undefined, ['--metric-defaults']);
     await withTimeout(connected, 20_000, 'warehouse Blender connection');
 
     const scene = new SceneStateService(project.manifest.projectId, server, project.repository);
@@ -600,7 +601,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const reviews = new ReviewService(project, scene, executor, activities);
     const previews = new PreviewService(project, server, scene, activities);
     const initial = await scene.refresh();
-    expect(initial.snapshot.objects).toEqual([]);
+    expect(initial.snapshot.objects.map((object) => object.name).sort()).toEqual(['Camera', 'Cube', 'Light']);
 
     const robot = warehouseMobileManipulatorGraph();
     const environment = warehouseEnvironmentGraph();
@@ -647,6 +648,9 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     ]));
     expect(passing.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
     const objects = scene.current!.objects;
+    expect((build.result as { removedStartupObjects?: string[] }).removedStartupObjects?.sort())
+      .toEqual(['Camera', 'Cube', 'Light']);
+    expect(objects.some((object) => ['Camera', 'Cube', 'Light'].includes(object.name))).toBe(false);
     expect(objects.filter((object) => object.metadata['simforge.role'] === 'link')).toHaveLength(12);
     expect(objects.filter((object) => object.metadata['simforge.role'] === 'joint')).toHaveLength(11);
     expect(objects.filter((object) => object.metadata['simforge.role'] === 'collision')).toHaveLength(12);
@@ -716,6 +720,7 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     expect(corrected.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
     const afterReview = await reviews.render(robot.robotId, 'After gripper correction', environment.environmentId);
     expect(afterReview.images).toHaveLength(6);
+    expect((await scene.refresh()).snapshot.sceneRevision).toBe(corrected.sceneRevision);
     const preview = await previews.generate();
     expect(preview.sceneRevision).toBe(corrected.sceneRevision);
     expect(preview.objects.length).toBeGreaterThanOrEqual(27);

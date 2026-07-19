@@ -6,6 +6,7 @@
 - Working product: **SimForge**
 - Supported release baseline: Windows 11 x64 and Blender 4.5 LTS
 - Demonstration: generated warehouse mobile manipulator, real validation defect, reversible correction, verified USD package, and readiness report
+- Submission interface: uncluttered chat with a visible Plan -> Build -> Export -> Simulate journey; advanced engineering/import panels remain available on demand
 
 ## Priority Policy
 

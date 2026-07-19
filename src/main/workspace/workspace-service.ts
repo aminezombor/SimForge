@@ -19,12 +19,12 @@ import type { AttachmentRecord, ProjectHandle } from '../storage/project-reposit
 const DEFAULT_SETTINGS: WorkspaceSettings = {
   actionMode: 'guided',
   routingMode: 'automatic',
-  activeProvider: 'local',
-  activeModel: 'mock-planner',
+  activeProvider: 'nvidia',
+  activeModel: 'nvidia/nemotron-3-ultra-550b-a55b',
   enabledProviders: { nvidia: true, openai: true },
-  fallbackOrder: ['local', 'nvidia', 'openai'],
+  fallbackOrder: ['nvidia', 'local', 'openai'],
   monthlyBudgetUsd: null,
-  cloudProcessing: false,
+  cloudProcessing: true,
   visualUploads: false,
   fileUploads: false,
   projectMemory: true,
@@ -279,6 +279,18 @@ export class WorkspaceService {
       diagnosticLogging: settings.diagnosticLogging,
     });
     return this.settings();
+  }
+
+  preferNvidiaRoute(): WorkspaceSettings {
+    const settings = this.settings();
+    return this.updateSettings({
+      ...settings,
+      activeProvider: 'nvidia',
+      activeModel: 'nvidia/nemotron-3-ultra-550b-a55b',
+      enabledProviders: { ...settings.enabledProviders, nvidia: true },
+      fallbackOrder: ['nvidia', 'local', 'openai'],
+      cloudProcessing: true,
+    });
   }
 
   listMemories(scope: 'project' | 'global'): MemoryView[] {

@@ -2,13 +2,13 @@
 
 ## Current State
 
-- Phase: MS0-MS9A and MS11A/MS11B complete; public release is live; owner/video delivery is active
-- Overall status: SimForge 0.1.1 is a verified owner-test candidate with installer,
-  portable ZIP, Blender extension, sanitized sample, release hashes, complete local
-  Environment Doctor, real Blender/OpenUSD/Isaac evidence, and submission copy/script
+- Phase: MS9C owner-demo acceptance complete; final release and submission delivery active
+- Overall status: SimForge 0.1.1 remains preserved and public. Installed 0.1.2 now passes
+  the complete recorded blank-Blender -> approved build -> verified USD -> real Isaac
+  failure -> approved correction -> corrected export -> passing waypoint rerun workflow
 - Architecture: Approved; no architecture changes were required
-- Current gate: the owner enters provider credentials directly, completes the hands-on
-  judge procedure, approves public copy, records the video, and confirms final submission
+- Current gate: freeze 0.1.2 artifacts, edit the captured footage below three minutes,
+  publish the refreshed release, finish Devpost fields, and obtain final submit confirmation
 - Last updated: 2026-07-19
 
 ## Completed Work
@@ -35,12 +35,14 @@
 | 2026-07-19 | MS11A/MS11B optional Isaac feedback loop | Installed an isolated official Isaac Sim 6.0.1 runtime without changing existing Omniverse, added honest runtime/hardware Doctor status, copied-package experiments, five-frame/native visualization, deterministic stability evidence, provider-routed analysis, exact-approved checkpointed Blender correction, re-export, passing child rerun, lineage, and Guided/Balanced/Autonomous authority. | `docs/evidence/ms11a/`; `docs/evidence/ms11b/`; AT-038/AT-040; real Blender + Isaac acceptance |
 | 2026-07-19 | MS9A release candidate and delivery package | Froze 0.1.1; built installer/portable/extension/sample/hash assets; completed security, privacy, dependency, license, upgrade/uninstall, no-terminal, full Doctor, and release-sample audits; drafted owner/judge, video, pitch, release, and Devpost copy. | `docs/evidence/MS9_RELEASE_AUDIT.md`; `docs/evidence/ms9a/`; AT-031/033/036/040 |
 | 2026-07-19 | Public GitHub and v0.1.1 release | Published `main` to the public judge-facing repository, added product metadata/topics, uploaded five release assets, matched every GitHub digest to the local hash, and verified anonymous repository/release pages plus HTTP 200 asset downloads. | `https://github.com/aminezombor/SimForge`; release `v0.1.1` |
+| 2026-07-19 | MS9C conversational submission shell | Preserved the full 0.1.1 workspace branch; replaced visible mode/sample cards with an uncluttered chat, compact Plan/Build/Export/Simulate rail, bounded intent classifier, in-chat approvals, preferred Nemotron defaults, and direct reuse of tested Blender/USD/Isaac services. | 55 active tests; packaged 1280x720 captures; DEC-033; AT-041/AT-042 |
+| 2026-07-19 | Installed MS9C owner-demo acceptance | Added a blank metric starter scene, conservative Blender factory-object cleanup, export-intent disambiguation, and stale project-index recovery; rebuilt/reinstalled 0.1.2 and completed the owner-recorded conversational Blender/USD/Isaac failure-correction-pass loop. | 57 default tests; real Blender factory-scene regression; `docs/evidence/MS9C_INSTALLED_ACCEPTANCE.md`; AT-041/AT-042 |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 51 passing; 6 live/provider tests opt-in/skipped in default suite |
+| TypeScript, ESLint, unit/contract/integration suite | 57 passing; 6 live/provider tests opt-in/skipped in default suite |
 | Real Blender 4.5.11 acceptance | All five paths pass: bridge/recovery, primitive robot, warehouse manipulator, licensed URDF import/modify/export, and six-format native stage/decision |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
@@ -49,7 +51,7 @@
 | OpenUSD | Packaged Python 3.13.14/usd-core 26.5 runtime; quick and seven-layer canonical author/reopen, hashes, references, schemas, reports, and relocated reopen pass |
 | Live NVIDIA | 119 models discovered; intended Nemotron found; text/stream/tools/reasoning controls true; vision false; no-op tool not executed |
 | Repository secret scan | Passing |
-| Requirements audit | 125/125 mapped; 40/40 tests referenced; 8 future-tier labels retained; 0 invalid or unmapped |
+| Requirements audit | 133/133 mapped; 42/42 tests referenced; 8 future-tier labels retained; 0 invalid or unmapped |
 | User-local launch | Current desktop shortcut opens app plus Blender 4.5.11 with zero visible terminals; bridge establishes; graceful exit removes its descriptor and processes |
 | MS3 deterministic validation | 18 stable rules; defective/repaired determinism; safe/structural policy; persistence; full checkpoint capture/restore passing |
 | MS4 robotics and visual review | Four links, three joints, four collisions, two sensor frames plus renderable bodies; deterministic `ROB-*` rules; five lit/hash-stamped views; visible before/after correction and useful sensor angle |
@@ -92,6 +94,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Complete the owner/provider procedure in `docs/OWNER_JUDGE_TEST.md`, record the scripted
-under-three-minute video, update the Devpost draft, resolve private owner fields, run the
-final cross-link audit, and obtain action-time confirmation before submitting.
+Edit the successful owner-recorded run into the scripted under-three-minute video, build
+and publish the frozen 0.1.2 artifacts, update the Devpost draft, resolve private owner
+fields, run the final cross-link audit, and obtain action-time confirmation before submitting.

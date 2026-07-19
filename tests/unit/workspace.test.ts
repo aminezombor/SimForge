@@ -89,6 +89,32 @@ describe('MS6 project workspace', () => {
     project.repository.close();
   });
 
+  it('selects the intended NVIDIA route without changing unrelated privacy settings', async () => {
+    const { project, global, service } = await fixture();
+    service.updateSettings({
+      ...service.settings(),
+      activeProvider: 'local',
+      activeModel: 'mock-planner',
+      enabledProviders: { nvidia: false, openai: false },
+      fallbackOrder: ['local', 'openai', 'nvidia'],
+      cloudProcessing: false,
+      visualUploads: true,
+      globalMemory: true,
+    });
+
+    expect(service.preferNvidiaRoute()).toMatchObject({
+      activeProvider: 'nvidia',
+      activeModel: 'nvidia/nemotron-3-ultra-550b-a55b',
+      enabledProviders: { nvidia: true, openai: false },
+      fallbackOrder: ['nvidia', 'local', 'openai'],
+      cloudProcessing: true,
+      visualUploads: true,
+      globalMemory: true,
+    });
+    global.close();
+    project.repository.close();
+  });
+
   it('compacts dispatch context automatically while retaining source messages', async () => {
     const { project, global, service } = await fixture();
     const conversation = service.ensureInitialConversation();

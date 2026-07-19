@@ -74,7 +74,7 @@ export interface IsaacExperimentProposal {
     sourceSceneRevision: number;
     parentExperimentId: string | null;
     task: {
-      id: 'static-settle-v1';
+      id: 'drive-to-waypoint-v1';
       seed: number;
       steps: number;
     };
@@ -474,7 +474,7 @@ export class IsaacExperimentService {
       sourceExportId: source.exportId,
       sourceSceneRevision: source.sceneRevision,
       parentExperimentId,
-      task: { id: 'static-settle-v1', seed: 20260719, steps: 240 },
+      task: { id: 'drive-to-waypoint-v1', seed: 20260719, steps: 240 },
     };
     return {
       planHash: `simulation:${sha256(args)}`,
@@ -482,7 +482,7 @@ export class IsaacExperimentService {
       risk: 'privileged',
       sceneRevision: source.sceneRevision,
       args,
-      summary: `Run the fixed 240-step static-settle task in local Isaac Sim against canonical export ${source.exportId}.`,
+      summary: `Run a fixed 240-step stability check plus a 1.2 m drive-to-waypoint task in local Isaac Sim against canonical export ${source.exportId}.`,
     };
   }
 
@@ -491,7 +491,7 @@ export class IsaacExperimentService {
       proposal.toolId !== 'simulation.run' ||
       proposal.risk !== 'privileged' ||
       proposal.planHash !== `simulation:${sha256(proposal.args)}` ||
-      proposal.args.task.id !== 'static-settle-v1' ||
+      proposal.args.task.id !== 'drive-to-waypoint-v1' ||
       proposal.args.task.steps < 60 || proposal.args.task.steps > 600
     ) throw new Error('Isaac simulation proposal is invalid or changed');
     const source = requireCanonicalExport(this.exports.list(), proposal.args.sourceExportId);

@@ -49,6 +49,17 @@ liveDescribe('real NVIDIA Isaac Sim acceptance', () => {
 def Xform "World"
 {
     custom string simforge_robot = "isaac-acceptance-robot"
+
+    def Xform "Robot"
+    {
+        def Cube "Body"
+        {
+            double size = 0.5
+            color3f[] primvars:displayColor = [(0.05, 0.8, 0.7)]
+            double3 xformOp:translate = (0, 0, 0.3)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
 }
 `;
     await writeFile(path.join(packageRoot, 'scene.usda'), stageText, 'utf8');
@@ -67,7 +78,7 @@ def Xform "World"
       sourceValidationRunId: 'isaac-source-validation',
       validation: { checks: [], summary: { blocker: 0, error: 0, warning: 0, info: 0 } },
       assumptions: ['Fixed local physics probe is isolated from the source package.'],
-      limitations: ['This fixture proves the runtime boundary, not robot locomotion.'],
+      limitations: ['The waypoint command is kinematic and does not claim autonomous navigation.'],
       files: [],
     };
     await writeFile(path.join(packageRoot, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
@@ -111,9 +122,10 @@ def Xform "World"
     expect(experiment.checks.some((check) => check.status === 'FAIL')).toBe(false);
     expect(experiment.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'ISAAC-STABILITY-001', status: 'WARN' }),
+      expect.objectContaining({ id: 'ISAAC-TASK-001', status: 'PASS' }),
     ]));
-    expect(experiment.artifacts.filter((entry) => entry.role === 'image')).toHaveLength(5);
-    expect(await service.imageDataList(experiment.experimentId)).toHaveLength(5);
+    expect(experiment.artifacts.filter((entry) => entry.role === 'image')).toHaveLength(3);
+    expect(await service.imageDataList(experiment.experimentId)).toHaveLength(3);
     expect(service.list()).toEqual([experiment]);
 
     const experimentRoot = path.join(project.root, ...experiment.experimentRelativePath.split('/'));

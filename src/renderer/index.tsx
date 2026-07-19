@@ -77,16 +77,10 @@ import type {
   WarehouseProposal,
   WorkspaceSettings,
 } from '../shared/desktop-api';
+import { classifyChatIntent, type ChatIntent } from '../shared/chat-intents';
 import type { DoctorCheck } from '../main/environment-doctor';
 import type { CloudProviderId, ProviderStatus } from '../main/providers/provider-service';
 import './styles.css';
-
-const MODES: Array<{ id: Mode; label: string; hint: string }> = [
-  { id: 'normal', label: 'Chat', hint: 'Discuss and inspect' },
-  { id: 'plan', label: 'Plan', hint: 'Read-only planning' },
-  { id: 'build', label: 'Build', hint: 'Approved scene work' },
-  { id: 'goal', label: 'Goal', hint: 'Persistent execution' },
-];
 
 const PLAN_TASKS = [
   { id: 'inspect', description: 'Read a fresh Blender scene snapshot.' },
@@ -99,6 +93,7 @@ const PLAN_TASKS = [
 
 type DockTab = 'activity' | 'validation' | 'simulation' | 'export' | 'history';
 type SettingsTab = 'providers' | 'privacy' | 'environment';
+type ChatActionStatus = { state: 'working' | 'done'; detail: string };
 
 const demoApi = createDemoApi();
 const desktop: SimForgeDesktopApi = window.simforge ?? demoApi;
@@ -118,6 +113,8 @@ function App() {
   const [inspectionOpen, setInspectionOpen] = useState(false);
   const [dockTab, setDockTab] = useState<DockTab>('activity');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [chatActionStatus, setChatActionStatus] = useState<Record<string, ChatActionStatus>>({});
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('providers');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -156,6 +153,7 @@ function App() {
   const [review, setReview] = useState<ReviewManifest | null>(null);
   const [reviews, setReviews] = useState<ReviewManifest[]>([]);
   const [reviewImages, setReviewImages] = useState<Record<string, string>>({});
+  const conversationEndRef = useRef<HTMLDivElement>(null);
 
   const run = useCallback(async (name: string, action: () => Promise<void>) => {
     setBusy(name);
@@ -257,6 +255,10 @@ function App() {
     void desktop.getIsaacExperimentImages(latest.experimentId).then(setIsaacImages).catch(() => setIsaacImages([]));
   }, [dockTab, isaacExperiments]);
 
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, [activeConversationId, messages.length, chatActionStatus]);
+
   if (!state || !settings) {
     return <main className="loading-screen"><CubeFocus size={28} weight="duotone" /><span>Preparing your robotics workspace…</span></main>;
   }
@@ -267,7 +269,6 @@ function App() {
     ? 'Local fixture'
     : `${settings.activeProvider.toUpperCase()} · ${settings.activeModel.split('/').at(-1)}`;
 
-  const setMode = (mode: Mode) => run('mode', async () => setState(await desktop.setMode(mode)));
   const selectPreviewObject = (objectId: string | null) => {
     setSelectedObjectId(objectId);
     if (!objectId || !preview || previewStale) return;
@@ -310,6 +311,140 @@ function App() {
     setContext(await desktop.getConversationContext(activeConversationId));
     setConversations(await desktop.listConversations(search));
     setTimeline(await desktop.getTimeline());
+  });
+  const executeChatAction = (actionKey: string, intent: ChatIntent) => run(`chat-action:${actionKey}`, async () => {
+    const setAction = (state: ChatActionStatus['state'], detail: string) => {
+      setChatActionStatus((current) => ({ ...current, [actionKey]: { state, detail } }));
+    };
+    const clearAction = () => setChatActionStatus((current) => {
+      const next = { ...current };
+      delete next[actionKey];
+      return next;
+    });
+    try {
+      if (intent.kind === 'build-robot') {
+        const proposal = await desktop.getWarehouseProposal();
+        if (!window.confirm(`Approve this checkpointed Blender build?\n\n${proposal.summary}\n\nIncludes the generated warehouse environment.`)) return;
+        setAction('working', 'Building the approved robot and workcell in Blender...');
+        const buildState = await desktop.setMode('build');
+        if (!buildState.bridgeConnected) throw new Error('Blender is not connected. Start it from the SimForge desktop launcher, then try again.');
+        await desktop.refreshScene();
+        const approvalId = await desktop.approveAction({ planHash: proposal.planHash, toolId: proposal.toolId, args: proposal.args });
+        const result = await desktop.buildWarehouseScene(approvalId);
+        setState(result.state);
+        setValidation(result.validation);
+        const manifest = await desktop.generateScenePreview();
+        setPreview(manifest);
+        setPreviewData(await desktop.getScenePreviewData(manifest.previewId));
+        setDockTab('validation');
+        setAction('done', `Built in Blender at scene r${result.validation.sceneRevision}; ${result.validation.findings.length} deterministic findings recorded.`);
+      } else if (intent.kind === 'add-primitive') {
+        if (!window.confirm(`Add ${intent.name} at [${intent.location.join(', ')}] metres?\n\nA Blender checkpoint will be created first.`)) return;
+        setAction('working', 'Creating the approved object in Blender...');
+        await desktop.setMode('normal');
+        const next = await desktop.executeTool({
+          toolId: 'object.create_primitive',
+          args: { primitive: intent.primitive, name: intent.name, location: intent.location },
+          planHash: null,
+          planApproved: false,
+          approvalId: null,
+        });
+        setState(next);
+        const manifest = await desktop.generateScenePreview();
+        setPreview(manifest);
+        setPreviewData(await desktop.getScenePreviewData(manifest.previewId));
+        setAction('done', `${intent.name} is visible in Blender at scene r${next.sceneRevision ?? 'unknown'}.`);
+      } else if (intent.kind === 'export-usd') {
+        setAction('working', 'Refreshing deterministic evidence and preparing the USD package...');
+        await desktop.setMode('build');
+        let nextValidation = await desktop.runValidation();
+        setValidation(nextValidation);
+        const blockingFindings = nextValidation.findings.filter((finding) => (
+          finding.status === 'OPEN' && (finding.severity === 'blocker' || finding.severity === 'error')
+        ));
+        if (blockingFindings.length > 0) {
+          const safeCorrections = blockingFindings.every((finding) => (
+            finding.proposedFix?.fixClass === 'SAFE_LOCAL' &&
+            finding.proposedFix.reversible &&
+            !finding.proposedFix.approvalRequired
+          ));
+          if (!safeCorrections) {
+            setDockTab('validation');
+            throw new Error(`${blockingFindings.length} deterministic blocker(s) need a reviewed correction before export. Open Validate to inspect them.`);
+          }
+          const correctionSummary = blockingFindings
+            .map((finding) => `- ${finding.message}\n  Proposed: ${finding.proposedFix?.label}`)
+            .join('\n');
+          if (!window.confirm(`Deterministic validation found ${blockingFindings.length} reversible issue(s):\n\n${correctionSummary}\n\nApprove these checkpointed corrections before export?`)) {
+            setDockTab('validation');
+            setAction('done', 'Export paused. Review the deterministic finding in Validate, then ask to export again.');
+            return;
+          }
+          for (const sourceFinding of blockingFindings) {
+            const currentFinding = nextValidation.findings.find((finding) => (
+              finding.status === 'OPEN' &&
+              finding.ruleId === sourceFinding.ruleId &&
+              finding.entityPath === sourceFinding.entityPath
+            ));
+            if (!currentFinding) continue;
+            nextValidation = await desktop.applyValidationFix({
+              findingId: currentFinding.id,
+              planHash: null,
+              approvalId: null,
+            });
+          }
+          setValidation(nextValidation);
+          if (nextValidation.summary.blocker + nextValidation.summary.error > 0) {
+            setDockTab('validation');
+            throw new Error('A correction ran, but deterministic validation still reports a blocker. Review Validate before export.');
+          }
+        }
+        const destination = await desktop.chooseExportDestination('canonical');
+        if (!destination) {
+          clearAction();
+          return;
+        }
+        nextValidation = await desktop.runValidation();
+        setValidation(nextValidation);
+        if (nextValidation.summary.blocker + nextValidation.summary.error > 0) {
+          setDockTab('validation');
+          throw new Error('The Blender scene changed while choosing a destination. Review the fresh deterministic findings, then ask to export again.');
+        }
+        await desktop.renderPrimitiveRobotReview(`Chat export review at scene r${nextValidation.sceneRevision}`);
+        const proposal = await desktop.proposeExport('canonical', destination, false);
+        if (!window.confirm(`Approve this exact canonical USD export?\n\n${proposal.summary}\n\nOverwrite: no`)) {
+          clearAction();
+          return;
+        }
+        const approvalId = await desktop.approveAction({ planHash: proposal.planHash, toolId: proposal.toolId, args: proposal.args });
+        const result = await desktop.executeExport(proposal, approvalId);
+        setExports(await desktop.listExports());
+        setDockTab('export');
+        setAction('done', `Verified canonical USD written to ${result.destination}. Reopen checks: ${result.checks.length}; physics and composition layers included.`);
+      } else if (intent.kind === 'simulate-isaac') {
+        const environment = await desktop.getIsaacEnvironment();
+        setIsaacEnvironment(environment);
+        if (!environment.runtimeReady) throw new Error(`Isaac Sim is not ready. ${environment.issues.join(' ')}`);
+        const proposal = await desktop.getIsaacExperimentProposal();
+        if (!window.confirm(`Approve this local Isaac Sim run?\n\n${proposal.summary}\n\nThe latest verified USD package will be copied into an isolated experiment.`)) return;
+        setAction('working', 'Running the approved USD package in Isaac Sim and collecting evidence...');
+        await desktop.setMode('build');
+        const approvalId = await desktop.approveAction({ planHash: proposal.planHash, toolId: proposal.toolId, args: proposal.args });
+        const experiment = await desktop.runIsaacExperiment(proposal, approvalId);
+        const analysis = await desktop.analyzeIsaacExperiment(experiment.experimentId);
+        setIsaacExperiments(await desktop.listIsaacExperiments());
+        setIsaacImages(await desktop.getIsaacExperimentImages(experiment.experimentId));
+        setIsaacAnalysis(analysis);
+        await desktop.openIsaacExperiment(experiment.experimentId);
+        setDockTab('simulation');
+        setAction('done', `${experiment.status}: ${analysis.deterministicSummary}`);
+      }
+      setTimeline(await desktop.getTimeline());
+      setCheckpoints(await desktop.listCheckpoints());
+    } catch (reason) {
+      clearAction();
+      throw reason;
+    }
   });
   const attach = () => run('attach', async () => {
     const imported = await desktop.chooseAttachments(activeConversationId);
@@ -621,6 +756,12 @@ function App() {
         <section className="authoring-column">
           <header className="conversation-header">
             <div><small>AUTHORING CONVERSATION</small><h1>{activeConversation?.title ?? 'Workspace'}</h1></div>
+            <div className="journey-strip" aria-label="Authoring progress">
+              <span className={messages.length ? 'complete' : 'active'}><small>1</small>Plan</span><i />
+              <span className={validation ? 'complete' : messages.length ? 'active' : ''}><small>2</small>Build</span><i />
+              <span className={exports.length ? 'complete' : validation ? 'active' : ''}><small>3</small>Export</span><i />
+              <span className={isaacExperiments.length ? 'complete' : exports.length ? 'active' : ''}><small>4</small>Simulate</span>
+            </div>
             <div className="conversation-header-actions">
               {activeConversation?.branchOf && <span className="branch-badge"><GitBranch size={13} /> branch</span>}
               <button className="icon-button" onClick={() => activeConversation && renameConversation(activeConversation)} aria-label="Rename active conversation"><SlidersHorizontal size={18} /></button>
@@ -628,7 +769,7 @@ function App() {
           </header>
 
           <div className="conversation-canvas">
-            {messages.length === 0 && <WelcomePanel connected={state.bridgeConnected} onMode={setMode} />}
+            {messages.length === 0 && <WelcomePanel connected={state.bridgeConnected} />}
             {messages.map((message, index) => (
               <article className={`message-row ${message.role}`} key={message.id}>
                 <div className="message-avatar">{message.role === 'assistant' ? <Sparkle size={16} weight="fill" /> : <UserCircle size={17} weight="duotone" />}</div>
@@ -648,18 +789,24 @@ function App() {
                     }}><ArrowCounterClockwise size={13} /> Edit & resend</button>}
                     {message.role === 'assistant' && index > 0 && <button onClick={() => setComposer(messages[index - 1]?.text ?? '')}><ArrowClockwise size={13} /> Retry</button>}
                   </div>
+                  {message.role === 'assistant' && messages[index - 1]?.role === 'user' && <ChatActionCard
+                    intent={classifyChatIntent(messages[index - 1]!.text)}
+                    status={chatActionStatus[message.id] ?? null}
+                    busy={busy === `chat-action:${message.id}`}
+                    onExecute={() => void executeChatAction(message.id, classifyChatIntent(messages[index - 1]!.text))}
+                  />}
                 </div>
               </article>
             ))}
-            {state.mode === 'plan' && <PlanCard goal={goalText} setGoal={setGoalText} onCreate={createPlan} busy={busy === 'plan'} />}
-            {state.mode === 'goal' && <GoalCard job={job} onNext={runNextTask} onCommand={(command) => void run(`goal-${command}`, async () => {
+            {advancedOpen && state.mode === 'plan' && <PlanCard goal={goalText} setGoal={setGoalText} onCreate={createPlan} busy={busy === 'plan'} />}
+            {advancedOpen && state.mode === 'goal' && <GoalCard job={job} onNext={runNextTask} onCommand={(command) => void run(`goal-${command}`, async () => {
               if (!job) return;
               const result = await desktop.commandGoal(job.jobId, command);
               setJob(await desktop.getGoal(result.jobId));
             })} />}
-            {state.mode === 'goal' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
-            {state.mode === 'build' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
-            {['build', 'goal'].includes(state.mode) && <ImportCard
+            {advancedOpen && state.mode === 'goal' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
+            {advancedOpen && state.mode === 'build' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
+            {advancedOpen && ['build', 'goal'].includes(state.mode) && <ImportCard
               report={importReport}
               proposal={importProposal}
               proposalApproved={Boolean(importApproval)}
@@ -672,7 +819,7 @@ function App() {
               onValidate={runValidation}
               onPreview={generatePreview}
             />}
-            {['build', 'goal'].includes(state.mode) && <NativeImportCard
+            {advancedOpen && ['build', 'goal'].includes(state.mode) && <NativeImportCard
               reports={nativeImports}
               proposal={nativeProposal}
               proposalApproved={Boolean(nativeApproval)}
@@ -684,6 +831,7 @@ function App() {
               onDecision={decideNativeImport}
               onPreview={generatePreview}
             />}
+            <div ref={conversationEndRef} aria-hidden="true" />
           </div>
 
           <div className="composer-dock">
@@ -692,15 +840,11 @@ function App() {
                 <span key={entry.id}><Paperclip size={12} />{entry.name}<button onClick={() => setPendingAttachmentIds((current) => current.filter((id) => id !== entry.id))}><X size={11} /></button></span>
               ))}
             </div>}
-            <div className="mode-switcher" aria-label="Operating mode">
-              {MODES.map((mode) => <button key={mode.id} className={state.mode === mode.id ? 'active' : ''} onClick={() => void setMode(mode.id)} title={mode.hint}>{mode.label}</button>)}
-              <span className="authority-note">{MODES.find((mode) => mode.id === state.mode)?.hint}</span>
-            </div>
             <div className="composer-row">
               <button className="composer-tool" onClick={attach} disabled={!activeConversationId || Boolean(busy)} aria-label="Attach project files"><Paperclip size={19} /></button>
               <textarea value={composer} onChange={(event) => setComposer(event.target.value)} onKeyDown={(event) => {
                 if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void send(); }
-              }} placeholder={state.mode === 'plan' ? 'Describe what you want planned…' : 'Ask SimForge to inspect, explain, or prepare scene work…'} />
+              }} placeholder="Describe the robot, scene change, USD export, or simulation you want…" />
               {busy === 'sending'
                 ? <button className="send-button stop" onClick={() => void desktop.stopChat(activeConversationId)} aria-label="Stop response"><Stop size={18} weight="fill" /></button>
                 : <button className="send-button" onClick={send} disabled={!composer.trim() || Boolean(busy)} aria-label="Send message"><PaperPlaneTilt size={19} weight="fill" /></button>}
@@ -708,6 +852,7 @@ function App() {
             <div className="composer-footer">
               <button onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}><SlidersHorizontal size={13} /> {settings.actionMode.toUpperCase()} authority</button>
               <button onClick={() => { setSettingsTab('providers'); setSettingsOpen(true); }}><Sparkle size={13} /> {routeLabel}</button>
+              <button onClick={() => setAdvancedOpen((value) => !value)}><GearSix size={13} /> {advancedOpen ? 'Hide advanced' : 'Advanced'}</button>
               <button onClick={() => void run('compact', async () => setContext(await desktop.compactConversation(activeConversationId)))}><ArrowsClockwise size={13} /> Context {context?.percentUsed ?? 0}%</button>
               <span>{settings.cloudProcessing ? 'Cloud dispatch disclosed before send' : 'Local-only · cloud disabled'}</span>
             </div>
@@ -718,7 +863,7 @@ function App() {
           <section className="viewport-panel">
             <header className="panel-header">
               <div><small>LIVE 3D INSPECTION</small><strong>{preview ? `Scene r${preview.sceneRevision}` : 'No preview yet'}</strong></div>
-              <div><button className={`icon-button ${viewportMode === 'review' ? 'active' : ''}`} onClick={() => viewportMode === 'review' ? setViewportMode('live') : reviews.length ? void showReviewComparison() : void renderReview()} disabled={(!validation && reviews.length === 0) || busy === 'review' || busy === 'review-load'} aria-label="Show before and after materialized reviews"><ImageSquare size={17} /></button><button className="icon-button" onClick={generatePreview} disabled={!state.bridgeConnected || busy === 'preview'} aria-label="Refresh 3D preview"><ArrowsClockwise size={17} /></button><button className="icon-button" onClick={() => void desktop.openSceneInBlender().catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Could not open Blender'))} aria-label="Open scene in Blender"><CubeFocus size={17} /></button></div>
+              <div><button className={`icon-button ${viewportMode === 'review' ? 'active' : ''}`} onClick={() => viewportMode === 'review' ? setViewportMode('live') : reviews[0]?.sceneRevision === state.sceneRevision ? void showReviewComparison() : void renderReview()} disabled={(!validation && reviews.length === 0) || busy === 'review' || busy === 'review-load'} aria-label={reviews[0]?.sceneRevision === state.sceneRevision ? 'Show before and after materialized reviews' : 'Render a materialized review for the current scene revision'}><ImageSquare size={17} /></button><button className="icon-button" onClick={generatePreview} disabled={!state.bridgeConnected || busy === 'preview'} aria-label="Refresh 3D preview"><ArrowsClockwise size={17} /></button><button className="icon-button" onClick={() => void desktop.openSceneInBlender().catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Could not open Blender'))} aria-label="Open scene in Blender"><CubeFocus size={17} /></button></div>
             </header>
             <div className="viewport-stage">
               {viewportMode === 'review' && review
@@ -768,17 +913,35 @@ function App() {
   );
 }
 
-function WelcomePanel({ connected, onMode }: { connected: boolean; onMode: (mode: Mode) => void }) {
+function WelcomePanel({ connected }: { connected: boolean }) {
   return <section className="welcome-panel">
     <span className="welcome-icon"><Robot size={30} weight="duotone" /></span>
     <small>AI-DRIVEN BLENDER ROBOTICS</small>
     <h2>What should we build?</h2>
-    <p>Describe a robot or scene goal. SimForge will inspect Blender, prepare a reviewable plan, checkpoint changes, validate deterministic evidence, and export verified USD.</p>
-    <div className="welcome-actions">
-      <button onClick={() => onMode('plan')}><ListChecks size={16} /> Start with a plan</button>
-      <button onClick={() => onMode('build')}><Robot size={16} /> Open build tools</button>
-    </div>
+    <p>Describe the result you want. SimForge proposes each Blender, USD, and Isaac step here, and waits for your approval before it acts.</p>
+    <div className="prompt-example">Try: "Prepare for me in Blender a wheeled robot with a gripper hand."</div>
     <span className={`welcome-status ${connected ? 'ready' : ''}`}><span className="connection-dot online" />{connected ? 'Blender is connected and ready' : 'Blender will connect automatically when available'}</span>
+  </section>;
+}
+
+function ChatActionCard({ intent, status, busy, onExecute }: {
+  intent: ChatIntent;
+  status: ChatActionStatus | null;
+  busy: boolean;
+  onExecute: () => void;
+}) {
+  if (intent.kind === 'general') return null;
+  const content = intent.kind === 'build-robot'
+    ? { eyebrow: 'PLAN READY', title: 'Wheeled robot + gripper + default workcell', detail: 'Build 12 links, 11 joints, collision geometry, physics metadata, sensors, and generated warehouse assets.', button: 'Approve plan & build', icon: <Robot size={18} weight="duotone" /> }
+    : intent.kind === 'export-usd'
+      ? { eyebrow: 'EXPORT', title: 'Canonical OpenUSD package', detail: 'Choose a destination, bind approval to the current scene revision, add physics layers, export, and reopen-verify.', button: 'Choose destination & approve', icon: <Export size={18} weight="duotone" /> }
+      : intent.kind === 'simulate-isaac'
+        ? { eyebrow: 'SIMULATE', title: 'Run the latest verified USD', detail: 'Copy the approved package into an isolated experiment, run deterministic checks, open Isaac Sim, and return evidence.', button: 'Approve & run simulation', icon: <Atom size={18} weight="duotone" /> }
+        : { eyebrow: 'BUILD EDIT', title: `Add ${intent.name}`, detail: `${intent.primitive} at [${intent.location.join(', ')}] metres with a checkpoint before mutation.`, button: 'Approve & add to Blender', icon: <CubeFocus size={18} weight="duotone" /> };
+  return <section className={`chat-action-card ${status?.state ?? ''}`}>
+    <header><span>{content.icon}</span><div><small>{content.eyebrow}</small><strong>{content.title}</strong></div>{status?.state === 'done' && <CheckCircle size={18} weight="fill" />}</header>
+    <p>{status?.detail ?? content.detail}</p>
+    {status?.state !== 'done' && <button className="primary-action" onClick={onExecute} disabled={busy}>{busy || status?.state === 'working' ? 'Working...' : content.button}</button>}
   </section>;
 }
 
@@ -1286,7 +1449,7 @@ function createDemoApi(): SimForgeDesktopApi {
       listReviews: async () => [],
       getIsaacEnvironment: async () => demoIsaacEnvironment,
       listIsaacExperiments: async () => [],
-      getIsaacExperimentProposal: async () => ({ planHash: 'simulation:demo', toolId: 'simulation.run', risk: 'privileged', sceneRevision: 12, args: { sourceExportId: 'demo-export', sourceSceneRevision: 12, task: { id: 'static-settle-v1', seed: 20260719, steps: 240 } }, summary: 'Run the fixed 240-step static-settle task in local Isaac Sim against the latest canonical export.' }),
+      getIsaacExperimentProposal: async () => ({ planHash: 'simulation:demo', toolId: 'simulation.run', risk: 'privileged', sceneRevision: 12, args: { sourceExportId: 'demo-export', sourceSceneRevision: 12, task: { id: 'drive-to-waypoint-v1', seed: 20260719, steps: 240 } }, summary: 'Run a fixed stability check and 1.2 m drive-to-waypoint task in local Isaac Sim against the latest canonical export.' }),
       getPrimitiveRobotProposal: async () => ({ planHash: 'demo', toolId: 'robot.materialize', args: { graph: {} }, graph: {}, summary: '6 links / 5 joints / 2 sensor frames' }),
       getWarehouseProposal: async () => ({ planHash: 'demo-warehouse', toolId: 'scene.materialize_assembly', args: { robotGraph: {}, environmentGraph: {} }, robotGraph: {}, environmentGraph: {}, summary: '12 links / 11 joints / 3 sensors / 15 warehouse objects' }),
       buildWarehouseScene: async () => ({ state: state(), validation: demoValidation }),

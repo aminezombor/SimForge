@@ -1,0 +1,147 @@
+{
+  "experimentId": "1e96fcf1-1014-48b3-9b49-2a172a7a4dbd",
+  "sourceExport": {
+    "exportId": "isaac-source-export",
+    "sceneRevision": 17,
+    "packageSha256": "64ff10b1a639f356d3d5f9a780c600cbc2853771a34403a1296a3448750937b6",
+    "entryPoint": "scene.usda"
+  },
+  "task": {
+    "id": "drive-to-waypoint-v1",
+    "seed": 20260719,
+    "steps": 240,
+    "timeCodesPerSecond": 60
+  },
+  "status": "PASSED",
+  "checks": [
+    {
+      "evidence": {
+        "articulationRoots": 0,
+        "entryPoint": "scene.usda",
+        "robotLinkPrims": 0,
+        "sourcePrimCount": 14
+      },
+      "id": "ISAAC-STAGE-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "applicable": false,
+        "massAuthoredLinkCount": 0,
+        "reason": "At least three mass-authored wheel/caster support links are required.",
+        "supportLinkIds": []
+      },
+      "id": "ISAAC-STABILITY-001",
+      "status": "WARN"
+    },
+    {
+      "evidence": {
+        "autonomousNavigation": false,
+        "commandedDistanceM": 1.2,
+        "controller": "fixed kinematic waypoint command",
+        "finalPositionM": [
+          1.2,
+          0,
+          0
+        ],
+        "startPositionM": [
+          0,
+          0,
+          0
+        ],
+        "targetErrorM": 0,
+        "targetPositionM": [
+          1.2,
+          0,
+          0
+        ]
+      },
+      "id": "ISAAC-TASK-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "finalPositionM": [
+          -5.99967098236084,
+          -5.999024868011475,
+          0.2499999850988388
+        ],
+        "finite": true,
+        "initialPositionM": [
+          -6,
+          -6,
+          2
+        ],
+        "lateralDriftM": 0.0010291428481624917,
+        "settledHeightErrorM": 1.4901161193847656e-8,
+        "steps": 240,
+        "verticalDropM": 1.7500000149011612
+      },
+      "id": "ISAAC-PHYSICS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "bytes": 568647,
+        "frameCount": 3,
+        "relativePath": "media/frame-002.png",
+        "sha256": "fcd8e6283bebfa4705d8289cb179506d85ee18e24684da46dd459e3890c3e1ce"
+      },
+      "id": "ISAAC-MEDIA-001",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "finalPositionM": [
+      -5.99967098236084,
+      -5.999024868011475,
+      0.2499999850988388
+    ],
+    "initialPositionM": [
+      -6,
+      -6,
+      2
+    ],
+    "lateralDriftM": 0.0010291428481624917,
+    "robotStability": {
+      "applicable": false,
+      "massAuthoredLinkCount": 0,
+      "reason": "At least three mass-authored wheel/caster support links are required.",
+      "supportLinkIds": []
+    },
+    "sampleCount": 17,
+    "settledHeightErrorM": 1.4901161193847656e-8,
+    "verticalDropM": 1.7500000149011612,
+    "waypointTask": {
+      "autonomousNavigation": false,
+      "commandedDistanceM": 1.2,
+      "controller": "fixed kinematic waypoint command",
+      "finalPositionM": [
+        1.2,
+        0,
+        0
+      ],
+      "startPositionM": [
+        0,
+        0,
+        0
+      ],
+      "targetErrorM": 0,
+      "targetPositionM": [
+        1.2,
+        0,
+        0
+      ]
+    }
+  },
+  "runtime": {
+    "product": "NVIDIA Isaac Sim",
+    "version": "6.0.1.0",
+    "python": "3.12.10",
+    "headless": true,
+    "compatibility": "BELOW_PUBLISHED_MINIMUM"
+  },
+  "artifactCount": 6,
+  "replayFrameCount": 3,
+  "exactApprovalEnforced": true
+}

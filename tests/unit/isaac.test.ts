@@ -74,7 +74,7 @@ describe('Isaac experiment policy', () => {
       args: {
         sourceExportId: 'canonical-export',
         sourceSceneRevision: 17,
-        task: { id: 'static-settle-v1', seed: 20260719, steps: 240 },
+        task: { id: 'drive-to-waypoint-v1', seed: 20260719, steps: 240 },
       },
     });
     expect(proposal.planHash).toBe(`simulation:${sha256(proposal.args)}`);

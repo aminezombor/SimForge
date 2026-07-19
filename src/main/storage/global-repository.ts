@@ -67,11 +67,15 @@ export class GlobalRepository {
   }
 
   registerProject(project: RegisteredProject): void {
+    const resolvedRoot = path.resolve(project.root);
+    this.database.prepare(
+      'DELETE FROM projects WHERE root = ? AND project_id <> ?',
+    ).run(resolvedRoot, project.projectId);
     this.database.prepare(
       `INSERT INTO projects(project_id, name, root, last_opened_at) VALUES (?, ?, ?, ?)
        ON CONFLICT(project_id) DO UPDATE SET
          name = excluded.name, root = excluded.root, last_opened_at = excluded.last_opened_at`,
-    ).run(project.projectId, project.name, path.resolve(project.root), project.lastOpenedAt);
+    ).run(project.projectId, project.name, resolvedRoot, project.lastOpenedAt);
   }
 
   listProjects(): RegisteredProject[] {

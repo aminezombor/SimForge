@@ -603,7 +603,10 @@ export const IsaacExperimentSchema = Type.Object({
     entryPoint: Type.String({ minLength: 1 }),
   }),
   task: Type.Object({
-    id: Type.Literal('static-settle-v1'),
+    id: Type.Union([
+      Type.Literal('static-settle-v1'),
+      Type.Literal('drive-to-waypoint-v1'),
+    ]),
     seed: Type.Integer(),
     steps: Type.Integer({ minimum: 60, maximum: 600 }),
     timeCodesPerSecond: Type.Literal(60),

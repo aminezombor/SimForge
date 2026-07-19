@@ -29,6 +29,7 @@ working commit, and a risk report. The owner started MS1/MS2 on 2026-07-18.
 | MS11A - Isaac runtime and evidence | Detect a separately installed Isaac Sim, hand off the verified canonical package, run a deterministic headless task, and capture structured metrics, media, failures, logs, and provenance. | A real Isaac-compatible machine produces a reloadable experiment with retained source/export/runtime hashes; absent or unsupported Isaac fails clearly without disabling authoring. |
 | MS11B - Closed simulation feedback loop | Analyze retained simulation evidence, propose a bounded correction, require exact owner approval, apply through Blender authority, re-export, rerun, compare, and retain the lineage. | AT-038 passes end to end with no model-only success claim and no unapproved mutation. |
 | MS9A - Packaging and owner test candidate | Produce installer and portable build, clean-account setup, sample projects, Environment Doctor, uninstall/cleanup, and the exact owner test procedure. | Working release candidate passes deterministic, Blender, OpenUSD, Isaac, packaged-security, and clean-install checks; stop for owner hands-on validation. |
+| MS9C - Conversational submission edition | Preserve 0.1.1, then expose the proven robot/Blender/USD/Isaac services through a minimal Plan -> Build -> Export -> Simulate chat journey. | AT-041 and AT-042 pass in the installed desktop build with NVIDIA preferred and no terminals. |
 | MS9B - Final documentation, video, and submission | After owner validation, finalize README/judge copy, record the under-three-minute demo, complete submission text/checklist, and preserve the private `/feedback` ID. | Definition of hackathon done and every submission placeholder resolved. |
 
 Freeze major architecture changes during cycle two unless a blocking defect is documented and the owner approves the change.
@@ -70,6 +71,9 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
 - MS9A: complete. Installer, portable ZIP, extension, sanitized sample, release hashes,
   security/privacy/license/dependency checks, full visible Environment Doctor, real
   Blender/OpenUSD/Isaac rerun, upgrade/uninstall, and owner/judge procedure pass locally.
+- MS9C: active. The full 0.1.1 workspace is preserved on its release and archive branch;
+  the 0.1.2 submission shell, intent tests, four-stage rail, in-chat approval cards, and
+  packaged visual capture pass. Installed AT-041/AT-042 remain.
 - MS9B: active at the human gates. README, release notes, Devpost copy, pitch text, and
   2:45 video script are ready; owner credential validation, public publication, video,
   private fields, link audit, and final submit remain.

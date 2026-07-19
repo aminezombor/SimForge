@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "1e96fcf1-1014-48b3-9b49-2a172a7a4dbd",
+  "projectId": "9a96a6f8-239b-44b4-8d06-6828c2560b4a",
+  "sourceExport": {
+    "exportId": "isaac-source-export",
+    "sceneRevision": 17,
+    "packageSha256": "64ff10b1a639f356d3d5f9a780c600cbc2853771a34403a1296a3448750937b6",
+    "entryPoint": "scene.usda"
+  },
+  "parentExperimentId": null,
+  "task": {
+    "id": "drive-to-waypoint-v1",
+    "seed": 20260719,
+    "steps": 240,
+    "timeCodesPerSecond": 60
+  },
+  "status": "PASSED",
+  "checks": [
+    {
+      "evidence": {
+        "articulationRoots": 0,
+        "entryPoint": "scene.usda",
+        "robotLinkPrims": 0,
+        "sourcePrimCount": 14
+      },
+      "id": "ISAAC-STAGE-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "applicable": false,
+        "massAuthoredLinkCount": 0,
+        "reason": "At least three mass-authored wheel/caster support links are required.",
+        "supportLinkIds": []
+      },
+      "id": "ISAAC-STABILITY-001",
+      "status": "WARN"
+    },
+    {
+      "evidence": {
+        "autonomousNavigation": false,
+        "commandedDistanceM": 1.2,
+        "controller": "fixed kinematic waypoint command",
+        "finalPositionM": [
+          1.2,
+          0,
+          0
+        ],
+        "startPositionM": [
+          0,
+          0,
+          0
+        ],
+        "targetErrorM": 0,
+        "targetPositionM": [
+          1.2,
+          0,
+          0
+        ]
+      },
+      "id": "ISAAC-TASK-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "finalPositionM": [
+          -5.99967098236084,
+          -5.999024868011475,
+          0.2499999850988388
+        ],
+        "finite": true,
+        "initialPositionM": [
+          -6,
+          -6,
+          2
+        ],
+        "lateralDriftM": 0.0010291428481624917,
+        "settledHeightErrorM": 1.4901161193847656e-8,
+        "steps": 240,
+        "verticalDropM": 1.7500000149011612
+      },
+      "id": "ISAAC-PHYSICS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "bytes": 568647,
+        "frameCount": 3,
+        "relativePath": "media/frame-002.png",
+        "sha256": "fcd8e6283bebfa4705d8289cb179506d85ee18e24684da46dd459e3890c3e1ce"
+      },
+      "id": "ISAAC-MEDIA-001",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "finalPositionM": [
+      -5.99967098236084,
+      -5.999024868011475,
+      0.2499999850988388
+    ],
+    "initialPositionM": [
+      -6,
+      -6,
+      2
+    ],
+    "lateralDriftM": 0.0010291428481624917,
+    "robotStability": {
+      "applicable": false,
+      "massAuthoredLinkCount": 0,
+      "reason": "At least three mass-authored wheel/caster support links are required.",
+      "supportLinkIds": []
+    },
+    "sampleCount": 17,
+    "settledHeightErrorM": 1.4901161193847656e-8,
+    "verticalDropM": 1.7500000149011612,
+    "waypointTask": {
+      "autonomousNavigation": false,
+      "commandedDistanceM": 1.2,
+      "controller": "fixed kinematic waypoint command",
+      "finalPositionM": [
+        1.2,
+        0,
+        0
+      ],
+      "startPositionM": [
+        0,
+        0,
+        0
+      ],
+      "targetErrorM": 0,
+      "targetPositionM": [
+        1.2,
+        0,
+        0
+      ]
+    }
+  },
+  "runtime": {
+    "product": "NVIDIA Isaac Sim",
+    "version": "6.0.1.0",
+    "python": "3.12.10",
+    "headless": true,
+    "compatibility": "BELOW_PUBLISHED_MINIMUM"
+  },
+  "artifacts": [
+    {
+      "role": "request",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/request.json",
+      "sha256": "87a39686a5b6f3de56140bfc43d1594b3d8f149a499e10bb68964d8dd4e3bee8",
+      "bytes": 844
+    },
+    {
+      "role": "result",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/output/result.json",
+      "sha256": "03511ff1d7902c61da795459245dc75691eca3e9073ce7aabe4adc0967a02f21",
+      "bytes": 4092
+    },
+    {
+      "role": "log",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/logs/isaac.log",
+      "sha256": "c03f02b96c191243e7247822477abd21118b948c5e4c068edee16813cf4761ac",
+      "bytes": 24782
+    },
+    {
+      "role": "image",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/output/media/frame-000.png",
+      "sha256": "27332f7d3c1c70f20785855aa96050203657adf503616197e18c1212fd473746",
+      "bytes": 141056
+    },
+    {
+      "role": "image",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/output/media/frame-001.png",
+      "sha256": "5e75497690cf4edfd78a9b93c6cd7365e0d56266f64b672f72d89341552890a9",
+      "bytes": 220718
+    },
+    {
+      "role": "image",
+      "relativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd/output/media/frame-002.png",
+      "sha256": "fcd8e6283bebfa4705d8289cb179506d85ee18e24684da46dd459e3890c3e1ce",
+      "bytes": 206873
+    }
+  ],
+  "experimentRelativePath": "experiments/1e96fcf1-1014-48b3-9b49-2a172a7a4dbd",
+  "startedAt": "2026-07-19T20:29:00.534Z",
+  "completedAt": "2026-07-19T20:31:50.378Z"
+}

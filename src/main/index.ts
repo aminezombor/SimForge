@@ -133,11 +133,21 @@ async function runSmokeTest(): Promise<void> {
       while (Date.now() < deadline && !document.querySelector('.workspace-grid')) {
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
-      const build = [...document.querySelectorAll('.mode-switcher button')]
-        .find((button) => button.textContent?.trim() === 'Build');
-      if (!(build instanceof HTMLButtonElement)) throw new Error('Build mode control is unavailable');
-      build.click();
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      const newConversation = document.querySelector('.new-chat');
+      if (!(newConversation instanceof HTMLButtonElement)) throw new Error('New conversation control is unavailable');
+      newConversation.click();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const composer = document.querySelector('.composer-row textarea');
+      if (!(composer instanceof HTMLTextAreaElement)) throw new Error('Chat composer is unavailable');
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(composer, 'prepare for me in blender a wheeled robot with a gripper hand');
+      composer.dispatchEvent(new Event('input', { bubbles: true }));
+      composer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      const responseDeadline = Date.now() + 5000;
+      while (Date.now() < responseDeadline && !document.querySelector('.chat-action-card')) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      if (!document.querySelector('.chat-action-card')) throw new Error('Conversational build proposal was not rendered');
       const canvas = document.querySelector('.conversation-canvas');
       if (!(canvas instanceof HTMLElement)) throw new Error('Conversation canvas is unavailable');
       canvas.scrollTop = 0;
@@ -146,9 +156,10 @@ async function runSmokeTest(): Promise<void> {
     const workspacePath = path.join(captureDirectory, 'workspace-1280x720.png');
     await writeFile(workspacePath, (await mainWindow!.webContents.capturePage()).toPNG());
     await mainWindow!.webContents.executeJavaScript(`(async () => {
-      const canvas = document.querySelector('.conversation-canvas');
-      if (!(canvas instanceof HTMLElement)) throw new Error('Conversation canvas is unavailable');
-      canvas.scrollTop = canvas.scrollHeight;
+      const advanced = [...document.querySelectorAll('.composer-footer button')]
+        .find((button) => button.textContent?.includes('Advanced'));
+      if (!(advanced instanceof HTMLButtonElement)) throw new Error('Advanced workspace control is unavailable');
+      advanced.click();
       await new Promise((resolve) => setTimeout(resolve, 100));
     })()`);
     const importPath = path.join(captureDirectory, 'import-workflows-1280x720.png');
@@ -362,7 +373,11 @@ void app.whenReady().then(async () => {
     callback(false);
   });
   if (!MAIN_WINDOW_VITE_DEV_SERVER_URL) registerAppProtocol();
-  runtime = new AppRuntime(app.getPath('userData'), app.isPackaged ? process.resourcesPath : process.cwd());
+  runtime = new AppRuntime(
+    app.getPath('userData'),
+    app.isPackaged ? process.resourcesPath : process.cwd(),
+    app.getVersion(),
+  );
   await runtime.initialize();
   registerIpc(runtime);
   if (smokeMode) {

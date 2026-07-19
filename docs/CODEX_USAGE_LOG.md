@@ -324,6 +324,49 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 
 ## Future Entry Template
 
+### 2026-07-19 - Conversational submission edition
+
+- Phase/milestone: MS9C active
+- Requirement/test IDs: `REQ-UX-011` through `REQ-UX-017`; `AT-041`, `AT-042`
+- What Codex/GPT-5.6 contributed: translated the owner's seven-step demo into a bounded
+  intent layer and four-stage interface while reusing the already-tested approval,
+  Blender, validation, OpenUSD, and Isaac services.
+- Important decisions: preserved 0.1.1 and its full workspace; kept models advisory;
+  required explicit user confirmation for Build, Export, and Simulate; retained local
+  deterministic fallback if Nemotron is unavailable.
+- Time/risk saved: avoided a second orchestrator and converted the existing release into
+  the focused demo path with a small classifier, approval cards, and progress rail.
+- Human review and verification: 57 active tests, secret scan, production package,
+  1280x720 capture, real Blender factory-scene regression, and the installed
+  NVIDIA/Blender/USD/Isaac owner-recorded sequence pass.
+- Evidence: DEC-033, `tests/unit/chat-intents.test.ts`, packaged design capture.
+- Limitations or correction made: exact chat phrasing is deterministically recognized;
+  unsupported free-form scene edits remain advisory rather than executing arbitrary code.
+
+### 2026-07-19 - Installed submission demo closure
+
+- Phase/milestone: MS9C owner-demo acceptance complete
+- Requirement/test IDs: `REQ-UX-011` through `REQ-UX-018`; `AT-041`, `AT-042`
+- What Codex/GPT-5.6 contributed: diagnosed the visible factory-Cube obstruction, added a
+  conservative Blender fingerprint cleanup and blank metric starter scene, caught an
+  export/simulation phrase collision with a regression test, rebuilt the installed app,
+  and operated the complete visible acceptance run while the owner recorded it.
+- Important decisions: demonstrate Blender authorship before export; remove only untouched
+  factory boilerplate inside an approved checkpointed build; preserve all user-edited
+  objects; keep the real failed Isaac run and approved correction in the trust story.
+- Time/risk saved: the targeted real-Blender regression caught a misapplied fixture edit
+  before packaging; the full installed rehearsal verified all application boundaries in
+  one continuous flow instead of relying on isolated service evidence.
+- Human review and verification: fresh app showed the remembered protected NVIDIA/Nemotron
+  route; blank Blender became a 73-object authored scene at `r1`; canonical USD passed 12
+  reopen checks; Isaac exposed the stability defect; a -0.1248 m arm correction advanced
+  Blender to `r2`; corrected USD and the 1.2 m waypoint rerun passed and opened natively.
+- Evidence: `docs/evidence/MS9C_INSTALLED_ACCEPTANCE.md`,
+  `docs/evidence/ms9c-waypoint/`, real Blender test, `pnpm verify`.
+- Limitations or correction made: the native Isaac run is valid on this machine but the
+  hardware remains below NVIDIA's published minimum; the final video still needs editing
+  and upload.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:

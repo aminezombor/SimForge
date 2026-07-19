@@ -198,6 +198,18 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
     global _INTERNAL_MUTATION
     if operation == "scene.snapshot":
         return _snapshot(), [], False
+    if operation == "scene.save_project":
+        filepath = _safe_project_path(str(payload.get("filepath", "")))
+        if filepath.suffix.lower() != ".blend":
+            raise BridgeOperationError("INVALID_DESTINATION", "Project scene requires a .blend destination")
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        _INTERNAL_MUTATION = True
+        try:
+            bpy.ops.wm.save_as_mainfile(filepath=str(filepath), check_existing=False)
+            bpy.context.view_layer.update()
+            return {"filepath": str(filepath), "saved": True}, [], False
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "checkpoint.create":
         filepath = _safe_project_path(str(payload.get("filepath", "")))
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -325,6 +337,7 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         _INTERNAL_MUTATION = True
         try:
             result = _materialize_robot(graph)
+            result["removedStartupObjects"] = _remove_untouched_startup_objects()
             bpy.context.view_layer.update()
             return result, result["changedEntityIds"], True
         finally:
@@ -345,11 +358,13 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         try:
             robot_result = _materialize_robot(graph)
             environment_result = _materialize_environment(environment)
+            removed_startup_objects = _remove_untouched_startup_objects()
             bpy.context.view_layer.update()
             changed_ids = robot_result["changedEntityIds"] + environment_result["changedEntityIds"]
             return {
                 "robot": robot_result,
                 "environment": environment_result,
+                "removedStartupObjects": removed_startup_objects,
                 "changedEntityIds": changed_ids,
             }, changed_ids, True
         except Exception:
@@ -633,6 +648,7 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         output_path.parent.mkdir(parents=True, exist_ok=True)
         selected = list(bpy.context.selected_objects)
         active = bpy.context.view_layer.objects.active
+        _INTERNAL_MUTATION = True
         try:
             bpy.ops.object.select_all(action="DESELECT")
             for obj in visual_objects:
@@ -656,12 +672,16 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
                 "objectCount": len(visual_objects),
             }, [], False
         finally:
-            bpy.ops.object.select_all(action="DESELECT")
-            for selected_object in selected:
-                if selected_object.name in bpy.context.scene.objects:
-                    selected_object.select_set(True)
-            if active and active.name in bpy.context.scene.objects:
-                bpy.context.view_layer.objects.active = active
+            try:
+                bpy.ops.object.select_all(action="DESELECT")
+                for selected_object in selected:
+                    if selected_object.name in bpy.context.scene.objects:
+                        selected_object.select_set(True)
+                if active and active.name in bpy.context.scene.objects:
+                    bpy.context.view_layer.objects.active = active
+                bpy.context.view_layer.update()
+            finally:
+                _INTERNAL_MUTATION = False
     if operation == "selection.set":
         object_id = str(payload.get("objectId", ""))
         target = next((
@@ -670,10 +690,15 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         ), None)
         if target is None:
             raise BridgeOperationError("OBJECT_NOT_FOUND", "Selected preview object is unavailable in Blender")
-        bpy.ops.object.select_all(action="DESELECT")
-        target.select_set(True)
-        bpy.context.view_layer.objects.active = target
-        return {"objectId": object_id, "name": target.name}, [], False
+        _INTERNAL_MUTATION = True
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            target.select_set(True)
+            bpy.context.view_layer.objects.active = target
+            bpy.context.view_layer.update()
+            return {"objectId": object_id, "name": target.name}, [], False
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "review.render":
         robot_id = str(payload.get("robotId", ""))
         environment_id = str(payload.get("environmentId", ""))
@@ -685,17 +710,22 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         if output_directory.exists():
             raise BridgeOperationError("REVIEW_EXISTS", "Review output directory already exists")
         output_directory.mkdir(parents=True, exist_ok=False)
-        files = _render_robot_review(robot_id, environment_id or None, output_directory)
-        return {
-            "robotId": robot_id,
-            "reviewId": review_id,
-            "label": label,
-            "environmentId": environment_id or None,
-            "files": files,
-            "width": 512,
-            "height": 512,
-            "materialized": True,
-        }, [], False
+        _INTERNAL_MUTATION = True
+        try:
+            files = _render_robot_review(robot_id, environment_id or None, output_directory)
+            bpy.context.view_layer.update()
+            return {
+                "robotId": robot_id,
+                "reviewId": review_id,
+                "label": label,
+                "environmentId": environment_id or None,
+                "files": files,
+                "width": 512,
+                "height": 512,
+                "materialized": True,
+            }, [], False
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "export.package":
         robot_id = str(payload.get("robotId", ""))
         export_id = str(payload.get("exportId", ""))
@@ -727,6 +757,7 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
         source_path.parent.mkdir(parents=True, exist_ok=False)
         selected = list(bpy.context.selected_objects)
         active = bpy.context.view_layer.objects.active
+        _INTERNAL_MUTATION = True
         try:
             bpy.ops.object.select_all(action="DESELECT")
             for obj in visual_objects:
@@ -785,12 +816,16 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
                 "environmentObjectCount": len(environment_objects),
             }, [], False
         finally:
-            bpy.ops.object.select_all(action="DESELECT")
-            for selected_object in selected:
-                if selected_object.name in bpy.context.scene.objects:
-                    selected_object.select_set(True)
-            if active and active.name in bpy.context.scene.objects:
-                bpy.context.view_layer.objects.active = active
+            try:
+                bpy.ops.object.select_all(action="DESELECT")
+                for selected_object in selected:
+                    if selected_object.name in bpy.context.scene.objects:
+                        selected_object.select_set(True)
+                if active and active.name in bpy.context.scene.objects:
+                    bpy.context.view_layer.objects.active = active
+                bpy.context.view_layer.update()
+            finally:
+                _INTERNAL_MUTATION = False
     if operation == "python.execute":
         script = payload.get("script")
         intent = payload.get("intent")
@@ -1129,6 +1164,51 @@ def _remove_collections_created_after(existing: set[str]) -> None:
         for obj in list(collection.objects):
             bpy.data.objects.remove(obj, do_unlink=True)
         bpy.data.collections.remove(collection)
+
+
+def _remove_untouched_startup_objects() -> list[str]:
+    """Remove only Blender's recognizable, untouched factory scene objects.
+
+    This runs inside an approved, checkpointed materialization operation. A moved,
+    renamed, reparented, edited, or SimForge-managed object is never treated as
+    startup boilerplate.
+    """
+    expected = {
+        "Cube": {"type": "MESH", "location": (0.0, 0.0, 0.0)},
+        "Camera": {"type": "CAMERA", "location": (7.3589, -6.9258, 4.9583)},
+        "Light": {"type": "LIGHT", "location": (4.0762, 1.0055, 5.9039)},
+    }
+    removed: list[str] = []
+    for name, spec in expected.items():
+        obj = bpy.data.objects.get(name)
+        if obj is None or obj.type != spec["type"] or obj.parent is not None:
+            continue
+        if obj.get("simforge.id") is not None or any(str(key).startswith("simforge.") for key in obj.keys()):
+            continue
+        if len(obj.users_collection) != 1 or obj.users_collection[0].name != "Collection":
+            continue
+        if any(abs(float(obj.location[index]) - spec["location"][index]) > 0.01 for index in range(3)):
+            continue
+        if obj.data is None or obj.data.name != name:
+            continue
+        if name == "Cube":
+            mesh = obj.data
+            if (
+                len(mesh.vertices) != 8 or len(mesh.edges) != 12 or len(mesh.polygons) != 6 or
+                any(abs(float(value) - 1.0) > 0.0001 for value in obj.scale)
+            ):
+                continue
+        bpy.data.objects.remove(obj, do_unlink=True)
+        removed.append(name)
+
+    default_collection = bpy.data.collections.get("Collection")
+    if (
+        default_collection is not None and
+        len(default_collection.objects) == 0 and
+        len(default_collection.children) == 0
+    ):
+        bpy.data.collections.remove(default_collection)
+    return removed
 
 
 def _materialize_robot(graph: dict[str, Any]) -> dict[str, Any]:

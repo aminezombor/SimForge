@@ -32,6 +32,21 @@ describe('portable project persistence', () => {
     reopened.close();
   });
 
+  it('replaces a stale project index entry when the same portable root is recreated', async () => {
+    const sandbox = await import('node:fs/promises').then(({ mkdtemp }) =>
+      mkdtemp(path.join(os.tmpdir(), 'simforge-global-recreate-')),
+    );
+    sandboxes.push(sandbox);
+    const global = new GlobalRepository(path.join(sandbox, 'appdata'));
+    const root = path.join(sandbox, 'project');
+    global.registerProject({ projectId: 'old-id', name: 'Old', root, lastOpenedAt: '2026-01-01T00:00:00.000Z' });
+    global.registerProject({ projectId: 'new-id', name: 'New', root, lastOpenedAt: '2026-01-02T00:00:00.000Z' });
+    expect(global.listProjects()).toEqual([{
+      projectId: 'new-id', name: 'New', root: path.resolve(root), lastOpenedAt: '2026-01-02T00:00:00.000Z',
+    }]);
+    global.close();
+  });
+
   it('moves and reopens provider-neutral project records and messages', async () => {
     const sandbox = await import('node:fs/promises').then(({ mkdtemp }) =>
       mkdtemp(path.join(os.tmpdir(), 'simforge-portable-')),

@@ -22,6 +22,16 @@ const TOOLS: ToolDefinition[] = [
     bridgeOperation: 'scene.snapshot',
   },
   {
+    id: 'scene.save_project',
+    description: 'Persist the current Blender state to the fixed project scene after a checkpointed change',
+    mutates: false,
+    risk: 'safe-local',
+    allowedModes: ['normal', 'build', 'goal'],
+    approval: 'none',
+    checkpoint: 'none',
+    bridgeOperation: 'scene.save_project',
+  },
+  {
     id: 'object.create_primitive',
     description: 'Create one Blender primitive with a stable SimForge identifier',
     mutates: true,

@@ -50,6 +50,14 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-UX-008 | Distinct controllable project/global memory | HACKATHON-P1 | MS6 | AT-007, AT-032 | Tested | Scoped enable/list/edit/export/delete controls; global memory off by default; secret rejection and privacy smoke |
 | REQ-UX-009 | Undo/revisions/empty/wait/error/recovery experience | HACKATHON-P0 | MS6 | AT-008, AT-026 | Tested | Existing recovery retained inside responsive workspace with explicit loading/disconnected/stale/error states and named versions |
 | REQ-UX-010 | No secrets in conversation history | HACKATHON-P0 | MS1 | AT-003, AT-007 | Tested | Secret-like chat rejected; protected configuration path and secret scan |
+| REQ-UX-011 | New submission conversations are uncluttered; advanced workflows are hidden by default | HACKATHON-P0 | MS9C | AT-041, AT-042 | Implemented | Packaged 1280x720 capture shows blank chat and one Advanced control; full interface preserved on `codex/full-workspace-v0.1.1` |
+| REQ-UX-012 | Primary conversation shows Plan -> Build -> Export -> Simulate | HACKATHON-P0 | MS9C | AT-041 | Implemented | Compact journey rail derives state from messages, validation, verified exports, and Isaac experiments |
+| REQ-UX-013 | Natural-language wheeled-robot/gripper request yields a reviewable proposal | HACKATHON-P0 | MS9C | AT-041 | Implemented | Deterministic intent tests and packaged chat capture show a concise plan plus exact action card |
+| REQ-UX-014 | Exact approval builds the wheeled manipulator and default environment in Blender | HACKATHON-P0 | MS9C | AT-041 | Implemented | Chat action reuses the tested hashed warehouse proposal, approval, checkpoint, validation, preview, and Blender-open services; installed acceptance pending |
+| REQ-UX-015 | Confirmed chat primitive additions are checkpointed and positioned in Blender | HACKATHON-P0 | MS9C | AT-041 | Implemented | Intent parser accepts cube/cylinder/sphere and explicit XYZ; action reuses `object.create_primitive` and revisioned preview |
+| REQ-UX-016 | Chat export performs exact-approved canonical physics USD and reopen verification | HACKATHON-P0 | MS9C | AT-041 | Implemented | Chat action reuses fresh validation, materialized review, destination picker, hashed approval, canonical export, and verified result |
+| REQ-UX-017 | Chat simulation runs/opens Isaac and returns deterministic feedback | HACKATHON-P0 | MS9C | AT-041 | Implemented | Chat action reuses runtime Doctor, exact proposal/approval, experiment worker, provider-routed advisory analysis, retained images, and native open |
+| REQ-UX-018 | Fresh generated workspaces remain free of Blender factory-scene clutter | HACKATHON-P0 | MS9C | AT-041 | Tested | Installed starter scene is blank/metric; real Blender 4.5 regression recognizes and removes only untouched Cube/Camera/Light during approved materialization; recorded installed build shows only SimForge collections |
 | REQ-DATA-001 | Multiple locally owned portable projects | HACKATHON-P0 | MS1 | AT-006 | Tested | Global index plus distinct move/reopen project fixtures |
 | REQ-DATA-002 | Store brief/chat/memory/references/docs/plans/decisions | HACKATHON-P0 | MS1 | AT-006, AT-007 | Tested | Generic typed records and provider-neutral message persistence; advanced controls remain MS6 |
 | REQ-DATA-003 | Store Blender source/scripts/actions/snapshots/validation | HACKATHON-P0 | MS2 | AT-006, AT-012, AT-026 | Tested | Dedicated validation run/finding/fix tables, evidence-rich scene snapshots, scripts/actions, and complete checkpoint restore fixture |
@@ -148,7 +156,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | 8. Approval gates | REQ-MODE-010 through REQ-MODE-012; AT-010, AT-025, AT-029, AT-040 |
 | 9. AI architecture | REQ-AI-001 through REQ-AI-012; architecture/provider contract |
 | 10. AI transparency | REQ-UX-001, REQ-UX-002; AT-008 |
-| 11. Chat experience | REQ-UX-003 through REQ-UX-010; AT-007, AT-008 |
+| 11. Chat experience | REQ-UX-003 through REQ-UX-018; AT-007, AT-008, AT-041, AT-042 |
 | 12. Project and memory model | REQ-DATA-001 through REQ-DATA-006; architecture data model |
 | 13. Blender collaboration | REQ-BLENDER-001 through REQ-BLENDER-010; AT-012 through AT-015 |
 | 14. Embedded workspace | REQ-VIEW-001 through REQ-VIEW-004; AT-018 |
@@ -175,11 +183,11 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 
 ## Completeness Audit
 
-Latest mechanical audit: 2026-07-19 after the MS9A release-candidate audit.
+Latest mechanical audit: 2026-07-19 after the installed MS9C owner-demo acceptance.
 
-- Product requirement rows: 125
-- Traceability rows: 125
-- Acceptance tests defined/referenced: 40 / 40
+- Product requirement rows: 133
+- Traceability rows: 133
+- Acceptance tests defined/referenced: 42 / 42
 - Explicit future-tier rows retained: 8
 - Duplicate or missing requirement IDs: 0
 - Invalid priorities, milestones, statuses, or acceptance-test references: 0

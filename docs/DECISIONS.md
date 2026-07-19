@@ -367,6 +367,43 @@ low-friction judge path, and avoids an unplanned signing purchase or architectur
 Owner/provider validation, public links, video, private submission fields, and final
 Devpost confirmation remain explicit human gates.
 
+### DEC-033: Preserve the full workspace and submit a conversational edition
+
+**Context.** The owner judged the full engineering workspace too busy for the hackathon
+story and specified a direct sequence: new chat, plan, approved Blender build, approved
+USD export, and approved Isaac simulation feedback.
+
+**Decision.** Preserve the published 0.1.1 release and branch
+`codex/full-workspace-v0.1.1`. Build 0.1.2 as the submission edition without duplicating
+back-end services: hide sample/import/mode cards behind one Advanced control, show a
+compact Plan -> Build -> Export -> Simulate rail, classify only bounded supported intents,
+and surface exact approval cards inside chat. NVIDIA/Nemotron is the preferred discovered
+text route; deterministic local routing remains the disclosed fallback. Existing approval,
+checkpoint, Blender, validation, USD, and Isaac contracts remain authoritative.
+
+**Consequences.** Judges encounter the product promise immediately while the richer
+workspace remains recoverable for post-hackathon work. Intent recognition cannot grant
+authority: structural build, export, and simulation still create exact scoped approval
+records, and model prose cannot claim tool completion without deterministic evidence.
+
+### DEC-034: Use a clean Blender starter scene and conservative boilerplate removal
+
+**Context.** The owner observed that Blender's factory Cube remained in the authored
+warehouse scene and could visually obscure the robot. The demo must also make it obvious
+that SimForge creates the scene in Blender rather than opening a prebuilt USD package.
+
+**Decision.** The installed desktop launcher opens a blank, metric Blender starter file
+when no project scene exists. An approved, checkpointed robot materialization may remove
+only the exact recognizable untouched Blender 4.5 factory `Cube`, `Camera`, and `Light`:
+names, object/data types, transforms, collection ownership, mesh fingerprint, and absence
+of SimForge metadata must all match. Moved, edited, renamed, reparented, or user-authored
+objects are preserved. The operation reports the removed names and a real-Blender test
+starts from the factory scene and verifies the result.
+
+**Consequences.** A fresh recording can show an empty Blender viewport, then visible
+SimForge collection/object creation before USD export. Existing project content is never
+silently cleared, and cleanup stays inside the already approved build boundary.
+
 ## Approval Record
 
 The project owner approved the full SimForge Documentation and Architecture Baseline
@@ -377,4 +414,8 @@ owner explicitly promoted the full Isaac Sim feedback loop into the pre-submissi
 and moved the next stop gate to immediately before final documentation, demo video, and
 submission. The owner then approved the 0.1.1 hackathon finish plan, including the release
 freeze, unsigned-installer disclosure, portable fallback, public GitHub target, and
-submission confirmation gate.
+submission confirmation gate. Later on 2026-07-19, the owner explicitly approved
+preserving that full version and creating the simpler conversational 0.1.2 submission
+edition described by DEC-033.
+The owner then required a clean Blender scene for the submission recording and approved
+the fresh-start behavior captured by DEC-034.
