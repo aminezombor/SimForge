@@ -18,8 +18,13 @@ The MS1 production dependency audit (`pnpm licenses list --prod --json`) found:
 
 Electron 43.1.1 is MIT-licensed and includes Chromium/Node components. Its packaged
 `LICENSE`, `LICENSES.chromium.html`, and version files are retained in the Electron
-distribution. Electron Forge, Vite, Vitest, ESLint, pnpm, and related packages are
-development tooling and retain their upstream licenses.
+distribution. Electron Forge 7.11.2, its Squirrel and ZIP makers, and transitive
+`electron-winstaller` are MIT-licensed build tooling. `electron-squirrel-startup` 1.0.1
+is Apache-2.0. Vite, Vitest, ESLint, pnpm, and related packages retain their upstream
+licenses.
+
+The SimForge PNG/ICO brand mark is generated from the `CubeFocus` icon in Phosphor Icons
+2.1.10, licensed under MIT, with project colors and composition applied.
 
 ## Python, OpenUSD, and Blender
 
@@ -45,3 +50,6 @@ Exact source URLs, byte counts, and SHA-256 digests are recorded in
 `sample-data/imports/ros-urdf-tutorial-r2d2/SOURCE.json`. The retained files are
 unmodified. SimForge converts the URDF into its neutral RobotGraph; COLLADA finger meshes
 are kept as source evidence but intentionally approximated with disclosed box primitives.
+
+The generated warehouse mobile manipulator and environment use original SimForge
+primitive graph data and no downloaded textures or third-party environment assets.

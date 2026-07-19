@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "version": "0.1.1",
+  "exitCode": 0,
+  "applicationRemoved": true,
+  "desktopShortcutRemoved": true,
+  "startMenuShortcutRemoved": true,
+  "dataRootPreserved": true
+}

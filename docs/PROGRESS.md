@@ -2,15 +2,13 @@
 
 ## Current State
 
-- Phase: MS0-MS8 and MS11A/MS11B complete; MS9A release-candidate work is next
-- Overall status: The complete generated/imported authoring path and optional real Isaac
-  feedback loop pass locally, including persistent conversations/memory, capability
-  routing, exact-revision Blender previews, verified USD, simulation evidence, advisory
-  analysis, checkpointed correction, and parent-linked rerun history
+- Phase: MS0-MS9A and MS11A/MS11B complete; owner validation and publication are active
+- Overall status: SimForge 0.1.1 is a verified owner-test candidate with installer,
+  portable ZIP, Blender extension, sanitized sample, release hashes, complete local
+  Environment Doctor, real Blender/OpenUSD/Isaac evidence, and submission copy/script
 - Architecture: Approved; no architecture changes were required
-- Current gate: MS11A/MS11B now pass; continue through MS9A and stop with the packaged
-  owner-test candidate before final documentation, demo video, and submission
-  before final documentation, demo video, and submission
+- Current gate: the owner enters provider credentials directly, completes the hands-on
+  judge procedure, approves public copy, records the video, and confirms final submission
 - Last updated: 2026-07-19
 
 ## Completed Work
@@ -35,12 +33,13 @@
 | 2026-07-19 | MS8 imported robot and native formats | Added pinned BSD-3-Clause URDF quarantine/conversion, exact-approved materialization and camera modification, provenance-aware validation/review/USD export, plus isolated BLEND/USD/GLB/FBX/OBJ/STL stage/accept/reject operations with reference and post-approval hash defenses. | `docs/evidence/MS8_VERIFICATION.md`; 44 default tests; 5 real Blender tests; packaged/fuse/security/privacy/design evidence |
 | 2026-07-19 | Local source-of-truth cleanup | Stopped the legacy Claude SimForge server and moved its exact project tree to the Windows Recycle Bin; preserved this Codex repository and its packaged app. | Local process/path verification; recoverable deletion |
 | 2026-07-19 | MS11A/MS11B optional Isaac feedback loop | Installed an isolated official Isaac Sim 6.0.1 runtime without changing existing Omniverse, added honest runtime/hardware Doctor status, copied-package experiments, five-frame/native visualization, deterministic stability evidence, provider-routed analysis, exact-approved checkpointed Blender correction, re-export, passing child rerun, lineage, and Guided/Balanced/Autonomous authority. | `docs/evidence/ms11a/`; `docs/evidence/ms11b/`; AT-038/AT-040; real Blender + Isaac acceptance |
+| 2026-07-19 | MS9A release candidate and delivery package | Froze 0.1.1; built installer/portable/extension/sample/hash assets; completed security, privacy, dependency, license, upgrade/uninstall, no-terminal, full Doctor, and release-sample audits; drafted owner/judge, video, pitch, release, and Devpost copy. | `docs/evidence/MS9_RELEASE_AUDIT.md`; `docs/evidence/ms9a/`; AT-031/033/036/040 |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 48 passing; 6 live tests opt-in/skipped in default suite |
+| TypeScript, ESLint, unit/contract/integration suite | 51 passing; 6 live/provider tests opt-in/skipped in default suite |
 | Real Blender 4.5.11 acceptance | All five paths pass: bridge/recovery, primitive robot, warehouse manipulator, licensed URDF import/modify/export, and six-format native stage/decision |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
@@ -58,6 +57,7 @@
 | MS7 generated demonstration | 12 links, 11 joints, 12 robot collisions, 3 sensors, 15 warehouse objects/collisions, `ENV-*` evidence, six review views, and real robot/environment USD pass |
 | MS8 imported demonstration | 16 links, 15 joints, 16 collisions, exact-approved camera, disclosed mesh approximations, imported source/license in USD, deep moved reopen, and six native formats with exact accept/reject/security evidence |
 | MS11 real simulation loop | Isaac Sim 6.0.1/Python 3.12 runs locally; five hashed frames and native GUI; warehouse stability fails, proposes -0.124770 m arm retraction, rejects missing approval, checkpoints/corrects/revalidates/re-exports, then passes a parent-linked child experiment |
+| MS9 release candidate | Installer, freshly extracted portable, and installed 0.1.1 smokes pass; upgrade/uninstall and data preservation pass; complete visible Doctor matrix is accurate; sample is path-sanitized; production audit has zero known vulnerabilities; checksums retained |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -65,18 +65,19 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 - Live structured-output support and numeric context/output limits remain honestly
   `unknown`; later routing must require an observed capability rather than assume one.
-- The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
+- The desktop installer is unsigned by approved release decision; SmartScreen may warn,
+  so the portable ZIP is the documented fallback.
 - The real Isaac loop passes on this machine, but 27.4 GiB RAM and 11.9 GiB VRAM remain
   below NVIDIA's published minimum. Environment Doctor reports this honestly; MS9A must
   retain a small bounded sample and document that larger scenes can require stronger hardware.
-- The user-local installer is an owner testing convenience, not an MS9 release artifact;
-  clean-account, uninstall, upgrade, signing, and redistributable packaging remain open.
+- Installer, portable, extension, and sample release artifacts pass locally; independent
+  owner/judge execution and public download verification remain human gates.
 - The approved workspace and MS8 import cards pass a fresh 1280x720 packaged capture
   against the owner reference without hierarchy, clipping, or control regressions. MS9 owns
   final accessibility, copy, release, and clean-account judge validation.
-- The packaged OpenUSD runtime passes its embedded doctor and export acceptance, but MS9
-  must still audit release size, redistribution notices, clean-account behavior, upgrade,
-  uninstall, and signing.
+- The full development dependency audit retains nine inherited Forge/node-gyp build-tool
+  advisories. Production dependencies have zero known vulnerabilities and none of those
+  build-only packages is loaded by the installed application.
 - AABB overlap is intentionally conservative and Z=0 support contact is an explicit
   assumption; robot-aware primitive contact rules now supplement it but do not claim
   simulator proof.
@@ -90,7 +91,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Execute MS9A without pausing: package the new Isaac/action-authority surface, verify the
-installed and portable builds, run the clean-profile dependency/security/Blender/OpenUSD/
-Isaac matrix, prepare the sample owner-test project and exact hands-on procedure, then
-stop at the owner validation gate. Do not start final documentation, video, or submission.
+Complete the owner/provider procedure in `docs/OWNER_JUDGE_TEST.md`, publish the reviewed
+commit and 0.1.1 assets, record the scripted under-three-minute video, update the Devpost
+draft, resolve private owner fields, and obtain action-time confirmation before submitting.

@@ -26,8 +26,8 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-MODE-008 | Jobs persist across restart while chat remains usable | HACKATHON-P0 | MS2 | AT-011 | Tested | SQLite reopen plus concurrent assistant-ui message path |
 | REQ-MODE-009 | Goal Mode never performs restricted actions silently | HACKATHON-P0 | MS2 | AT-009, AT-010, AT-011 | Tested | Mode/allowlist/exact-approval enforcement |
 | REQ-MODE-010 | Approval gates occur only at material decision points | HACKATHON-P0 | MS2 | AT-010, AT-025, AT-029 | Tested | Safe-local auto path; structural/privileged/export exact approval; stale or changed export scope rejected |
-| REQ-MODE-011 | Suggest and plan throughout the complete feedback loop while the user controls execution | HACKATHON-P0 | MS11B | AT-040 | In progress | Simulation evidence analysis, recommended next-step notices, and checkpointed correction plan are implemented |
-| REQ-MODE-012 | Guided, Balanced, and Autonomous authority remain explicit and bounded | HACKATHON-P0 | MS11B | AT-040 | In progress | Persistent Guided default and settings UI implemented; autonomous structural continuation is bound to the selected mode and approved exact plan; hard gates remain human |
+| REQ-MODE-011 | Suggest and plan throughout the complete feedback loop while the user controls execution | HACKATHON-P0 | MS11B | AT-040 | Tested | Evidence analysis, recommended next-step notices, exact correction plan, approval denial, and approved Blender/Isaac rerun pass |
+| REQ-MODE-012 | Guided, Balanced, and Autonomous authority remain explicit and bounded | HACKATHON-P0 | MS11B | AT-040 | Tested | Deterministic authority policy and real correction loop prove Guided waits, Balanced is safe-local only, Autonomous is exact-plan-bound, Goal cannot escalate, and permanent gates remain human |
 | REQ-AI-001 | NVIDIA-first provider with user key | HACKATHON-P0 | MS1 | AT-003, AT-004 | Tested | Protected owner key used by packaged live NVIDIA probe; no key in evidence/log/source |
 | REQ-AI-002 | Runtime NVIDIA model discovery/validation | HACKATHON-P0 | MS1 | AT-004 | Tested | Live `/models` returned 119 entries and intended Nemotron identifier |
 | REQ-AI-003 | Runtime capability probes and records | HACKATHON-P0 | MS1 | AT-004 | Tested | Live streamed-text, non-executed no-op tool, and explicit reasoning-control probes; sanitized record retained |
@@ -39,7 +39,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-AI-009 | Visible provider/model and selection reason | HACKATHON-P0 | MS2 | AT-005, AT-008 | Tested | Provider settings, model list, reason, capability/disclosure UI |
 | REQ-AI-010 | Usage/cost, budget, and fallback controls | HACKATHON-P1 | MS6 | AT-005 | Tested | Persisted usage summary, budget gate, fallback ordering, unpriced-request count, and provider-router tests |
 | REQ-AI-011 | Provider-neutral stored project/chat/tool data | HACKATHON-P0 | MS1 | AT-005, AT-006 | Tested | Normalized contracts and SQLite reload tests |
-| REQ-AI-012 | Vision work only reaches probed visual models | HACKATHON-P0 | MS4 | AT-004, AT-022 | In progress | Nemotron is recorded text-only and local review never dispatches images; optional visual-provider dispatch remains to be exercised |
+| REQ-AI-012 | Vision work only reaches probed visual models | HACKATHON-P0 | MS4 | AT-004, AT-022 | Tested | Text-only Nemotron is rejected for visual review; automatic routing selects only a probed vision-capable model; local visual review never dispatches images |
 | REQ-UX-001 | Visible phase/task/tool/action/files/dependencies/results/provider/progress | HACKATHON-P0 | MS2 | AT-008 | Tested | Packaged renderer activity, jobs, Doctor, provider and checkpoint details |
 | REQ-UX-002 | Concise operational rationale without chain-of-thought claims | HACKATHON-P0 | MS2 | AT-008 | Tested | Operational summaries/reasons only; no hidden reasoning field |
 | REQ-UX-003 | Multiple persistent project conversations with lifecycle/search | HACKATHON-P0 | MS6 | AT-007 | Tested | SQLite conversation metadata, create/rename/search/delete/branch service and workspace UI; unit tests |
@@ -74,7 +74,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-IMPORT-002 | Complete guaranteed V1 focus subset with evidence | POST-HACKATHON-V1 | MS10 | AT-019, AT-020, AT-037 | Planned | - |
 | REQ-IMPORT-003 | One licensed external robot import/modify/validate/export path | HACKATHON-P1 | MS8 | AT-020 | Tested | `docs/evidence/ms8/acceptance.json`; 16-link BSD URDF, exact-approved camera, validation, review, canonical export, moved reopen |
 | REQ-IMPORT-004 | Import/conversion/loss/units/material/hierarchy/license/status report | HACKATHON-P1 | MS8 | AT-019, AT-020 | Tested | Schema-validated URDF and native reports retain hashes, counts, conversions, losses, provenance, revisions, and decisions |
-| REQ-IMPORT-005 | Evaluate, pin, attribute, isolate, and secure external reuse | HACKATHON-P0 | MS9 | AT-031, AT-036 | In progress | MS8 pins/audits parser and BSD asset, packages source/license/notices, and rejects hostile references; final release-wide audit remains MS9A |
+| REQ-IMPORT-005 | Evaluate, pin, attribute, isolate, and secure external reuse | HACKATHON-P0 | MS9 | AT-031, AT-036 | Tested | Pinned parser/asset provenance, hostile-reference tests, 118-entry production license inventory, notices, release sample sanitization, and zero production vulnerabilities pass |
 | REQ-VALIDATION-001 | Combine scene, deterministic, USD, visual, and human evidence | HACKATHON-P0 | MS3 | AT-021, AT-022, AT-023, AT-030 | Tested | Fresh Blender, geometry/robotics rules, hashed visual review, OpenUSD inspection, and matching human/machine reports pass |
 | REQ-VALIDATION-002 | Validate units/orientation/transforms/origins/bounds/dimensions | HACKATHON-P0 | MS3 | AT-021 | Tested | `GEO-UNIT`, `GEO-TRANSFORM`, `GEO-ORIGIN`, and `GEO-DIMENSION` fixtures plus Z-up/world-bound Blender evidence |
 | REQ-VALIDATION-003 | Validate contact/clearance/intersections/penetration | HACKATHON-P0 | MS3 | AT-021 | Tested | Support-plane penetration/floating and conservative world-AABB overlap rules with explicit assumptions |
@@ -108,19 +108,19 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 | REQ-SECURITY-005 | OS-protected secrets and no secret log/commit | HACKATHON-P0 | MS1 | AT-003 | Tested | Packaged safeStorage + user ACL + repo/plaintext scans |
 | REQ-SECURITY-006 | Restricted local services and loopback Blender bridge | HACKATHON-P0 | MS1 | AT-031 | Tested | Random 127.0.0.1 listener, 256-bit token, ACL, project binding, frame limit |
 | REQ-SECURITY-007 | Privileged execution and secret-safe source/evidence/submission | HACKATHON-P0 | MS2 | AT-015, AT-031, AT-035 | Tested | Controlled fallback/secret scanner/sanitized evidence; final submission audit MS9 |
-| REQ-PLATFORM-001 | Windows-first without needless future Linux barrier | HACKATHON-P0 | MS9 | AT-033, AT-037 | Implemented | Windows x64 package/Blender/DPAPI passing; clean-machine and future Linux gates retained |
-| REQ-PLATFORM-002 | Installer/portable build, one-click no-terminal launch | HACKATHON-P0 | MS9 | AT-033, AT-034 | In progress | Owner feedback invalidated the initial console-producing shortcut; corrected WScript/Blender GUI launcher shows zero new terminal windows and maintains connection after 35 seconds. Signed installer/portable release and clean-account test remain MS9 |
-| REQ-PLATFORM-003 | Developer build and uninstall/cleanup instructions | HACKATHON-P0 | MS9 | AT-033, AT-034 | In progress | README developer install documented; uninstall/cleanup and release upgrade path remain MS9 |
-| REQ-PLATFORM-004 | Supported versions, actionable errors, Environment Doctor | HACKATHON-P0 | MS9 | AT-033 | In progress | Blender 4.5.11/Python detection and launcher errors exercised; complete Doctor matrix remains MS9 |
-| REQ-PLATFORM-005 | Complete Environment Doctor checks | HACKATHON-P0 | MS9 | AT-033 | In progress | Blender/Python/USD status displayed; provider, port, permission, and full recovery checks remain MS9 |
-| REQ-PLATFORM-006 | Isaac Sim is not a V1 hard dependency | HACKATHON-P0 | MS9 | AT-033, AT-034 | Implemented | Optional runtime Doctor and unavailable-runtime tests leave Blender authoring/export usable; clean-package proof remains MS9A |
-| REQ-SUBMISSION-001 | Developer tools category | HACKATHON-P0 | MS9 | AT-035 | Planned | `docs/HACKATHON_SCOPE.md` |
-| REQ-SUBMISSION-002 | Working project/repository/description/README/setup | HACKATHON-P0 | MS9 | AT-034, AT-035 | Planned | - |
-| REQ-SUBMISSION-003 | Sample, judge test, expected results, troubleshooting, platform, no rebuild | HACKATHON-P0 | MS9 | AT-034 | Planned | - |
-| REQ-SUBMISSION-004 | License/notices/inventory/screenshots/report/roadmap/test evidence | HACKATHON-P0 | MS9 | AT-030, AT-035, AT-036 | Planned | - |
-| REQ-SUBMISSION-005 | Public narrated demo under three minutes with Codex/GPT-5.6 use | HACKATHON-P0 | MS9 | AT-035 | Planned | - |
-| REQ-SUBMISSION-006 | Rehearsed demo and complete submission copy/checklist | HACKATHON-P0 | MS9 | AT-035 | Planned | - |
-| REQ-SUBMISSION-007 | Primary Codex session, acceleration log, private feedback-ID reminder | HACKATHON-P0 | MS9 | AT-035, AT-039 | Planned | `docs/CODEX_USAGE_LOG.md` |
+| REQ-PLATFORM-001 | Windows-first without needless future Linux barrier | HACKATHON-P0 | MS9 | AT-033, AT-037 | Tested | Final Windows x64 installer/portable, Blender 4.5.11, DPAPI, OpenUSD, and optional Isaac paths pass; Linux remains explicitly future-tier |
+| REQ-PLATFORM-002 | Installer/portable build, one-click no-terminal launch | HACKATHON-P0 | MS9 | AT-033, AT-034 | Tested | Final 0.1.1 installer and portable smoke pass; Desktop `SimForge.lnk` opens app plus Blender with zero terminals; unsigned limitation and portable fallback disclosed |
+| REQ-PLATFORM-003 | Developer build and uninstall/cleanup instructions | HACKATHON-P0 | MS9 | AT-033, AT-034 | Tested | README development/uninstall/cleanup steps plus real upgrade and uninstall evidence; uninstall preserves project data |
+| REQ-PLATFORM-004 | Supported versions, actionable errors, Environment Doctor | HACKATHON-P0 | MS9 | AT-033 | Tested | Visible Doctor reports supported Blender/Python/OpenUSD/GPU/Isaac versions and paths with actionable optional-provider/hardware warnings |
+| REQ-PLATFORM-005 | Complete Environment Doctor checks | HACKATHON-P0 | MS9 | AT-033 | Tested | Blender, extension, authenticated bridge, storage, loopback, Python, bundled OpenUSD, GPU, optional Isaac, NVIDIA, and OpenAI checks exercised |
+| REQ-PLATFORM-006 | Isaac Sim is not a V1 hard dependency | HACKATHON-P0 | MS9 | AT-033, AT-034 | Tested | Packaged authoring/export remain usable without Isaac; detected local runtime is optional and warns honestly about below-minimum hardware |
+| REQ-SUBMISSION-001 | Developer tools category | HACKATHON-P0 | MS9 | AT-035 | Implemented | Category fixed in `docs/HACKATHON_SCOPE.md`, checklist, and Devpost draft; form update pending |
+| REQ-SUBMISSION-002 | Working project/repository/description/README/setup | HACKATHON-P0 | MS9 | AT-034, AT-035 | Implemented | Working 0.1.1 artifacts, release README, description copy, and setup procedure complete; public repository publication pending |
+| REQ-SUBMISSION-003 | Sample, judge test, expected results, troubleshooting, platform, no rebuild | HACKATHON-P0 | MS9 | AT-034 | Implemented | Sanitized warehouse sample and `docs/OWNER_JUDGE_TEST.md` provide exact clicks, expected states, timing, fallback, and troubleshooting |
+| REQ-SUBMISSION-004 | License/notices/inventory/screenshots/report/roadmap/test evidence | HACKATHON-P0 | MS9 | AT-030, AT-035, AT-036 | Tested | Release notices, dependency/asset audit, UI and Blender/Isaac evidence, readiness reports, roadmap, hashes, and sanitized sample pass |
+| REQ-SUBMISSION-005 | Public narrated demo under three minutes with Codex/GPT-5.6 use | HACKATHON-P0 | MS9 | AT-035 | Implemented | Timed 2:45 narration/shot/fallback/edit plan and 30-second Codex/GPT-5.6 segment complete; recording and YouTube link pending |
+| REQ-SUBMISSION-006 | Rehearsed demo and complete submission copy/checklist | HACKATHON-P0 | MS9 | AT-035 | Implemented | Devpost copy, pitch text, rehearsal/edit checklist, and delivery checklist complete; owner rehearsal and private fields pending |
+| REQ-SUBMISSION-007 | Primary Codex session, acceleration log, private feedback-ID reminder | HACKATHON-P0 | MS9 | AT-035, AT-039 | Implemented | `docs/CODEX_USAGE_LOG.md` records milestone acceleration and checklist keeps `/feedback` ID private; owner must run command and enter result |
 | REQ-GOV-001 | Clean repository/docs are source of truth; no prior code | HACKATHON-P0 | MS0 | AT-002 | Tested | `AGENTS.md`, Git tree |
 | REQ-GOV-002 | Maintain and reread persistent documents | HACKATHON-P0 | MS0 | AT-001, AT-039 | Tested | `AGENTS.md`, complete `docs/` tree; reread before MS1/MS2 planning |
 | REQ-GOV-003 | Every requirement has ID/priority/milestone/test/status/evidence | HACKATHON-P0 | MS0 | AT-001 | Tested | This matrix; completeness audit |
@@ -175,7 +175,7 @@ Allowed priorities: `HACKATHON-P0`, `HACKATHON-P1`, `POST-HACKATHON-V1`, `V2-ISA
 
 ## Completeness Audit
 
-Latest mechanical audit: 2026-07-19 after MS7 implementation.
+Latest mechanical audit: 2026-07-19 after the MS9A release-candidate audit.
 
 - Product requirement rows: 125
 - Traceability rows: 125

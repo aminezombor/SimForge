@@ -67,9 +67,12 @@ Freeze major architecture changes during cycle two unless a blocking defect is d
 - MS11B: complete. Deterministic stability failure, provider-routed advisory analysis,
   exact approval, checkpointed Blender subtree correction, revalidation/re-export,
   parent-linked passing rerun, recommendations, and selectable action authority pass.
-- MS9A: follows the full simulation loop and ends at the owner hands-on validation gate.
-- MS9B: intentionally waits for owner validation; it contains final documentation,
-  demo-video recording, and submission.
+- MS9A: complete. Installer, portable ZIP, extension, sanitized sample, release hashes,
+  security/privacy/license/dependency checks, full visible Environment Doctor, real
+  Blender/OpenUSD/Isaac rerun, upgrade/uninstall, and owner/judge procedure pass locally.
+- MS9B: active at the human gates. README, release notes, Devpost copy, pitch text, and
+  2:45 video script are ready; owner credential validation, public publication, video,
+  private fields, link audit, and final submit remain.
 
 ## Post-Hackathon V1 (MS10)
 

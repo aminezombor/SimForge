@@ -2,7 +2,7 @@
 
 ## Comparison Target
 
-- Source visual truth: `C:\Users\ZOMBOR\Desktop\Presentation1\Slide3.PNG`
+- Source visual truth: owner-provided `Slide3.PNG`
 - Final implementation capture: `artifacts/ms6/workspace-final-1280x720.png`
 - Full-view comparison: `artifacts/ms6/comparison-final.png`
 - Viewport: 1280 × 720, desktop, dark theme
@@ -83,3 +83,16 @@ fit the existing central work-card language, expose real actions, and show no cl
 horizontal overflow. No P0, P1, or P2 visual regression was found.
 
 final result: passed
+
+## MS9 Release Surface Regression
+
+The final 0.1.1 packaged renderer captured the workspace, imported workflows, simulation
+dock, and Guided/Balanced/Autonomous authority settings at 1280 x 720 under
+`docs/evidence/ms9a/ui/`. The approved three-column hierarchy, fixed composer, live 3D
+inspection, auditable activity, verified delivery card, and compact engineering visual
+language remain intact. The added simulation and authority surfaces fit existing cards,
+show permanent human gates, and have no clipping or horizontal overflow. A live desktop
+pass also verified the full Environment Doctor inside the installed build. No P0, P1, or
+P2 release regression was found.
+
+final release result: passed

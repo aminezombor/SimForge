@@ -14,10 +14,10 @@
     "robotForwardAxis": "X",
     "upAxis": "Z"
   },
-  "createdAt": "2026-07-19T15:34:23.998Z",
+  "createdAt": "2026-07-19T17:58:19.170Z",
   "entryPoint": "scene.usda",
   "environmentId": "simforge-warehouse-demo-v1",
-  "exportId": "cd98d7bd-5cb7-4099-baa8-6cbe62235229",
+  "exportId": "430fc4d8-6426-4f28-bb52-abf6120665f2",
   "files": [
     {
       "bytes": 6635,
@@ -26,10 +26,10 @@
       "sha256": "597acc0450ffb4a983b01073acec868d3e825232c24d38adba39d4631ff55769"
     },
     {
-      "bytes": 9514,
+      "bytes": 9516,
       "path": "environment/environment_geometry.usdc",
       "role": "usd-layer",
-      "sha256": "25497eb14b1810cba0e77f464e06d457c73b64c19d3c17d388e61edcdd1afd67"
+      "sha256": "50d64fb2e08cb83f2f91c85087497389c5bb3fd3c2faab09b421232183e8e9ac"
     },
     {
       "bytes": 109,
@@ -38,10 +38,10 @@
       "sha256": "c4c6bc7a125abb414d9336a2b03c698f9db650c7917b69068beaedb569cb2291"
     },
     {
-      "bytes": 67902,
+      "bytes": 67929,
       "path": "robot/geometry/robot_geometry.usdc",
       "role": "usd-layer",
-      "sha256": "42e2d2f4eaa4eac1dbc7e252fc905e94d6ba1332a2df849b8fd0dc9bfd1e84e5"
+      "sha256": "3e396d6e54a8a0e90212a71ee5c4e3c12ea62153cc123e42bbd6a4557202e361"
     },
     {
       "bytes": 109,
@@ -77,85 +77,85 @@
       "bytes": 480,
       "path": "scene.usda",
       "role": "usd-layer",
-      "sha256": "03da53fefb2178384da9cc7e5e4a9ce5d05fd8de25dec52cc0f720aa70521561"
+      "sha256": "9a8b748b43b3211682a7ff53b98dea00dd858a5da95ee47fecc1c4c6e9a32711"
     },
     {
       "bytes": 15210,
       "path": "source/actions.json",
       "role": "machine-data",
-      "sha256": "780aa4a7ff08ec2f9dfa9a051e594f43c4027eb49f4c4665e508be9840ba9080"
+      "sha256": "730526d3c17c696216227c485877fc5057b1bc717cd0a41235415425f97e2fd4"
     },
     {
       "bytes": 1005927,
       "path": "source/project.blend",
       "role": "blender-source",
-      "sha256": "d34d71cf6c52bd757167a2eca78d382166eaba7e5cfa232af1029eab8fa6ce34"
+      "sha256": "cc14ef5dd76f73b2d14309ac9c69f3aa29a54e740f72fd3eadc3394805af7809"
     },
     {
       "bytes": 241,
       "path": "source/simforge.project.json",
       "role": "machine-data",
-      "sha256": "738d776e62119726d94ee2fdb74086408c8822c21cf66c5f56f5e76bcb7834b5"
+      "sha256": "37047ce675bbcc20bc3ddd32cbec4613a109687d896a4e23b90f627eb0ac694c"
     },
     {
-      "bytes": 2282,
+      "bytes": 2736,
       "path": "THIRD_PARTY_NOTICES.md",
       "role": "documentation",
-      "sha256": "74774281b809b117850324a26970aa1281c01ee07eb649cc8879a1e6ee8ba426"
+      "sha256": "198aa26c584686aff55b0878116683ec22e3e37c953401d7d625ffcd56063705"
     },
     {
       "bytes": 278562,
       "path": "validation/preview-images/close-up.png",
       "role": "preview",
-      "sha256": "f5f632bc1861af3e1e7411fdaec59b5f5c8f99a99066e339e2217797e8bf4d40"
+      "sha256": "e6c3dd71cd338504cbef4cf9d131718467f7737cc3ec238fdb00ba9f49cdcffc"
     },
     {
       "bytes": 230508,
       "path": "validation/preview-images/front.png",
       "role": "preview",
-      "sha256": "4c2d945a537e8fa9ebdf22fceec5c9564d828ddeb9cedb3c81f24101d7df6745"
+      "sha256": "d4fd410b16c268e19986c655ea2b1a6b75e51a3ffaff83df69578f8e0b2e85b5"
     },
     {
       "bytes": 1854,
       "path": "validation/preview-images/review-manifest.json",
       "role": "machine-data",
-      "sha256": "22b3686e39884d077994a34215c6ef2b766bfebf6a323fea5a1af6e719a8102b"
+      "sha256": "912aafcd6b16b9cbe97db9550a6668907d4617ad724b986cf5acdfc5c84a8df8"
     },
     {
       "bytes": 281778,
       "path": "validation/preview-images/sensor.png",
       "role": "preview",
-      "sha256": "aeda6ab0d987753196ba75459b464267722b961d2f18e6b3d98aab5d4b6fa9ab"
+      "sha256": "9c34e9f67da867f62383b4f13d03588b5027c267c692e4b8af5ed6d2f464aeda"
     },
     {
       "bytes": 238826,
       "path": "validation/preview-images/side.png",
       "role": "preview",
-      "sha256": "52b26d7ace4a7469cea7bc1dc00635497e4e4be24adf68206f2777461800ca6a"
+      "sha256": "a34d2b6211a8dba9ad0851897a8fa8830e94d4ba286751c13da76c6ac2bb108c"
     },
     {
       "bytes": 274145,
       "path": "validation/preview-images/three-quarter.png",
       "role": "preview",
-      "sha256": "33d05b207be2cc26c5a453e16a757076d974dac775b785d3188f3d494d006cb9"
+      "sha256": "e9123c69dadcae80ccbacdd149d30b6c5e2182c8e6f20058ec82ed965749c77e"
     },
     {
       "bytes": 276439,
       "path": "validation/preview-images/warehouse-overview.png",
       "role": "preview",
-      "sha256": "b587d5cb250094b00cf0dfca0f15a46de128ca7e388072328ddfb311f1926bd5"
+      "sha256": "17680e7c2f94252879d3c87a0a0bc56580488f1a6acf2646dfa43724187a46d6"
     },
     {
       "bytes": 1870,
       "path": "validation/readiness-report.md",
       "role": "documentation",
-      "sha256": "0fc161af0b0be484ea6a02d03594c95ec01c238173a29caaa61d504f26b3b584"
+      "sha256": "6e968f207a35484ca073bffd4f0f620e2e1d0316e87a267ca4ee3e81ebdb7447"
     },
     {
       "bytes": 72666,
       "path": "validation/validation-results.json",
       "role": "machine-data",
-      "sha256": "b515fe59ab9f98881023887bf89f574c24947370807df71cf82b3e00a910c8e2"
+      "sha256": "a0407e681d702a3c1630091248bd25082320124a1f188e258357e041f4037999"
     }
   ],
   "kind": "canonical",
@@ -165,13 +165,13 @@
     "Isaac Sim execution evidence is recorded separately and is never inferred from package validation."
   ],
   "project": {
-    "id": "230e3b1a-22a3-42ab-9155-47317d2e4532",
+    "id": "40eace8e-2a97-4af0-982c-1ae944e3902f",
     "name": "Warehouse Manipulator"
   },
   "robotId": "simforge-warehouse-manipulator-v1",
   "sceneRevision": 3,
   "schemaVersion": 1,
-  "sourceValidationRunId": "1ce601ab-e45f-40b8-af6f-31a8904f43e6",
+  "sourceValidationRunId": "074e595f-88e6-4bc8-8e73-cee3722d932b",
   "validation": {
     "checks": [
       {

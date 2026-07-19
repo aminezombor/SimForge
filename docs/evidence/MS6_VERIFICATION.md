@@ -40,7 +40,7 @@ MS1-MS5 safety path. It covers `REQ-AI-007/008/010`, `REQ-UX-003` through
 
 ## Visual QA
 
-The exact source is `C:\Users\ZOMBOR\Desktop\Presentation1\Slide3.PNG`.
+The exact source is the owner-provided `Slide3.PNG` reference.
 The final same-viewport comparison is
 `artifacts/ms6/comparison-final.png`; responsive evidence is retained beside it.
 `design-qa.md` records two repair passes and ends with `final result: passed`.

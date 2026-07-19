@@ -36,6 +36,9 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | Node `node:sqlite` | Global/project SQLite | Electron-bundled Node 24 API | Node.js license | Current Node documentation | Adopted; migrations/backup/recovery/package proof passing |
 | `better-sqlite3` | Predetermined SQLite fallback | Pin only if invoked | MIT | Active releases | Not adopted; Electron native prebuild must be proven |
 | Electron Forge | Windows package tooling | 7.11.2 | MIT | Active documentation/project | Adopted; portable package passing, unsigned risk remains |
+| Forge Squirrel maker / `electron-winstaller` | Windows installer | 7.11.2 / lockfile transitive | MIT | Electron Forge maintained | Adopted; build script copies its package-local 7-Zip tools; installer is unsigned |
+| Forge ZIP maker | Portable Windows archive | 7.11.2 | MIT | Electron Forge maintained | Adopted; SmartScreen fallback artifact |
+| `electron-squirrel-startup` | Installer lifecycle events | 1.0.1 | Apache-2.0 | Stable Electron utility | Adopted; startup exits only for Squirrel event handling |
 | `@electron/fuses` | Package-time runtime hardening | 2.1.3 | MIT | Electron-maintained utility | Adopted directly because Electron 43 has nine fuses; strict complete policy and binary inspection pass |
 | Blender | Authoritative editor/runtime | 4.5.11 LTS | GPL | Active LTS fixes | External prerequisite; official ZIP hash verified; never bundled |
 | NVIDIA Isaac Sim | Optional simulation execution and native inspection | 6.0.1.0 on Python 3.12.10 | NVIDIA Omniverse license/EULA; external runtime | Current official Windows/Python release | Adopted as an ignored local test runtime after explicit EULA acceptance; never committed or bundled; below-minimum hardware is disclosed |
@@ -44,7 +47,7 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | CPython runtime | Fixed USD authoring environment | 3.13.14 | PSF License | Python upstream | Adopted as a relocatable packaged resource; embedded doctor passes |
 | `usd-core` | OpenUSD composition/validation | 26.5 | LicenseRef-TOST-1.0 | Pixar release 2026-04-24 | Adopted; packaged author/deep reopen/portability passing |
 | Three.js | Revision-stamped GLB inspection | 0.184.0 | MIT | Active releases | Adopted; direct renderer keeps Blender authoritative and avoids an extra runtime wrapper |
-| `@phosphor-icons/react` | Workspace iconography | 2.1.10 | MIT | Active upstream | Adopted; no custom/fake icon assets |
+| `@phosphor-icons/react` | Workspace iconography and CubeFocus-derived brand mark | 2.1.10 | MIT | Active upstream | Adopted; generated mint/navy application icon retains Phosphor MIT attribution |
 | `@types/three` | TypeScript declarations | 0.183.1 | MIT | DefinitelyTyped/upstream maintained | Adopted as development-only dependency |
 | `fast-xml-parser` | Contained URDF XML parsing | 5.10.0 | MIT | Active upstream; exact lock | Adopted; entities disabled and SimForge enforces declaration, URL, path, size, and Xacro limits before conversion |
 | Urchin | URDF parser candidate | 0.0.30 baseline | MIT | Release 2025-10-21 | Not adopted for MS8; direct typed conversion avoided another Python runtime boundary |
@@ -66,7 +69,8 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | Asset ID | Name | Source URL | Version/hash | License | Redistribution | Modifications/conversion | Project use |
 | -------- | ---- | ---------- | ------------ | ------- | -------------- | ------------------------ | ----------- |
 | `ros-urdf-tutorial-r2d2-physics` | ROS URDF Tutorial Physics Robot | https://github.com/ros/urdf_tutorial | commit `050f1e47cfdb2c5f3eb0746bc15c57e6a870faef`; URDF SHA-256 `78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047` | BSD-3-Clause | Permitted with retained copyright/license | Source unmodified; DAE fingers retained and disclosed as box approximations; exact-approved camera added as SimForge project data | Imported robot demo and package fixture |
-| _Pending MS9_ | Sample textures/environment | - | - | Prefer CC0 or compatible | Must be confirmed | - | Sample project/demo |
+| `simforge-warehouse-generated` | Warehouse environment and mobile manipulator | Original project source | Apache-2.0 project terms | Redistributable | Generated from project-owned primitive graphs; no downloaded textures | Sample project/demo |
+| `phosphor-cube-focus-brand` | SimForge desktop icon | Phosphor Icons `CubeFocus` through `@phosphor-icons/react` 2.1.10 | MIT | Permitted with notice | Recolored and composed into project-owned PNG/ICO | Executable, installer, shortcut, README branding |
 
 ## Release Compliance Gate
 
@@ -143,3 +147,16 @@ release detects a separately installed compatible runtime and remains fully usab
 without it. MS9A must document owner/judge installation choices and ensure the package
 contains none of the environment, caches, EULA markers, or experiment inputs from the
 development machine.
+
+## MS9 Release Audit Result
+
+The v0.1.1 release adds Forge's pinned Squirrel and ZIP makers plus
+`electron-squirrel-startup`; all are permissively licensed as recorded above. The only
+new brand asset is generated from Phosphor's MIT-licensed CubeFocus icon. The warehouse
+sample uses original primitive geometry and existing project notices, with no external
+texture or environment asset. `pnpm audit --prod` reports zero known production
+vulnerabilities. The full development audit reports advisories only in Forge/node-gyp
+build tooling (`tar` 6.2.1 and `tmp` 0.0.33); no vulnerable package is loaded by the
+installed application, and unsafe major lockfile overrides were not introduced at the
+release gate. Installer, portable archive, extension, sample, and hashes are generated
+offline from the pinned lockfile and audited sources.

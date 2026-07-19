@@ -5,7 +5,7 @@ export default tseslint.config(
   {
     ignores: [
       'node_modules/**', '.vite/**', 'out/**', 'coverage/**', '.tools/**',
-      '.venv-usd/**', 'eslint.config.mjs', 'scripts/*.mjs',
+      '.venv-usd/**', 'eslint.config.mjs', 'scripts/*.mjs', 'scripts/*.cjs',
     ],
   },
   eslint.configs.recommended,

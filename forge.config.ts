@@ -16,6 +16,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     executableName: 'SimForge',
+    icon: 'assets/brand/simforge-icon.ico',
     extraResource: [
       'sidecars',
       'blender-extension',
@@ -26,7 +27,26 @@ const config: ForgeConfig = {
     ],
   },
   rebuildConfig: {},
-  makers: [],
+  makers: [
+    {
+      name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
+      config: {
+        // Keep the installer root distinct from %LOCALAPPDATA%\SimForge, which is
+        // the documented data root for projects, settings, and runtime descriptors.
+        name: 'SimForgeDesktop',
+        authors: 'SimForge contributors',
+        description: 'Local-first conversational Blender robotics authoring tool',
+        setupExe: 'SimForge-Setup.exe',
+        setupIcon: path.resolve('assets/brand/simforge-icon.ico'),
+      },
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['win32'],
+      config: {},
+    },
+  ],
   hooks: {
     packageAfterCopy: async (_forgeConfig, buildPath, _electronVersion, platform) => {
       await flipFuses(electronExecutable(buildPath, platform), {

@@ -13,7 +13,8 @@ $blenderDestination = Join-Path $installRoot 'blender'
 $launcherDestination = Join-Path $installRoot 'launch-simforge.ps1'
 $windowlessLauncherDestination = Join-Path $installRoot 'launch-simforge.vbs'
 $desktop = [Environment]::GetFolderPath('Desktop')
-$shortcutPath = Join-Path $desktop 'SimForge Hackathon.lnk'
+$shortcutPath = Join-Path $desktop 'SimForge.lnk'
+$legacyShortcutPath = Join-Path $desktop 'SimForge Hackathon.lnk'
 $expectedBlenderExecutableHash = '0949E462F677C3E341913A838C6E2F54CC1C811CCB6F281AE9B3FF5926A2B255'
 
 function Assert-File([string] $path, [string] $label) {
@@ -69,11 +70,21 @@ $shortcut.IconLocation = "$(Join-Path $appDestination 'SimForge.exe'),0"
 $shortcut.Description = 'Launch the current SimForge hackathon build with Blender 4.5 LTS'
 $shortcut.Save()
 
+if (Test-Path -LiteralPath $legacyShortcutPath) {
+    $legacyShortcut = $shell.CreateShortcut($legacyShortcutPath)
+    if (
+        $legacyShortcut.TargetPath -eq (Join-Path $env:SystemRoot 'System32\wscript.exe') -and
+        $legacyShortcut.Arguments -like "*$windowlessLauncherDestination*"
+    ) {
+        Remove-Item -LiteralPath $legacyShortcutPath -Force
+    }
+}
+
 [pscustomobject]@{
     InstallRoot = $installRoot
     Application = Join-Path $appDestination 'SimForge.exe'
     Blender = $installedBlender
     BlenderExtension = 'simforge_bridge enabled in user_default'
     Shortcut = $shortcutPath
-    ExistingSimForgeShortcutPreserved = Test-Path -LiteralPath (Join-Path $desktop 'SimForge.lnk')
+    LegacyShortcutRemoved = -not (Test-Path -LiteralPath $legacyShortcutPath)
 }

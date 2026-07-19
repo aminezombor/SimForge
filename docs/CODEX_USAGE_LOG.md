@@ -296,6 +296,32 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   ground, and kept robot stability as a separate deterministic stage check. This machine
   remains below NVIDIA's published RAM/VRAM minimum.
 
+### 2026-07-19 - MS9A release-candidate closure
+
+- Phase/milestone: MS9A complete; owner validation and MS9B delivery active
+- Requirement/test IDs: `REQ-MODE-011/012`, `REQ-AI-012`, `REQ-IMPORT-005`,
+  `REQ-PLATFORM-001` through `REQ-PLATFORM-006`, `REQ-SUBMISSION-001` through
+  `REQ-SUBMISSION-007`; `AT-031`, `AT-033` through `AT-036`, `AT-039`, `AT-040`
+- What Codex/GPT-5.6 contributed: froze release scope, closed action-authority and visual
+  routing gaps, expanded Environment Doctor, assembled installer/portable/extension/sample
+  assets, sanitized embedded Blender paths, audited dependencies/licenses/secrets/fuses,
+  and prepared owner, judge, release, video, pitch, and Devpost material.
+- Important decisions: 0.1.1 remains unsigned with a portable fallback; generated Chromium
+  profiles are never evidence; cloud keys remain owner-entered; NVIDIA stays the live-demo
+  primary; no product contract changed at the release gate.
+- Time/risk saved: one automated release path caught PowerShell 5 incompatibilities,
+  non-idempotent sanitization, a missing sample scene source, and two false-negative Doctor
+  checks. Visible desktop verification found the Doctor failures before publication.
+- Human review and verification: 51 default tests, all five real Blender paths, real Isaac
+  failure/correction/rerun, installed/portable/packaged smoke, upgrade/uninstall, full
+  visible Doctor, OpenUSD doctor, nine Electron fuses, production audit, license inventory,
+  checksum generation, and private-path/secret scans pass.
+- Evidence: `docs/evidence/MS9_RELEASE_AUDIT.md`, `docs/evidence/ms9a/`,
+  `docs/OWNER_JUDGE_TEST.md`, `docs/DEMO_SCRIPT.md`, and `docs/DEVPOST_DRAFT.md`.
+- Limitations or correction made: the installer is not code-signed; Isaac is ready on this
+  machine but below NVIDIA's published RAM/VRAM minimum. Owner cloud-key validation,
+  public links, video, private submission fields, and final submission remain human gates.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

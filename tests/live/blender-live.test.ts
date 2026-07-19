@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { once } from 'node:events';
-import { access, copyFile, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, copyFile, cp, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -880,6 +880,35 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const usdRuntime = await locateUsdRuntime(process.cwd());
     const movedVerification = await runUsdWorker(usdRuntime, ['verify', '--path', movedDestination]);
     expect(movedVerification.ok).toBe(true);
+
+    const releaseSampleDirectory = process.env.SIMFORGE_RELEASE_SAMPLE_DIR;
+    if (releaseSampleDirectory) {
+      await rm(releaseSampleDirectory, { recursive: true, force: true });
+      await Promise.all([
+        mkdir(path.join(releaseSampleDirectory, '.simforge'), { recursive: true }),
+        mkdir(path.join(releaseSampleDirectory, 'exports'), { recursive: true }),
+      ]);
+      await copyFile(
+        path.join(project.root, 'simforge.project.json'),
+        path.join(releaseSampleDirectory, 'simforge.project.json'),
+      );
+      await cp(path.join(project.root, 'scene'), path.join(releaseSampleDirectory, 'scene'), { recursive: true });
+      await cp(movedDestination, path.join(releaseSampleDirectory, 'exports', 'verified-warehouse'), { recursive: true });
+      await copyFile(
+        path.join(movedDestination, 'source', 'project.blend'),
+        path.join(releaseSampleDirectory, 'scene', 'project.blend'),
+      );
+      await copyFile(
+        path.join(process.cwd(), 'release', 'sample-project', 'README.md'),
+        path.join(releaseSampleDirectory, 'README.md'),
+      );
+      const reopenedSample = await new ProjectManager().open(releaseSampleDirectory);
+      reopenedSample.repository.close();
+      const releaseVerification = await runUsdWorker(usdRuntime, [
+        'verify', '--path', path.join(releaseSampleDirectory, 'exports', 'verified-warehouse'),
+      ]);
+      expect(releaseVerification.ok).toBe(true);
+    }
 
     const evidenceDirectory = process.env.SIMFORGE_MS7_EVIDENCE_DIR;
     if (evidenceDirectory) {

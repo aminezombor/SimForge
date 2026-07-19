@@ -349,6 +349,24 @@ records the configured authority and exact approval evidence.
 with permission. Users can choose speed versus control, stale or changed plans still fail
 closed, and Autonomous never means unbounded autonomy.
 
+### DEC-032: Freeze 0.1.1 and ship installer plus portable fallback
+
+**Context.** The owner approved the hackathon finish plan with one remaining development
+session. Reliability, judge access, evidence, publication, and the narrated submission are
+more valuable than another feature. A purchased Windows code-signing certificate is not
+available within the release window.
+
+**Decision.** Freeze product contracts and release SimForge 0.1.1 as a Squirrel installer,
+portable ZIP, separately installable GPL Blender extension, sanitized warehouse sample,
+and SHA-256 manifest. Accept and disclose the unsigned installer; use the portable ZIP as
+the SmartScreen fallback. Fix only reproducible acceptance blockers. Keep NVIDIA as the
+primary live-demo provider and the local fixture as the deterministic fallback.
+
+**Consequences.** The release remains reproducible from the pinned lockfile, supports a
+low-friction judge path, and avoids an unplanned signing purchase or architecture change.
+Owner/provider validation, public links, video, private submission fields, and final
+Devpost confirmation remain explicit human gates.
+
 ## Approval Record
 
 The project owner approved the full SimForge Documentation and Architecture Baseline
@@ -357,4 +375,6 @@ the owner instructed Codex to continue in Goal Mode through the remaining milest
 the milestone evidence/checkpoint workflow remains mandatory. Later on 2026-07-19 the
 owner explicitly promoted the full Isaac Sim feedback loop into the pre-submission build
 and moved the next stop gate to immediately before final documentation, demo video, and
-submission.
+submission. The owner then approved the 0.1.1 hackathon finish plan, including the release
+freeze, unsigned-installer disclosure, portable fallback, public GitHub target, and
+submission confirmation gate.

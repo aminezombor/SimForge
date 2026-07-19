@@ -4,7 +4,7 @@
 
 SimForge is local-first, data-minimizing, transparent about cloud processing, and usable without a SimForge-hosted account or telemetry service. The user owns project files and controls provider, upload, memory, and logging behavior.
 
-## MS1-MS6 Implementation Status
+## Implemented Release Status
 
 Portable project and global SQLite, local chat, provider capability records, protected
 credentials, per-dispatch probe disclosure, and no-telemetry behavior are implemented.
@@ -68,3 +68,8 @@ Diagnostics export is opt-in, previews exactly what will be included, and perfor
 ## Privacy Acceptance
 
 Release requires evidence that cloud disclosure is accurate, disabled upload settings are honored, project exports exclude secrets/global data, deletion scopes are clear, logs are redacted, and no telemetry occurs by default.
+
+Release artifacts and the public repository are scanned for credential patterns, private
+Windows user paths, and the private `/feedback` identifier. Generated Chromium profiles,
+provider credential stores, Isaac runtimes/caches, and local application databases are
+excluded from Git and release assets.

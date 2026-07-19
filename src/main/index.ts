@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
+import squirrelStartup from 'electron-squirrel-startup';
 import {
   app,
   BrowserWindow,
@@ -11,6 +12,9 @@ import {
 } from 'electron';
 import { AppRuntime } from './app-runtime';
 import { registerIpc } from './ipc';
+
+if (squirrelStartup) app.quit();
+app.setAppUserModelId('com.squirrel.SimForgeDesktop.SimForge');
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -149,7 +153,37 @@ async function runSmokeTest(): Promise<void> {
     })()`);
     const importPath = path.join(captureDirectory, 'import-workflows-1280x720.png');
     await writeFile(importPath, (await mainWindow!.webContents.capturePage()).toPNG());
-    designCapture = { workspacePath, importPath, width: 1280, height: 720 };
+    await mainWindow!.webContents.executeJavaScript(`(async () => {
+      const simulate = [...document.querySelectorAll('.dock-tabs button')]
+        .find((button) => button.textContent?.trim().startsWith('Simulate'));
+      if (!(simulate instanceof HTMLButtonElement)) throw new Error('Simulation tab is unavailable');
+      simulate.click();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const dock = document.querySelector('.dock-content');
+      if (dock instanceof HTMLElement) dock.scrollTop = 0;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    })()`);
+    const simulationPath = path.join(captureDirectory, 'simulation-1280x720.png');
+    await writeFile(simulationPath, (await mainWindow!.webContents.capturePage()).toPNG());
+    await mainWindow!.webContents.executeJavaScript(`(async () => {
+      const settings = document.querySelector('[aria-label="Open settings"]');
+      if (!(settings instanceof HTMLButtonElement)) throw new Error('Settings control is unavailable');
+      settings.click();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const body = document.querySelector('.settings-body');
+      if (body instanceof HTMLElement) body.scrollTop = 0;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    })()`);
+    const authorityPath = path.join(captureDirectory, 'action-authority-1280x720.png');
+    await writeFile(authorityPath, (await mainWindow!.webContents.capturePage()).toPNG());
+    designCapture = {
+      workspacePath,
+      importPath,
+      simulationPath,
+      authorityPath,
+      width: 1280,
+      height: 720,
+    };
     mainWindow!.destroy();
     mainWindow = null;
   }

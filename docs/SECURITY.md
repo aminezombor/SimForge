@@ -4,7 +4,7 @@
 
 Protect provider credentials and private project data, prevent models/renderers/imports from gaining ambient authority, prevent unintended Blender or filesystem mutation, keep recovery possible, and make cloud and privileged actions understandable to the user.
 
-## MS1-MS5 Implemented Baseline
+## Implemented Release Baseline
 
 Packaged evidence confirms renderer sandbox/context isolation, no renderer Node globals,
 restrictive CSP, denied remote windows/navigation/permissions, a typed narrow preload
@@ -15,7 +15,8 @@ forged/oversized bridge frames, stale/forged approvals, prompt-injected unavaila
 tools, project-path traversal, secret-like chat/script content, privileged script
 failure, crash recovery, export-path/type/traversal policy, exact overwrite approval,
 staging containment, relative USD dependencies, inventory hashes, and atomic promotion.
-Import-specific controls remain gated to MS8.
+Native and URDF import tests also reject entities, Xacro execution, remote/unresolved
+references, source changes after approval, traversal, symlinks, and unapproved merges.
 
 Packaged smoke tests run only with an explicit isolated user-data directory. SimForge
 sets that directory before runtime initialization, creates a separate global/project
@@ -89,6 +90,11 @@ Only provider HTTPS endpoints explicitly configured by the user and the loopback
 ## Security Verification
 
 Acceptance tests cover Plan Mode mutation attempts, forged bridge sessions, stale/forged approvals, path traversal, malicious references, renderer IPC abuse, secret redaction, cloud-dispatch minimization, overwrite protection, and recovery after privileged failures. Security failures block release.
+
+The v0.1.1 installer is not code-signed. Release hashes and a portable ZIP are published,
+but a matching SHA-256 does not replace publisher authentication. Judges should download
+only from the official GitHub release. Purchasing a signing certificate is outside the
+hackathon scope and remains a disclosed limitation.
 
 ## Incident Handling
 

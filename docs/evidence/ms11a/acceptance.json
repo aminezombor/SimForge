@@ -1,9 +1,9 @@
 {
-  "experimentId": "ff3dcc3c-5b5f-41ea-92ac-4ad990708704",
+  "experimentId": "9a7cdca9-1781-48df-91e8-2246714ed157",
   "sourceExport": {
     "exportId": "isaac-source-export",
     "sceneRevision": 17,
-    "packageSha256": "579962c13690044774a203fd583f7d044abc5f51fe067a8c3d03983615df8d90",
+    "packageSha256": "9bb8865f55e7b972e978f62e8fb9c9aee68246c166517186e88a600e063a8a2a",
     "entryPoint": "scene.usda"
   },
   "task": {
@@ -57,10 +57,10 @@
     },
     {
       "evidence": {
-        "bytes": 865672,
+        "bytes": 763375,
         "frameCount": 5,
         "relativePath": "media/frame-004.png",
-        "sha256": "2249a0bbfe78f8aa5f6d14fa38f343b29acdacc149e733c117cb9e16fa32cb21"
+        "sha256": "98f10dbac72394876269659f06b466cba3ae6cd3a60c42d8bccfbbad68613fbe"
       },
       "id": "ISAAC-MEDIA-001",
       "status": "PASS"

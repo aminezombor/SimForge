@@ -7,3 +7,8 @@ strictPeerDependencies: true
 # Forge 7.11.2 pins Electron's maintained node-gyp fork to the exact audited
 # commit declared in package.json. pnpm otherwise blocks this required source.
 blockExoticSubdeps: false
+
+allowBuilds:
+  # Audited build-only script copies the bundled host-architecture 7-Zip
+  # executable and DLL inside this package; it performs no network access.
+  electron-winstaller: true

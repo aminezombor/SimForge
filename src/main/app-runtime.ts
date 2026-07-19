@@ -45,6 +45,7 @@ import { CheckpointService } from './domain/checkpoint-service';
 import { JobOrchestrator } from './domain/job-orchestrator';
 import { ToolExecutor } from './domain/tool-executor';
 import { runEnvironmentDoctor, type DoctorCheck } from './environment-doctor';
+import { evaluateAutomaticAuthority } from './domain/action-authority';
 import { ExportService, type ExportProposal } from './export/export-service';
 import { MockProviderAdapter } from './providers/mock-provider';
 import { ModelRouter } from './providers/model-router';
@@ -912,9 +913,15 @@ export class AppRuntime {
     if (input.authority && input.authority !== configuredAuthority) {
       throw new Error('Action authority changed; review the action again');
     }
-    const automatic = input.authority === 'autonomous';
-    if (automatic && (tool.risk === 'destructive' || tool.risk === 'privileged' || ['export.package', 'python.execute'].includes(tool.id))) {
-      throw new Error(`${tool.id} is a permanent human approval gate even in Autonomous authority`);
+    const automatic = input.authority !== undefined;
+    if (automatic) {
+      const decision = evaluateAutomaticAuthority({
+        authority: configuredAuthority,
+        toolId: tool.id,
+        risk: tool.risk,
+        planBound: Boolean(input.planHash),
+      });
+      if (!decision.allowed) throw new Error(`${decision.code}: ${decision.reason}`);
     }
     const approvalId = this.requireApprovals().approve({
       projectId: state.projectId,
@@ -1427,8 +1434,41 @@ export class AppRuntime {
     return this.requireProviders().probe(providerId, modelId);
   }
 
-  runEnvironmentDoctor(): Promise<DoctorCheck[]> {
-    return runEnvironmentDoctor(this.applicationRoot, this.userDataDirectory);
+  async runEnvironmentDoctor(): Promise<DoctorCheck[]> {
+    const [base, nvidia, openai] = await Promise.all([
+      runEnvironmentDoctor(this.applicationRoot, this.userDataDirectory),
+      this.requireProviders().status('nvidia'),
+      this.requireProviders().status('openai'),
+    ]);
+    const providerCheck = (status: typeof nvidia): DoctorCheck => ({
+      id: status.providerId,
+      ok: status.configured && status.discoveredModels > 0 && status.lastError === null,
+      severity: status.configured && status.discoveredModels > 0 && status.lastError === null ? 'pass' : 'warning',
+      summary: status.lastError
+        ? `Last discovery failed: ${status.lastError}`
+        : status.configured
+          ? status.discoveredModels > 0
+            ? `${status.discoveredModels} runtime-discovered model${status.discoveredModels === 1 ? '' : 's'} available`
+            : 'Credential is protected; run model discovery before cloud use'
+          : 'Optional provider credential is not configured',
+      path: null,
+    });
+    const state = this.getState();
+    return [
+      ...base.slice(0, 2),
+      {
+        id: 'bridge',
+        ok: state.bridgeConnected,
+        severity: state.bridgeConnected ? 'pass' : 'warning',
+        summary: state.bridgeConnected
+          ? `Authenticated Blender bridge connected at scene revision ${state.sceneRevision ?? 0}`
+          : 'Blender bridge is waiting; start Blender with the SimForge extension enabled',
+        path: null,
+      },
+      ...base.slice(2),
+      providerCheck(nvidia),
+      providerCheck(openai),
+    ];
   }
 
   private async handleSceneEvent(event: BridgeEvent): Promise<void> {

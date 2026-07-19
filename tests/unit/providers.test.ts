@@ -240,4 +240,43 @@ describe('provider-neutral adapters', () => {
       await fixture.cleanup();
     }
   });
+
+  it('never routes visual review to a probed text-only model', async () => {
+    const fixture = await makeTempProject('Vision routing');
+    try {
+      const credentials = new MemoryCredentialStore();
+      const mock = new MockProviderAdapter();
+      const service = new ProviderService(
+        credentials,
+        fixture.project.repository,
+        new ActivityService(fixture.project.manifest.projectId, fixture.project.repository),
+        { nvidia: mock, openai: mock },
+      );
+      await service.configure('nvidia', 'nvidia-test-secret');
+      await service.configure('openai', 'openai-test-secret');
+      fixture.project.repository.setState('provider:nvidia:models', [{
+        providerId: 'nvidia', modelId: 'nvidia/nemotron-3-ultra-550b-a55b', displayName: 'Nemotron text',
+        capabilities: { text: true, vision: false, tools: true, streaming: true, structuredOutput: 'unknown', reasoningControls: true },
+        contextWindow: null, maxOutputTokens: null, probedAt: '2026-07-19T00:00:00.000Z',
+      }]);
+      fixture.project.repository.setState('provider:openai:models', [{
+        providerId: 'openai', modelId: 'gpt-5.6-vision-fixture', displayName: 'Visual fixture',
+        capabilities: { text: true, vision: true, tools: true, streaming: true, structuredOutput: true, reasoningControls: true },
+        contextWindow: 128_000, maxOutputTokens: 8_000, probedAt: '2026-07-19T00:00:00.000Z',
+      }]);
+      const settings: WorkspaceSettings = {
+        actionMode: 'guided', routingMode: 'automatic', activeProvider: 'nvidia',
+        activeModel: 'nvidia/nemotron-3-ultra-550b-a55b', enabledProviders: { nvidia: true, openai: true },
+        fallbackOrder: ['nvidia', 'openai', 'local'], monthlyBudgetUsd: 20, cloudProcessing: true,
+        visualUploads: true, fileUploads: false, projectMemory: true, globalMemory: false, diagnosticLogging: true,
+      };
+      const route = await new ModelRouter(service).select(settings, 'vision-review', ['vision']);
+      expect(route).toMatchObject({ providerId: 'openai', modelId: 'gpt-5.6-vision-fixture', fallback: true });
+      expect(route.reason).toContain('runtime-probed vision');
+      await expect(new ModelRouter(service).select({ ...settings, routingMode: 'manual' }, 'vision-review', ['vision']))
+        .rejects.toThrow('lacks required vision');
+    } finally {
+      await fixture.cleanup();
+    }
+  });
 });

@@ -43,42 +43,42 @@
     },
     {
       "evidence": {
-        "bytes": 865672,
+        "bytes": 763375,
         "frameCount": 5,
         "relativePath": "media/frame-004.png",
-        "sha256": "2249a0bbfe78f8aa5f6d14fa38f343b29acdacc149e733c117cb9e16fa32cb21"
+        "sha256": "98f10dbac72394876269659f06b466cba3ae6cd3a60c42d8bccfbbad68613fbe"
       },
       "id": "ISAAC-MEDIA-001",
       "status": "PASS"
     }
   ],
-  "durationSeconds": 12.594,
-  "experimentId": "ff3dcc3c-5b5f-41ea-92ac-4ad990708704",
+  "durationSeconds": 13.015,
+  "experimentId": "9a7cdca9-1781-48df-91e8-2246714ed157",
   "media": [
     {
-      "bytes": 151975,
+      "bytes": 140308,
       "relativePath": "media/frame-000.png",
-      "sha256": "891c35240859e6ecfd704a102a4300ff66674d9851c95b3653450591e66cbc63"
+      "sha256": "b2b2f597296b4eb339b0794674e7244f58024076a1ff7699b41d95a827549566"
     },
     {
-      "bytes": 155360,
+      "bytes": 150163,
       "relativePath": "media/frame-001.png",
-      "sha256": "e61b5dae10dd654370b4570fa82d7e739b2165991c00b7396430da69763f7c60"
+      "sha256": "7c93f8ffbe341971dcc9be33afa2d2fb0d8cd48c2f288efedbdec06513b11196"
     },
     {
-      "bytes": 188708,
+      "bytes": 159711,
       "relativePath": "media/frame-002.png",
-      "sha256": "71d79ace21545d5fa46a98d6ea668cf91544e3346bd38410db9c7160895716f1"
+      "sha256": "d23b94b1e62f33575cee83659d0f676f839e92777fc4a23702d8792c1f58bb04"
     },
     {
-      "bytes": 190295,
+      "bytes": 159503,
       "relativePath": "media/frame-003.png",
-      "sha256": "ba62506af8ea74335a4f116b6d884aa83d0762cf1035b3c01be0e913f4195009"
+      "sha256": "c7f58eef73a3868249a9cc86f35630f793d630b96b57161284912d8eb166fc4c"
     },
     {
-      "bytes": 179334,
+      "bytes": 153690,
       "relativePath": "media/frame-004.png",
-      "sha256": "2249a0bbfe78f8aa5f6d14fa38f343b29acdacc149e733c117cb9e16fa32cb21"
+      "sha256": "98f10dbac72394876269659f06b466cba3ae6cd3a60c42d8bccfbbad68613fbe"
     }
   ],
   "metrics": {
