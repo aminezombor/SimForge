@@ -112,3 +112,45 @@ selected environment geometry layer beside robot geometry; the pinned OpenUSD wo
 composes 15 stable environment identities and reopens the complete package after it is
 moved. This proves the generated P0 path while leaving parser and hostile-reference risk
 isolated to the bounded MS8 import work.
+
+## MS8 Research Gate Result
+
+The pinned Open Robotics `ros/urdf_tutorial` physics fixture proves the licensed robot
+path without adopting a broad arbitrary importer. `fast-xml-parser` 5.10.0 is sufficient
+for the contained URDF subset when entities, DTDs, Xacro, command substitution, remote
+URLs, unknown package roots, symlinks, size overflow, and post-approval hash changes are
+rejected before Blender access. The converter maps 16 links, 15 joints, collisions,
+inertials, materials, and contained assets into `RobotGraph`; eight COLLADA visual/
+collision uses remain hash-retained but explicitly approximated as boxes.
+
+Blender 4.5.11's native operators successfully generated, staged, and exact-decided one
+self-contained BLEND, USD, GLB, FBX, OBJ, and STL fixture. `UsdUtils.ComputeAllDependencies`
+provides the authoritative USD dependency inventory. GLTF external URIs, OBJ material
+references, USDA external assets, escaping paths, and changed approved bytes fail closed.
+The accepted URDF path reuses deterministic validation, materialized review, canonical
+OpenUSD export, deep moved reopen, reports, and source/license packaging. No Urchin,
+yourdfpy, MuJoCo, or generic Blender MCP dependency was needed for MS8.
+
+Sources: [ROS URDF Tutorial](https://github.com/ros/urdf_tutorial),
+[fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser), and
+[OpenUSD dependency APIs](https://openusd.org/release/api/usd_utils_page_front.html).
+
+## Isaac Sim Pre-Submission Research Gate (2026-07-19)
+
+The owner promoted the retained Isaac loop into active pre-submission work (DEC-028).
+Current official guidance identifies Isaac Sim 6.0.1 as the supported Windows release and
+Python 3.12 as its standalone environment. The standalone workflow is selected because it
+provides explicit headless physics/render stepping for reproducible experiments. SimForge
+will discover a separately installed runtime, invoke only a fixed contained script, and
+retain exact request/result/artifact hashes; it will not bundle Isaac or depend on
+deprecated Omniverse Launcher/Nucleus components.
+
+The development machine has Windows 11, an RTX 5070 with 12,227 MiB VRAM, driver 610.62,
+approximately 27.4 GiB RAM, and no detected Isaac installation. The current 6.0 system
+table lists 32 GB RAM and 16 GB VRAM as minimums, so the machine is below the published
+minimum despite a sufficient driver and 247 GB free on `C:`. Installation/probing may
+still be attempted as bounded evidence, but Environment Doctor must report this mismatch
+and no success may be claimed unless a real run completes. A compatible external machine
+or NVIDIA cloud runner remains the honest acceptance fallback if local execution fails.
+
+Sources: [Isaac Sim 6.0.1 workstation installation](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_workstation.html), [Python environment installation](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/install_python.html), [workflows](https://docs.isaacsim.omniverse.nvidia.com/5.0.0/introduction/workflows.html), [6.0 requirements](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/requirements.html), and [asset validation rules](https://docs.isaacsim.omniverse.nvidia.com/latest/py/source/extensions/isaacsim.asset.validation/docs/index.html).

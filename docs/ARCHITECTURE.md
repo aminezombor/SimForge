@@ -3,7 +3,8 @@
 ## Status and Quality Attributes
 
 - Status: Approved baseline (DEC-004 through DEC-011)
-- Implementation: MS1-MS7 implemented, packaged, and verified; MS8 active
+- Implementation: MS1-MS7 implemented, packaged, and verified; MS8 active; owner-approved
+  MS11A/MS11B simulation feedback implementation follows MS8
 - Target: Windows 11 x64, separately installed Blender 4.5 LTS
 - Priorities: scene truth, safety, recovery, testability, judge reproducibility, delivery speed, future Linux/Isaac extension
 
@@ -21,6 +22,10 @@ flowchart LR
     B --> S["Authoritative Blender scene"]
     M -->|"fixed executable + contained JSON request"| X["Packaged OpenUSD sidecar"]
     X --> W["Verified USD package"]
+    M -->|"fixed script + contained experiment request"| I["Separately installed Isaac Sim"]
+    W --> I
+    I --> E["Metrics, media, logs, failure evidence"]
+    E --> M
 ```
 
 There is no local HTTP server and no remote web UI. The main process is the trust boundary and sole owner of provider calls, secrets, filesystem writes, jobs, policy, bridge sessions, and sidecars.
@@ -162,18 +167,21 @@ counter is seeded from the app-persisted monotonic revision floor on reconnect. 
 mutating request with a mismatched expected revision returns `STALE_SCENE`, causing
 refresh and replanning rather than overwrite.
 
-The MS1-MS7 operation set covers evidence-rich snapshot, complete checkpoint
+The MS1-MS8 operation set covers evidence-rich snapshot, complete checkpoint
 copy/restore, primitive creation, exact object location, approved scale application,
 object deletion, controlled Python fallback, exact-approved robot and robot/environment
-assembly materialization, link-pose correction, and revision-stamped materialized review
-rendering. Later milestones add the remaining typed staging/import operations. Python
+assembly materialization, link-pose and sensor correction, native-format stage/decision,
+and revision-stamped materialized review rendering. Python
 fallback is disabled in Plan Mode and requires displayed intent, exact approval,
 pre-checkpoint, raw-script hash, declared contained paths, reusable project archive,
 audit entry, and post-execution snapshot. It is privileged, not sandboxed.
 
 ## Import Architecture
 
-All imports enter a staging collection/project copy and produce an `ImportReport`. Blender native importers handle `.blend`, USD, GLB/GLTF, FBX, OBJ, and STL. Robot-description sidecars normalize URDF/MJCF into:
+All imports enter a staging collection/project copy and produce a schema-validated
+report. MS8 implements Blender native importers for `.blend`, USD, GLB/GLTF, FBX, OBJ,
+and STL plus a direct TypeScript URDF-to-`RobotGraph` converter for the pinned demo asset.
+MJCF remains behind the same post-hackathon adapter contract:
 
 ```text
 RobotGraph {
@@ -182,7 +190,14 @@ RobotGraph {
 }
 ```
 
-Resolved files must remain inside an approved import root. Remote URLs, executable plugins, automatic Xacro expansion, and path escape are rejected. `package://` mappings require an explicit user-selected root. Every import records conversions, losses, assumptions, missing assets, license/source, and validation status.
+Resolved files must remain inside the copied project quarantine. Remote URLs, executable
+plugins, automatic Xacro expansion, DTD/entities, command substitutions, UNC paths,
+symlinks, changed post-approval hashes, and path escape are rejected. The bundled URDF's
+single explicit `package://urdf_tutorial` mapping is hash-pinned; general mappings require
+an explicit user-selected root in post-hackathon V1. OpenUSD dependencies are enumerated
+with `UsdUtils.ComputeAllDependencies`; GLTF/OBJ/USDA external references fail closed.
+Every import records conversions, losses, assumptions, missing assets, source/license,
+hashes, scene revision, and stage/accept/reject status.
 
 ## Validation and Correction
 
@@ -276,6 +291,31 @@ The package uses Z-up, meters-per-unit `1.0`, a declared default prim, relative 
 
 P0 checks stage open, default prim, units/up axis, relative reference resolution, containment, layers, materials, UsdPhysics schemas, link/joint relationships, mass/inertia metadata, sensors, manifest hashes, and portability. Isaac-specific schemas are not required; V2 adds optional layers and simulation adapters.
 
+## Isaac Sim Feedback Adapter
+
+DEC-028 promotes the existing adapter seam into pre-submission implementation without
+turning Isaac Sim into a core startup dependency. The Electron main process discovers and
+probes a separately installed, pinned Isaac Sim 6.0.1 runtime. It invokes a fixed
+repository-owned standalone Python script with an argument array and a project-contained,
+schema-validated request file; no shell interpolation, arbitrary user script, remote stage,
+or renderer-supplied executable path is allowed.
+
+Each experiment copies the exact verified canonical package into a contained run
+directory and records application/export/runtime versions and hashes, task configuration,
+seed, timestep, duration, termination rules, stdout/stderr redaction, structured metrics,
+images/video, failure conditions, and completion status. The first task is deliberately
+bounded: load the warehouse package, step physics deterministically, measure articulation
+and rigid-body stability/contact behavior, and expose a real seeded defect. Results are
+evidence, not authority.
+
+AI analysis receives only the disclosed experiment summary and selected evidence through
+the existing capability router. It may propose a correction but cannot mutate Isaac,
+Blender, USD, or files. The user approves an exact plan bound to experiment/export/scene
+revisions; correction executes through the existing Blender tool/checkpoint policy,
+followed by validation, canonical re-export, a child experiment, and deterministic
+before/after comparison. Project SQLite retains experiment lineage and artifact hashes so
+the result can be reloaded and audited after restart.
+
 ## Failure and Recovery Model
 
 - Provider: cancel stream, retain partial activity, classify retryable failure, offer configured fallback without duplicating tool effects.
@@ -287,7 +327,7 @@ P0 checks stage open, default prim, units/up axis, relative reference resolution
 
 ## Deployment
 
-Electron Forge produces a Windows installer and portable ZIP. Blender remains a separate prerequisite. The release bundles the fixed OpenUSD sidecar and Blender extension installer files, but no API key, Blender binary, or Isaac Sim. Auto-update is outside P0. Unsigned-build limitations must be documented if no certificate is available.
+Electron Forge produces a Windows installer and portable ZIP. Blender remains a separate prerequisite. The release bundles the fixed OpenUSD sidecar and Blender extension installer files, but no API key, Blender binary, or Isaac Sim. Isaac Sim 6.0.1 is detected as a separately installed optional simulation runtime. Auto-update is outside P0. Unsigned-build limitations must be documented if no certificate is available.
 
 MS1 proves the portable Electron package and extension ZIP; MS5 embeds the fixed
 Python/OpenUSD runtime and proves it from packaged resources. MS9 still owns installer,

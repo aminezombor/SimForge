@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import math
 import os
 import queue
 import socket
@@ -391,6 +392,158 @@ def _execute(operation: str, payload: dict[str, Any]) -> tuple[Any, list[str], b
             }, [str(obj["simforge.id"])], True
         finally:
             _INTERNAL_MUTATION = False
+    if operation == "robot.add_sensor":
+        robot_id = str(payload.get("robotId", ""))
+        sensor = payload.get("sensor")
+        material = payload.get("material")
+        reason = str(payload.get("reason", ""))
+        _validate_sensor_addition(robot_id, sensor, material, reason)
+        sensor_id = str(sensor["id"])
+        parent_link_id = str(sensor["parentLinkId"])
+        parent_link = next((
+            value for value in bpy.context.scene.objects
+            if value.get("simforge.robot.id") == robot_id and
+            value.get("simforge.role") == "link" and
+            value.get("simforge.link.id") == parent_link_id
+        ), None)
+        if parent_link is None:
+            raise BridgeOperationError("ROBOT_LINK_NOT_FOUND", "The approved sensor parent link was not found")
+        stable_id = f"{robot_id}:sensor:{sensor_id}"
+        if any(value.get("simforge.id") in {stable_id, f"{stable_id}:visual"} for value in bpy.context.scene.objects):
+            raise BridgeOperationError("ROBOT_SENSOR_EXISTS", "A sensor with this stable ID already exists")
+        collection = next((owner for owner in parent_link.users_collection if owner.name.startswith("SF Robot - ")), None)
+        if collection is None:
+            raise BridgeOperationError("ROBOT_COLLECTION_NOT_FOUND", "The robot collection is unavailable")
+        _INTERNAL_MUTATION = True
+        try:
+            sensor_object = bpy.data.objects.new(str(sensor["name"]), None)
+            collection.objects.link(sensor_object)
+            sensor_object.empty_display_type = "CUBE" if sensor["type"] == "IMU" else "CONE"
+            sensor_object.empty_display_size = 0.12
+            sensor_object.location = _vector(sensor["pose"]["position"])
+            sensor_object.rotation_euler = _vector(sensor["pose"]["rotationEuler"])
+            _stable_object(sensor_object, stable_id, robot_id, "sensor")
+            sensor_object["simforge.sensor.id"] = sensor_id
+            sensor_object["simforge.sensor.type"] = str(sensor["type"])
+            sensor_object["simforge.sensor.parent_link_id"] = parent_link_id
+            sensor_object["simforge.sensor.add_reason"] = reason
+            if sensor.get("fieldOfViewDegrees") is not None:
+                sensor_object["simforge.sensor.field_of_view_degrees"] = float(sensor["fieldOfViewDegrees"])
+            _parent_preserve_world(sensor_object, parent_link)
+
+            sensor_visual = _create_sensor_visual(
+                collection,
+                sensor,
+                _robot_material(robot_id, material),
+            )
+            sensor_visual_id = f"{stable_id}:visual"
+            _stable_object(sensor_visual, sensor_visual_id, robot_id, "sensor-visual")
+            sensor_visual["simforge.sensor.id"] = sensor_id
+            sensor_visual["simforge.sensor.type"] = str(sensor["type"])
+            _parent_preserve_world(sensor_visual, sensor_object)
+            bpy.context.view_layer.update()
+            return {
+                "robotId": robot_id,
+                "sensorId": sensor_id,
+                "parentLinkId": parent_link_id,
+                "sensorObjectId": stable_id,
+                "visualObjectId": sensor_visual_id,
+            }, [stable_id, sensor_visual_id], True
+        except Exception:
+            for candidate in list(bpy.context.scene.objects):
+                if candidate.get("simforge.id") in {stable_id, f"{stable_id}:visual"}:
+                    bpy.data.objects.remove(candidate, do_unlink=True)
+            raise
+        finally:
+            _INTERNAL_MUTATION = False
+    if operation == "import.stage_native":
+        import_id, import_format, source_path, source_sha256, collection_name = _validate_native_stage_payload(payload)
+        existing_objects = {int(obj.as_pointer()) for obj in bpy.data.objects}
+        existing_collections = {collection.name for collection in bpy.data.collections}
+        existing_images = {int(image.as_pointer()) for image in bpy.data.images}
+        collection = bpy.data.collections.new(collection_name)
+        bpy.context.scene.collection.children.link(collection)
+        _INTERNAL_MUTATION = True
+        try:
+            _run_native_import(source_path, import_format, collection)
+            imported = [obj for obj in bpy.data.objects if int(obj.as_pointer()) not in existing_objects]
+            if not imported or len(imported) > 5_000:
+                raise BridgeOperationError("NATIVE_IMPORT_EMPTY", "Native importer created no objects or exceeded the 5,000-object limit")
+            _reject_unsafe_import_images(existing_images, source_path.parent)
+            changed_ids: list[str] = []
+            for index, obj in enumerate(sorted(imported, key=lambda value: (value.name, int(value.as_pointer())))):
+                for owner in list(obj.users_collection):
+                    if owner != collection:
+                        owner.objects.unlink(obj)
+                if obj.name not in collection.objects:
+                    collection.objects.link(obj)
+                stable_id = f"native-import:{import_id}:{index:04d}"
+                obj["simforge.id"] = stable_id
+                obj["simforge.role"] = "import-staged"
+                obj["simforge.import.id"] = import_id
+                obj["simforge.import.format"] = import_format
+                obj["simforge.import.source_sha256"] = source_sha256
+                changed_ids.append(stable_id)
+            for candidate in list(bpy.data.collections):
+                if candidate.name not in existing_collections and candidate != collection and not candidate.objects and not candidate.children:
+                    bpy.data.collections.remove(candidate)
+            bpy.context.view_layer.update()
+            return {
+                "importId": import_id,
+                "format": import_format,
+                "collectionName": collection.name,
+                "objectCount": len(changed_ids),
+                "changedEntityIds": changed_ids,
+                "warnings": [],
+            }, changed_ids, True
+        except Exception:
+            for obj in list(bpy.data.objects):
+                if int(obj.as_pointer()) not in existing_objects:
+                    bpy.data.objects.remove(obj, do_unlink=True)
+            _remove_collections_created_after(existing_collections)
+            raise
+        finally:
+            _INTERNAL_MUTATION = False
+    if operation in {"import.accept_native", "import.reject_native"}:
+        import_id = str(payload.get("importId", ""))
+        collection_name = str(payload.get("collectionName", ""))
+        reason = str(payload.get("reason", ""))
+        if not import_id or len(import_id) > 128 or not collection_name or len(collection_name) > 256 or not reason or len(reason) > 512:
+            raise BridgeOperationError("INVALID_NATIVE_IMPORT_DECISION", "Import identity, collection, and displayed reason are required")
+        collection = bpy.data.collections.get(collection_name)
+        staged = [
+            obj for obj in bpy.context.scene.objects
+            if obj.get("simforge.import.id") == import_id and obj.get("simforge.role") == "import-staged"
+        ]
+        if collection is None or not staged or any(obj.name not in collection.objects for obj in staged):
+            raise BridgeOperationError("NATIVE_IMPORT_STAGING_MISSING", "The exact staged import is unavailable or changed")
+        changed_ids = [str(obj.get("simforge.id")) for obj in staged]
+        _INTERNAL_MUTATION = True
+        try:
+            if operation == "import.accept_native":
+                for obj in staged:
+                    obj["simforge.role"] = "imported"
+                    obj["simforge.import.decision_reason"] = reason
+                collection.name = f"SF Import - {import_id[:8]}"
+                bpy.context.view_layer.update()
+                return {
+                    "importId": import_id,
+                    "status": "ACCEPTED",
+                    "collectionName": collection.name,
+                    "objectCount": len(staged),
+                }, changed_ids, True
+            for obj in staged:
+                bpy.data.objects.remove(obj, do_unlink=True)
+            if collection.name in bpy.data.collections:
+                bpy.data.collections.remove(collection)
+            bpy.context.view_layer.update()
+            return {
+                "importId": import_id,
+                "status": "REJECTED",
+                "objectCount": len(staged),
+            }, changed_ids, True
+        finally:
+            _INTERNAL_MUTATION = False
     if operation == "preview.generate":
         preview_id = str(payload.get("previewId", ""))
         output_path = _safe_project_path(str(payload.get("outputPath", "")))
@@ -763,6 +916,113 @@ def _validate_robot_geometry(geometry: Any) -> None:
         raise BridgeOperationError("INVALID_ROBOT_GRAPH", "Robot sphere radius is invalid")
 
 
+def _validate_sensor_addition(robot_id: str, sensor: Any, material: Any, reason: str) -> None:
+    if not robot_id or len(robot_id) > 128 or not reason or len(reason) > 512:
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Robot identity and displayed reason are required")
+    if not isinstance(sensor, dict) or not isinstance(material, dict):
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Sensor and material objects are required")
+    for key in ("id", "name", "parentLinkId"):
+        value = sensor.get(key)
+        if not isinstance(value, str) or not value or len(value) > 128:
+            raise BridgeOperationError("INVALID_ROBOT_SENSOR", f"Sensor {key} is invalid")
+    if sensor.get("type") not in {"CAMERA", "LIDAR", "IMU"}:
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Sensor type is invalid")
+    pose = sensor.get("pose")
+    if not isinstance(pose, dict):
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Sensor pose is invalid")
+    for key in ("position", "rotationEuler"):
+        values = _vector(pose.get(key))
+        if any(not math.isfinite(value) or abs(value) > 1_000_000 for value in values):
+            raise BridgeOperationError("INVALID_ROBOT_SENSOR", f"Sensor {key} is outside safe numeric bounds")
+    field_of_view = sensor.get("fieldOfViewDegrees")
+    if field_of_view is not None and (
+        not isinstance(field_of_view, (int, float)) or not math.isfinite(float(field_of_view)) or
+        float(field_of_view) <= 0 or float(field_of_view) > 180
+    ):
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Sensor field of view is invalid")
+    for key in ("id", "name"):
+        value = material.get(key)
+        if not isinstance(value, str) or not value or len(value) > 128:
+            raise BridgeOperationError("INVALID_ROBOT_SENSOR", f"Sensor material {key} is invalid")
+    color = material.get("baseColor")
+    if not isinstance(color, list) or len(color) != 4 or any(
+        not isinstance(value, (int, float)) or not math.isfinite(float(value)) or float(value) < 0 or float(value) > 1
+        for value in color
+    ):
+        raise BridgeOperationError("INVALID_ROBOT_SENSOR", "Sensor material color is invalid")
+    for key in ("metallic", "roughness"):
+        value = material.get(key)
+        if not isinstance(value, (int, float)) or not math.isfinite(float(value)) or float(value) < 0 or float(value) > 1:
+            raise BridgeOperationError("INVALID_ROBOT_SENSOR", f"Sensor material {key} is invalid")
+
+
+def _validate_native_stage_payload(payload: dict[str, Any]) -> tuple[str, str, Path, str, str]:
+    import_id = str(payload.get("importId", ""))
+    import_format = str(payload.get("format", ""))
+    source_sha256 = str(payload.get("sourceSha256", ""))
+    collection_name = str(payload.get("collectionName", ""))
+    if not import_id or len(import_id) > 128 or import_format not in {"BLEND", "USD", "GLTF", "FBX", "OBJ", "STL"}:
+        raise BridgeOperationError("INVALID_NATIVE_IMPORT", "Native import identity or format is invalid")
+    if len(source_sha256) != 64 or any(value not in "0123456789abcdef" for value in source_sha256):
+        raise BridgeOperationError("INVALID_NATIVE_IMPORT", "Native import SHA-256 is invalid")
+    if not collection_name or len(collection_name) > 256 or bpy.data.collections.get(collection_name) is not None:
+        raise BridgeOperationError("INVALID_NATIVE_IMPORT", "Native staging collection is invalid or already exists")
+    source_path = _safe_project_path(str(payload.get("sourcePath", "")))
+    if not source_path.is_file() or source_path.is_symlink():
+        raise BridgeOperationError("INVALID_NATIVE_IMPORT", "Native staged source is missing or unsafe")
+    expected_extensions = {
+        "BLEND": {".blend"},
+        "USD": {".usd", ".usda", ".usdc", ".usdz"},
+        "GLTF": {".glb", ".gltf"},
+        "FBX": {".fbx"},
+        "OBJ": {".obj"},
+        "STL": {".stl"},
+    }
+    if source_path.suffix.lower() not in expected_extensions[import_format]:
+        raise BridgeOperationError("INVALID_NATIVE_IMPORT", "Native import extension does not match the approved format")
+    digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    if digest != source_sha256:
+        raise BridgeOperationError("NATIVE_IMPORT_HASH_CHANGED", "Native staged source changed after approval")
+    return import_id, import_format, source_path, source_sha256, collection_name
+
+
+def _run_native_import(source_path: Path, import_format: str, collection) -> None:
+    if import_format == "BLEND":
+        with bpy.data.libraries.load(str(source_path), link=False) as (data_from, data_to):
+            data_to.objects = list(data_from.objects)
+        for obj in data_to.objects:
+            if obj is not None:
+                collection.objects.link(obj)
+        return
+    if import_format == "USD":
+        result = bpy.ops.wm.usd_import(filepath=str(source_path))
+    elif import_format == "GLTF":
+        result = bpy.ops.import_scene.gltf(filepath=str(source_path))
+    elif import_format == "FBX":
+        result = bpy.ops.import_scene.fbx(filepath=str(source_path), use_anim=False)
+    elif import_format == "OBJ":
+        result = bpy.ops.wm.obj_import(filepath=str(source_path))
+    else:
+        result = bpy.ops.wm.stl_import(filepath=str(source_path))
+    if "FINISHED" not in result:
+        raise BridgeOperationError("NATIVE_IMPORT_FAILED", f"Blender {import_format} importer did not finish")
+
+
+def _reject_unsafe_import_images(existing_images: set[int], approved_root: Path) -> None:
+    approved_root = approved_root.resolve()
+    for image in bpy.data.images:
+        if int(image.as_pointer()) in existing_images or image.source != "FILE" or image.packed_file is not None:
+            continue
+        raw_path = image.filepath or ""
+        if not raw_path:
+            continue
+        resolved = Path(bpy.path.abspath(raw_path)).resolve()
+        try:
+            resolved.relative_to(approved_root)
+        except ValueError as error:
+            raise BridgeOperationError("NATIVE_IMPORT_EXTERNAL_REFERENCE", "Imported image reference escaped the staged import root") from error
+        if not resolved.is_file() or resolved.is_symlink():
+            raise BridgeOperationError("NATIVE_IMPORT_EXTERNAL_REFERENCE", "Imported image reference is missing or unsafe")
 def _validate_environment_graph(graph: Any) -> None:
     if not isinstance(graph, dict) or graph.get("schemaVersion") != 1:
         raise BridgeOperationError("INVALID_ENVIRONMENT_GRAPH", "EnvironmentGraph schema version is unsupported")

@@ -35,6 +35,8 @@ Requirements state required outcomes. Decisions record chosen product interpreta
 | DEC-025 | 2026-07-19 | Bridge lifecycle | Await bridge shutdown before app exit and remove dead, expired, or malformed descriptors before issuing a fresh token. | Approved | REQ-BLENDER-002, REQ-SECURITY-003, REQ-SECURITY-006 |
 | DEC-026 | 2026-07-19 | Workspace | Bind embedded inspection and capability routing to observed revisions/capabilities while keeping project/global privacy controls separate. | Approved | REQ-AI-007 through REQ-AI-010, REQ-VIEW-001 through REQ-VIEW-004, REQ-SECURITY-003 |
 | DEC-027 | 2026-07-19 | Generated environment | Use a versioned `EnvironmentGraph` and atomic exact-approved assembly operation; author real environment geometry into the neutral USD package. | Approved | REQ-PROD-004, REQ-PROD-005, REQ-VALIDATION-009, REQ-USD-003 |
+| DEC-028 | 2026-07-19 | Scope and delivery | Promote the optional Omniverse/Isaac Sim feedback loop from post-submission V2 planning into active pre-submission implementation, while keeping the core Blender authoring product usable when Isaac Sim is absent. Stop for owner validation before final documentation, demo-video recording, and submission. | Approved | REQ-PROD-008, REQ-PLATFORM-005, REQ-PLATFORM-006, REQ-V2-001 through REQ-V2-004 |
+| DEC-029 | 2026-07-19 | Import security and provenance | Use a pinned BSD-3-Clause ROS URDF fixture, direct contained TypeScript conversion to `RobotGraph`, and exact-approved native Blender staging with external references rejected. | Approved | REQ-IMPORT-003 through REQ-IMPORT-005, REQ-VALIDATION-009 |
 
 ## Architecture Decision Details
 
@@ -260,9 +262,58 @@ geometry and the fixed OpenUSD worker composes and reopens it through a relative
 hard-coded execution script. Environment edits remain revision/approval-bound. Detailed
 mesh imports and imported-asset integrity extend these same boundaries in MS8.
 
+### DEC-028: Optional but complete Isaac Sim feedback loop before submission
+
+**Context.** The baseline deliberately retained Isaac Sim as a V2 extension point. On
+2026-07-19 the owner explicitly expanded the active build goal: the working product must
+include Omniverse/Isaac Sim import, simulation evidence, analysis, approved correction,
+rerun comparison, and experiment history before the final documentation/video/submission
+phase.
+
+**Decision.** Complete MS8, then execute the existing MS11 extension as two bounded
+increments before returning to MS9 release work: (A) environment detection, canonical USD
+handoff, deterministic headless execution, metrics/media/failure capture, and persistence;
+(B) evidence-grounded AI analysis, exact-approved correction through existing Blender
+authority, re-export, rerun, comparison, and reloadable experiment history. Isaac Sim is a
+separately installed optional runtime, not bundled and not required to author or export.
+MS9 packaging and clean-install validation follow. The next owner review gate occurs after
+the working/tested build and immediately before final documentation, demo-video recording,
+and submission.
+
+**Consequences.** This is an owner-approved scope change, so DEC-013's delivery timing is
+superseded only for the Isaac loop; its priority label and the generated-path stability
+guard remain. The Electron/main-process, project storage, provider, approval, Blender, and
+neutral USD architecture stays intact. Current official Isaac Sim 6.0.1 guidance is the
+compatibility target, but Environment Doctor must report unsupported hardware honestly and
+the application must still launch without Isaac Sim.
+
+### DEC-029: Contained imported-robot and native-format path
+
+**Context.** MS8 needed one credible licensed robot path plus the hackathon-native format
+matrix without allowing imported files, references, Xacro, or parser behavior to bypass
+project, approval, and Blender authority boundaries.
+
+**Decision.** Pin Open Robotics' `ros/urdf_tutorial` physics robot at commit
+`050f1e47cfdb2c5f3eb0746bc15c57e6a870faef` under BSD-3-Clause. Hash and copy its
+contained source tree before parsing with pinned `fast-xml-parser` 5.10.0 configured
+without entities, then convert into the existing `RobotGraph` while reporting every
+conversion and mesh approximation. Stage `.blend`, USD, GLB/GLTF, FBX, OBJ, and STL
+through fixed Blender operators in an isolated collection. Bind stage/accept/reject to
+exact source hashes, collection identity, approval, checkpoint, and scene revision.
+Reject remote, unresolved, executable, escaping, or unapproved external references.
+
+**Consequences.** The imported path reuses the same deterministic validation, review,
+history, and USD export pipeline as generated robots. Original source, license, hashes,
+conversion report, and meaningful approved sensor modification travel with the project
+and canonical package. Complete MJCF/Xacro and multi-file native dependency support stay
+mapped to post-hackathon V1 rather than being implied by the proven matrix.
+
 ## Approval Record
 
 The project owner approved the full SimForge Documentation and Architecture Baseline
 on 2026-07-18, then explicitly instructed Codex to implement MS1 and MS2. On 2026-07-19
 the owner instructed Codex to continue in Goal Mode through the remaining milestones;
-the milestone evidence/checkpoint workflow remains mandatory.
+the milestone evidence/checkpoint workflow remains mandatory. Later on 2026-07-19 the
+owner explicitly promoted the full Isaac Sim feedback loop into the pre-submission build
+and moved the next stop gate to immediately before final documentation, demo video, and
+submission.

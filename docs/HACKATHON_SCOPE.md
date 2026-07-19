@@ -37,6 +37,12 @@ Retain complete guaranteed Blender/USD/GLB/GLTF/FBX/OBJ/STL/URDF/MJCF import cov
 
 Retain an implementation-ready extension for importing the verified USD package into Isaac Sim, configuring and running tasks, capturing logs/metrics/media, detecting failures, using AI to analyze results and propose changes, applying approved corrections, rerunning, comparing outcomes, and preserving experiment history.
 
+On 2026-07-19 the owner explicitly promoted this retained tier into active
+pre-submission implementation (DEC-028). The priority label remains stable for
+traceability. Isaac Sim remains a separately installed optional runtime: its absence must
+not prevent Blender authoring, deterministic validation, or neutral USD export, but a full
+installed-runtime feedback loop is now required before the release-candidate review gate.
+
 ## Scope Guards
 
 - No application code, UI mockups, or dependency installation during MS0.

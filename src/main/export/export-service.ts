@@ -19,6 +19,7 @@ import type {
   ExportKind,
   ExportManifest,
   ExportResult,
+  ImportReport,
   ReviewManifest,
   RobotGraph,
   ValidationRun,
@@ -27,6 +28,7 @@ import {
   ExportCheckSchema,
   ExportManifestSchema,
   ExportResultSchema,
+  ImportReportSchema,
   ReviewManifestSchema,
   EnvironmentGraphSchema,
   RobotGraphSchema,
@@ -136,7 +138,7 @@ export class ExportService {
     const packageRoot = path.resolve(String(bridgeResult.packageRoot));
     this.assertWithin(path.resolve(this.project.root, '.simforge', 'export-staging'), stagingRoot);
     this.assertWithin(stagingRoot, packageRoot);
-    await this.copySupplementalEvidence(packageRoot, snapshot.sceneRevision, graph.robotId, proposal.environmentId);
+    const importReport = await this.copySupplementalEvidence(packageRoot, snapshot.sceneRevision, graph.robotId, proposal.environmentId);
     const runtime = await locateUsdRuntime(this.applicationRoot);
     const requestPath = path.join(stagingRoot, 'export-request.json');
     const quickOutput = path.join(stagingRoot, 'quick.usdc');
@@ -154,11 +156,12 @@ export class ExportService {
       sceneRevision: snapshot.sceneRevision,
       graph,
       environmentGraph: environment,
+      importReport,
       sourceValidation: validation,
       limitations: [
         'Physical values marked ASSUMED are not measured hardware data.',
         'Primitive collision/contact checks are not simulator proof.',
-        'Isaac Sim execution is a V2 extension and is not required for this export.',
+        'Isaac Sim execution evidence is recorded separately and is never inferred from package validation.',
       ],
     };
     await writeFile(requestPath, `${JSON.stringify(request, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
@@ -311,7 +314,7 @@ export class ExportService {
     sceneRevision: number,
     robotId: string,
     environmentId: string | null,
-  ): Promise<void> {
+  ): Promise<ImportReport | null> {
     const sourceRoot = path.join(packageRoot, 'source');
     const validationRoot = path.join(packageRoot, 'validation');
     await mkdir(validationRoot, { recursive: true });
@@ -336,8 +339,25 @@ export class ExportService {
         { encoding: 'utf8', flag: 'wx' },
       );
     }
+    const importReport = this.findLatestImportReport(robotId);
+    if (importReport) {
+      const stagedSource = path.resolve(
+        this.project.root,
+        ...importReport.source.stagedRelativePath.split('/'),
+      );
+      const stagedRoot = path.dirname(stagedSource);
+      this.assertWithin(path.resolve(this.project.root, 'references', 'imports'), stagedRoot);
+      if (!await exists(stagedSource)) throw new Error('Imported source is missing during export');
+      const importSourceRoot = path.join(sourceRoot, 'imports', safeName(importReport.importId));
+      await this.copySafeTree(stagedRoot, importSourceRoot);
+      await writeFile(
+        path.join(validationRoot, 'import-report.json'),
+        `${JSON.stringify(importReport, null, 2)}\n`,
+        { encoding: 'utf8', flag: 'wx' },
+      );
+    }
     const review = this.findCurrentReview(sceneRevision, robotId, environmentId);
-    if (!review) return;
+    if (!review) return importReport;
     const previewRoot = path.join(validationRoot, 'preview-images');
     await mkdir(previewRoot, { recursive: true });
     for (const image of review.images) {
@@ -353,6 +373,16 @@ export class ExportService {
       `${JSON.stringify(review, null, 2)}\n`,
       { encoding: 'utf8', flag: 'wx' },
     );
+    return importReport;
+  }
+
+  private findLatestImportReport(robotId: string): ImportReport | null {
+    const entry = this.project.repository.listProjectRecords(this.project.manifest.projectId)
+      .toReversed()
+      .find((candidate) => candidate.kind === 'asset' && candidate.body.type === 'import-report');
+    if (!entry) return null;
+    assertContract<ImportReport>(ImportReportSchema, entry.body.report, 'stored import report');
+    return entry.body.report.robotGraph?.robotId === robotId ? entry.body.report : null;
   }
 
   private async persistReports(

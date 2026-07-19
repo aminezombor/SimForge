@@ -523,6 +523,21 @@ def _readiness_markdown(request: dict[str, Any], checks: list[dict[str, Any]]) -
         "",
     ]
     lines.extend(f"- `{check['id']}`: **{check['status']}**" for check in checks)
+    import_report = request.get("importReport")
+    if import_report:
+        lines.extend([
+            "",
+            "## Imported Asset Provenance",
+            "",
+            f"- Asset: {import_report['source']['name']}",
+            f"- Format: `{import_report['source']['format']}`",
+            f"- License: `{import_report['source']['license']}`",
+            f"- Source commit: `{import_report['source']['sourceCommit']}`",
+            f"- Source SHA-256: `{import_report['source']['sourceSha256']}`",
+            f"- Import status: `{import_report['status']}`",
+            f"- Disclosed conversions: {len(import_report.get('conversions', []))}",
+            f"- Disclosed losses: {len(import_report.get('losses', []))}",
+        ])
     lines.extend([
         "",
         "## Source Validation Summary",
@@ -544,7 +559,7 @@ def _readiness_markdown(request: dict[str, Any], checks: list[dict[str, Any]]) -
     lines.extend([
         "",
         "Visual review is advisory. Deterministic Blender and OpenUSD checks are the evidence source.",
-        "Isaac Sim execution is not required for this package.",
+        "Isaac Sim execution evidence is recorded separately and is never inferred from package validation.",
         "",
     ])
     return "\n".join(lines)
@@ -585,6 +600,7 @@ def _validation_document(request: dict[str, Any], checks: list[dict[str, Any]]) 
         "exportId": request["exportId"],
         "sceneRevision": request["sceneRevision"],
         "sourceValidation": request["sourceValidation"],
+        "importReport": request.get("importReport"),
         "usdChecks": checks,
         "assumptions": assumptions,
         "limitations": request.get("limitations", []),
@@ -859,6 +875,27 @@ def verify_command(path: Path) -> int:
     return 0 if result["ok"] else 1
 
 
+def dependencies_command(path: Path) -> int:
+    from pxr import UsdUtils
+
+    resolved = path.resolve()
+    if not resolved.is_file():
+        raise FileNotFoundError("USD dependency source is missing")
+    layers, assets, unresolved = UsdUtils.ComputeAllDependencies(str(resolved))
+    layer_paths = []
+    for layer in layers:
+        identifier = layer.realPath or layer.identifier
+        layer_paths.append(str(identifier))
+    _emit({
+        "ok": not unresolved,
+        "path": str(resolved),
+        "layers": sorted(set(layer_paths)),
+        "assets": sorted(set(str(value) for value in assets)),
+        "unresolved": sorted(set(str(value) for value in unresolved)),
+    })
+    return 0 if not unresolved else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     subcommands = parser.add_subparsers(dest="command", required=True)
@@ -869,6 +906,8 @@ def main() -> int:
     export_parser.add_argument("--request", type=Path, required=True)
     verify_parser = subcommands.add_parser("verify")
     verify_parser.add_argument("--path", type=Path, required=True)
+    dependencies_parser = subcommands.add_parser("dependencies")
+    dependencies_parser.add_argument("--path", type=Path, required=True)
     arguments = parser.parse_args()
     if arguments.command == "doctor":
         return doctor()
@@ -876,7 +915,9 @@ def main() -> int:
         return spike(arguments.output)
     if arguments.command == "export":
         return author_export(arguments.request)
-    return verify_command(arguments.path)
+    if arguments.command == "verify":
+        return verify_command(arguments.path)
+    return dependencies_command(arguments.path)
 
 
 if __name__ == "__main__":

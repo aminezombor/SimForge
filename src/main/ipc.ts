@@ -9,6 +9,7 @@ import type {
 } from '../shared/desktop-api';
 import type { AppRuntime } from './app-runtime';
 import type { ExportProposal } from './export/export-service';
+import type { NativeImportDecisionProposal, NativeImportProposal } from './import/native-import-service';
 
 const ALLOWED_MODES = new Set<Mode>(['normal', 'plan', 'build', 'goal']);
 const ALLOWED_PROVIDERS = new Set(['nvidia', 'openai'] as const);
@@ -105,6 +106,41 @@ export function registerIpc(runtime: AppRuntime): void {
   handle('scene:build-warehouse', (_event, approvalId: unknown) => {
     if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid warehouse build approval');
     return runtime.buildWarehouseScene(approvalId);
+  });
+  handle('import:get-latest', () => runtime.latestImportReport());
+  handle('import:stage-bundled-robot', () => runtime.stageBundledRobotImport());
+  handle('import:proposal-robot', () => runtime.importedRobotProposal());
+  handle('import:build-robot', (_event, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid imported robot build approval');
+    return runtime.buildImportedRobot(approvalId);
+  });
+  handle('import:proposal-modification', () => runtime.importedRobotModificationProposal());
+  handle('import:modify-robot', (_event, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid imported robot modification approval');
+    return runtime.modifyImportedRobot(approvalId);
+  });
+  handle('import:list-native', () => runtime.listNativeImports());
+  handle('import:choose-native', async (event) => {
+    const owner = BrowserWindow.fromWebContents(event.sender);
+    const options = {
+      title: 'Choose one local 3D file to copy into quarantine',
+      filters: [{ name: 'Supported 3D files', extensions: ['blend', 'usd', 'usda', 'usdc', 'usdz', 'glb', 'gltf', 'fbx', 'obj', 'stl'] }],
+      properties: ['openFile'] as Array<'openFile'>,
+    };
+    const result = owner ? await dialog.showOpenDialog(owner, options) : await dialog.showOpenDialog(options);
+    return result.canceled || !result.filePaths[0] ? null : runtime.prepareNativeImport(result.filePaths[0]);
+  });
+  handle('import:execute-native', (_event, rawProposal: unknown, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid native import approval');
+    return runtime.executeNativeImport(record(rawProposal, 'native import proposal') as unknown as NativeImportProposal, approvalId);
+  });
+  handle('import:decision-proposal', (_event, importId: unknown, accept: unknown) => {
+    if (typeof importId !== 'string' || typeof accept !== 'boolean') throw new Error('Invalid native import decision request');
+    return runtime.nativeImportDecisionProposal(importId, accept);
+  });
+  handle('import:execute-decision', (_event, rawProposal: unknown, approvalId: unknown) => {
+    if (typeof approvalId !== 'string' || !approvalId) throw new Error('Invalid native import decision approval');
+    return runtime.executeNativeImportDecision(record(rawProposal, 'native import decision proposal') as unknown as NativeImportDecisionProposal, approvalId);
   });
   handle('robot:render-review', (_event, label: unknown) => {
     if (typeof label !== 'string') throw new Error('Invalid review label');

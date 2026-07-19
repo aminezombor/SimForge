@@ -7,10 +7,14 @@ import type {
   EnvironmentGraph,
   ExportKind,
   ExportResult,
+  ImportReport,
   Mode,
   ModelDescriptor,
   ReviewManifest,
   RobotGraph,
+  RobotMaterial,
+  RobotSensor,
+  NativeImportReport,
   ValidationRun,
 } from '../shared/contracts';
 import { sha256 } from '../shared/hash';
@@ -61,6 +65,12 @@ import {
 } from './robotics/warehouse-mobile-manipulator';
 import { PreviewService } from './preview/preview-service';
 import { WorkspaceService } from './workspace/workspace-service';
+import { UrdfImportService } from './import/urdf-import-service';
+import {
+  NativeImportService,
+  type NativeImportDecisionProposal,
+  type NativeImportProposal,
+} from './import/native-import-service';
 
 export class AppRuntime {
   private project: ProjectHandle | null = null;
@@ -79,6 +89,8 @@ export class AppRuntime {
   private workspace: WorkspaceService | null = null;
   private providers: ProviderService | null = null;
   private modelRouter: ModelRouter | null = null;
+  private imports: UrdfImportService | null = null;
+  private nativeImports: NativeImportService | null = null;
   private closed = false;
   private readonly mockProvider = new MockProviderAdapter();
   private readonly aiTools = new AiToolCoordinator();
@@ -114,6 +126,8 @@ export class AppRuntime {
     );
     this.modelRouter = new ModelRouter(this.providers);
     this.workspace = new WorkspaceService(project, this.globalRepository, this.activities);
+    this.imports = new UrdfImportService(project, this.applicationRoot);
+    this.nativeImports = new NativeImportService(project, this.applicationRoot);
     this.workspace.ensureInitialConversation();
     this.approvals = new ApprovalService(project.repository);
     this.jobs = new JobOrchestrator(project.manifest.projectId, project.repository);
@@ -305,6 +319,239 @@ export class AppRuntime {
       error: validation.summary.error,
     });
     return { state: this.getState(), validation };
+  }
+
+  latestImportReport(): ImportReport | null {
+    return this.requireImports().latest();
+  }
+
+  async stageBundledRobotImport(): Promise<ImportReport> {
+    const report = await this.requireImports().stageBundledSample();
+    this.requireActivities().record('import', 'robot-import-staged', 'Verified and staged the licensed ROS URDF tutorial robot', {
+      importId: report.importId,
+      sourceSha256: report.source.sourceSha256,
+      sourceCommit: report.source.sourceCommit,
+      license: report.source.license,
+      links: report.robotGraph?.links.length ?? 0,
+      joints: report.robotGraph?.joints.length ?? 0,
+      losses: report.losses.length,
+      remoteReferencesAccepted: false,
+    });
+    return report;
+  }
+
+  importedRobotProposal(): {
+    planHash: string;
+    toolId: 'robot.materialize';
+    args: { graph: RobotGraph };
+    graph: RobotGraph;
+    report: ImportReport;
+    summary: string;
+  } {
+    const report = this.requireImports().latest();
+    if (!report || report.status !== 'STAGED' || !report.robotGraph) {
+      throw new Error('A verified staged URDF import is required before materialization');
+    }
+    const graph = report.robotGraph;
+    const args = { graph };
+    return {
+      planHash: sha256({ toolId: 'robot.materialize', args }),
+      toolId: 'robot.materialize',
+      args,
+      graph,
+      report,
+      summary: `${graph.links.length} imported links / ${graph.joints.length} joints / ${report.losses.length} disclosed conversion losses`,
+    };
+  }
+
+  async buildImportedRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: ImportReport;
+  }> {
+    const { snapshot } = await this.requireSceneState().refresh();
+    const proposal = this.importedRobotProposal();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    this.saveRobotGraph(proposal.graph, execution);
+    const report = this.requireImports().markMaterialized(proposal.report, execution.postRevision);
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('import', 'robot-import-materialized', 'Materialized and validated the approved imported RobotGraph', {
+      importId: report.importId,
+      robotId: proposal.graph.robotId,
+      sceneRevision: validation.sceneRevision,
+      checkpointId: execution.checkpointId,
+      blocker: validation.summary.blocker,
+      error: validation.summary.error,
+    });
+    return { state: this.getState(), validation, report };
+  }
+
+  importedRobotModificationProposal(): {
+    planHash: string;
+    toolId: 'robot.add_sensor';
+    args: { robotId: string; sensor: RobotSensor; material: RobotMaterial; reason: string };
+    graph: RobotGraph;
+    report: ImportReport;
+    summary: string;
+  } {
+    const report = this.requireImports().latest();
+    if (!report || report.status !== 'MATERIALIZED' || !report.robotGraph) {
+      throw new Error('The imported robot must be materialized before proposing a modification');
+    }
+    const head = report.robotGraph.links.find((link) => link.id === 'head') ?? report.robotGraph.links[0];
+    if (!head) throw new Error('The imported robot has no sensor parent link');
+    const sensor: RobotSensor = {
+      id: 'simforge-inspection-camera',
+      name: 'SimForge Forward Inspection Camera',
+      type: 'CAMERA',
+      parentLinkId: head.id,
+      pose: {
+        position: [head.pose.position[0] + 0.18, head.pose.position[1], head.pose.position[2] + 0.03],
+        rotationEuler: [0, 0, 0],
+      },
+      fieldOfViewDegrees: 68,
+    };
+    if (report.robotGraph.sensors.some((candidate) => candidate.id === sensor.id)) {
+      throw new Error('The meaningful imported-robot modification already exists');
+    }
+    const material = report.robotGraph.materials.find((candidate) => candidate.id === 'sensor-amber');
+    if (!material) throw new Error('The reviewed sensor material is absent from the imported graph');
+    const reason = 'Add a forward inspection camera to make the imported robot materially useful for visual inspection tasks.';
+    const graph: RobotGraph = {
+      ...report.robotGraph,
+      sensors: [...report.robotGraph.sensors, sensor],
+      assumptions: [...report.robotGraph.assumptions, 'The added camera uses a user-approved 68-degree horizontal field of view and is not claimed to be source URDF data.'],
+    };
+    const args = { robotId: graph.robotId, sensor, material, reason };
+    return {
+      planHash: sha256({ toolId: 'robot.add_sensor', args }),
+      toolId: 'robot.add_sensor',
+      args,
+      graph,
+      report,
+      summary: `Add one exact-approved 68° inspection camera to ${head.name}; preserve all ${graph.links.length} imported links and source provenance`,
+    };
+  }
+
+  async modifyImportedRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: ImportReport;
+  }> {
+    const { snapshot } = await this.requireSceneState().refresh();
+    const proposal = this.importedRobotModificationProposal();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    this.saveRobotGraph(proposal.graph, execution);
+    const report = this.requireImports().markModified(
+      proposal.report,
+      proposal.graph,
+      execution.postRevision,
+      proposal.summary,
+    );
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('import', 'robot-import-modified', 'Added and validated the approved inspection camera', {
+      importId: report.importId,
+      robotId: proposal.graph.robotId,
+      sceneRevision: validation.sceneRevision,
+      checkpointId: execution.checkpointId,
+      sensors: proposal.graph.sensors.length,
+      blocker: validation.summary.blocker,
+      error: validation.summary.error,
+    });
+    return { state: this.getState(), validation, report };
+  }
+
+  listNativeImports(): NativeImportReport[] {
+    return this.requireNativeImports().list();
+  }
+
+  prepareNativeImport(sourcePath: string): Promise<NativeImportProposal> {
+    return this.requireNativeImports().prepare(sourcePath);
+  }
+
+  async executeNativeImport(
+    proposal: NativeImportProposal,
+    approvalId: string,
+  ): Promise<{ state: AppState; validation: ValidationRun; report: NativeImportReport }> {
+    this.requireNativeImports().validateProposal(proposal);
+    const { snapshot } = await this.requireSceneState().refresh();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    const report = this.requireNativeImports().markStaged(proposal.report, execution.result, execution.postRevision);
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('import', 'native-import-staged', `Blender staged ${report.objectCount} ${report.source.format} objects`, {
+      importId: report.importId,
+      format: report.source.format,
+      sourceSha256: report.source.sha256,
+      objectCount: report.objectCount,
+      checkpointId: execution.checkpointId,
+      sceneRevision: report.sceneRevision,
+      externalReferencesAccepted: false,
+    });
+    return { state: this.getState(), validation, report };
+  }
+
+  nativeImportDecisionProposal(importId: string, accept: boolean): NativeImportDecisionProposal {
+    return this.requireNativeImports().decisionProposal(importId, accept);
+  }
+
+  async executeNativeImportDecision(
+    proposal: NativeImportDecisionProposal,
+    approvalId: string,
+  ): Promise<{ state: AppState; validation: ValidationRun; report: NativeImportReport }> {
+    this.requireNativeImports().validateDecisionProposal(proposal);
+    const { snapshot } = await this.requireSceneState().refresh();
+    const project = this.requireProject();
+    const execution = await this.requireExecutor().execute(proposal.toolId, proposal.args, {
+      projectId: project.manifest.projectId,
+      mode: project.repository.getMode(),
+      planHash: proposal.planHash,
+      planApproved: true,
+      sceneRevision: snapshot.sceneRevision,
+      approvalId,
+      origin: 'general',
+    });
+    const accepted = proposal.toolId === 'import.accept_native';
+    const report = this.requireNativeImports().markDecision(proposal.report, accepted, execution.postRevision);
+    await this.requireSceneState().refresh();
+    const validation = await this.requireValidation().run();
+    this.requireActivities().record('import', accepted ? 'native-import-accepted' : 'native-import-rejected', proposal.summary, {
+      importId: report.importId,
+      format: report.source.format,
+      objectCount: report.objectCount,
+      checkpointId: execution.checkpointId,
+      sceneRevision: report.sceneRevision,
+    });
+    return { state: this.getState(), validation, report };
   }
 
   warehouseProposal(): {
@@ -1043,6 +1290,46 @@ export class AppRuntime {
   private requireWorkspace(): WorkspaceService {
     if (!this.workspace) throw new Error('Workspace service is not initialized');
     return this.workspace;
+  }
+
+  private requireImports(): UrdfImportService {
+    if (!this.imports) throw new Error('Import service is not initialized');
+    return this.imports;
+  }
+
+  private requireNativeImports(): NativeImportService {
+    if (!this.nativeImports) throw new Error('Native import service is not initialized');
+    return this.nativeImports;
+  }
+
+  private saveRobotGraph(
+    graph: RobotGraph,
+    execution: {
+      preRevision: number;
+      postRevision: number;
+      checkpointId: string | null;
+      result: unknown;
+    },
+  ): void {
+    const project = this.requireProject();
+    const now = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${graph.robotId}:${execution.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: {
+        type: 'robot-graph',
+        graph,
+        materialization: {
+          preRevision: execution.preRevision,
+          postRevision: execution.postRevision,
+          checkpointId: execution.checkpointId,
+          result: execution.result,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
   }
 
   private goalView(state: ReturnType<JobOrchestrator['get']>): GoalJobView {

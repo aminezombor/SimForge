@@ -12,6 +12,9 @@ The MS1 production dependency audit (`pnpm licenses list --prod --json`) found:
   dependencies; React 19.2.7; React DOM 19.2.7; Scheduler 0.27.0; TypeBox
   0.34.52; Ajv 8.20.0; Ajv Formats 3.0.1; and their MIT dependencies.
 - BSD-3-Clause: fast-uri 3.1.3.
+- MIT: `fast-xml-parser` 5.10.0 and its retained production dependencies. SimForge
+  configures entity processing off and adds separate declaration/URL/path limits; the
+  parser never executes Xacro or source code.
 
 Electron 43.1.1 is MIT-licensed and includes Chromium/Node components. Its packaged
 `LICENSE`, `LICENSES.chromium.html`, and version files are retained in the Electron
@@ -27,4 +30,18 @@ development tooling and retain their upstream licenses.
 - Blender 4.5 LTS is an external GPL prerequisite and is not redistributed by SimForge.
 - The SimForge Blender extension includes its GPL-3.0-or-later notice and SPDX metadata.
 
-No third-party robot, texture, environment, or sample asset is included through MS5.
+## Included Demonstration Asset
+
+The MS8 imported-robot demonstration includes selected unmodified source files from the
+Open Robotics `ros/urdf_tutorial` repository at commit
+`050f1e47cfdb2c5f3eb0746bc15c57e6a870faef`, under BSD-3-Clause:
+
+- `urdf/07-physics.urdf`
+- `meshes/l_finger.dae`
+- `meshes/l_finger_tip.dae`
+- the upstream `LICENSE`
+
+Exact source URLs, byte counts, and SHA-256 digests are recorded in
+`sample-data/imports/ros-urdf-tutorial-r2d2/SOURCE.json`. The retained files are
+unmodified. SimForge converts the URDF into its neutral RobotGraph; COLLADA finger meshes
+are kept as source evidence but intentionally approximated with disclosed box primitives.

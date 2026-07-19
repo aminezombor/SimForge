@@ -42,11 +42,13 @@ import type {
   AppState,
   ExportKind,
   ExportResult,
+  ImportReport,
   Mode,
   ModelDescriptor,
   ReviewManifest,
   SceneObject,
   ScenePreviewManifest,
+  NativeImportReport,
   ValidationRun,
 } from '../shared/contracts';
 import type {
@@ -57,6 +59,10 @@ import type {
   ConversationSummaryView,
   ExportProposal,
   GoalJobView,
+  ImportedRobotModificationProposal,
+  ImportedRobotProposal,
+  NativeImportDecisionProposal,
+  NativeImportProposal,
   MemoryView,
   SimForgeDesktopApi,
   TimelineEventView,
@@ -113,6 +119,16 @@ function App() {
   const [job, setJob] = useState<GoalJobView | null>(null);
   const [robotProposal, setRobotProposal] = useState<WarehouseProposal | null>(null);
   const [robotApproval, setRobotApproval] = useState<string | null>(null);
+  const [importReport, setImportReport] = useState<ImportReport | null>(null);
+  const [importProposal, setImportProposal] = useState<ImportedRobotProposal | null>(null);
+  const [importApproval, setImportApproval] = useState<string | null>(null);
+  const [importModification, setImportModification] = useState<ImportedRobotModificationProposal | null>(null);
+  const [importModificationApproval, setImportModificationApproval] = useState<string | null>(null);
+  const [nativeImports, setNativeImports] = useState<NativeImportReport[]>([]);
+  const [nativeProposal, setNativeProposal] = useState<NativeImportProposal | null>(null);
+  const [nativeApproval, setNativeApproval] = useState<string | null>(null);
+  const [nativeDecision, setNativeDecision] = useState<NativeImportDecisionProposal | null>(null);
+  const [nativeDecisionApproval, setNativeDecisionApproval] = useState<string | null>(null);
   const [validation, setValidation] = useState<ValidationRun | null>(null);
   const [checkpoints, setCheckpoints] = useState<CheckpointView[]>([]);
   const [versions, setVersions] = useState<VersionView[]>([]);
@@ -145,10 +161,10 @@ function App() {
   }, []);
 
   const refreshWorkspace = useCallback(async () => {
-    const [nextState, nextConversations, nextValidation, nextCheckpoints, nextVersions, nextTimeline, nextExports, nextSettings, nextReviews] = await Promise.all([
+    const [nextState, nextConversations, nextValidation, nextCheckpoints, nextVersions, nextTimeline, nextExports, nextSettings, nextReviews, nextImport, nextNativeImports] = await Promise.all([
       desktop.getState(), desktop.listConversations(search), desktop.getLatestValidation(),
       desktop.listCheckpoints(), desktop.listVersions(), desktop.getTimeline(), desktop.listExports(),
-      desktop.getWorkspaceSettings(), desktop.listReviews(),
+      desktop.getWorkspaceSettings(), desktop.listReviews(), desktop.getLatestImportReport(), desktop.listNativeImports(),
     ]);
     setState(nextState);
     setConversations(nextConversations);
@@ -159,6 +175,8 @@ function App() {
     setExports(nextExports);
     setSettings(nextSettings);
     setReviews(nextReviews);
+    setImportReport(nextImport);
+    setNativeImports(nextNativeImports);
     const active = nextConversations.some((entry) => entry.id === activeConversationId)
       ? activeConversationId
       : nextConversations[0]?.id ?? '';
@@ -167,6 +185,16 @@ function App() {
       desktop.getGoal(nextState.activeGoalJobId).then(setJob).catch(() => setJob(null));
     }
     desktop.getWarehouseProposal().then(setRobotProposal).catch(() => setRobotProposal(null));
+    if (nextImport?.status === 'STAGED') {
+      desktop.getImportedRobotProposal().then(setImportProposal).catch(() => setImportProposal(null));
+      setImportModification(null);
+    } else if (nextImport?.status === 'MATERIALIZED') {
+      setImportProposal(null);
+      desktop.getImportedRobotModificationProposal().then(setImportModification).catch(() => setImportModification(null));
+    } else {
+      setImportProposal(null);
+      setImportModification(null);
+    }
   }, [activeConversationId, search]);
 
   const loadConversation = useCallback(async (conversationId: string) => {
@@ -289,6 +317,109 @@ function App() {
     setDockTab('validation');
     await generatePreview();
     await refreshWorkspace();
+  });
+  const stageImport = () => run('import-stage', async () => {
+    const report = await desktop.stageBundledRobotImport();
+    setImportReport(report);
+    setImportProposal(await desktop.getImportedRobotProposal());
+    setImportApproval(null);
+    setImportModification(null);
+    setImportModificationApproval(null);
+    await refreshWorkspace();
+  });
+  const buildImportedRobot = () => run('import-build', async () => {
+    if (!importProposal) return;
+    if (!importApproval) {
+      setImportApproval(await desktop.approveAction({
+        planHash: importProposal.planHash,
+        toolId: importProposal.toolId,
+        args: importProposal.args,
+      }));
+      return;
+    }
+    const result = await desktop.buildImportedRobot(importApproval);
+    setState(result.state);
+    setValidation(result.validation);
+    setImportReport(result.report);
+    setImportProposal(null);
+    setImportApproval(null);
+    setImportModification(await desktop.getImportedRobotModificationProposal());
+    setDockTab('validation');
+    await generatePreview();
+    await refreshWorkspace();
+  });
+  const modifyImportedRobot = () => run('import-modify', async () => {
+    if (!importModification) return;
+    if (!importModificationApproval) {
+      setImportModificationApproval(await desktop.approveAction({
+        planHash: importModification.planHash,
+        toolId: importModification.toolId,
+        args: importModification.args,
+      }));
+      return;
+    }
+    const result = await desktop.modifyImportedRobot(importModificationApproval);
+    setState(result.state);
+    setValidation(result.validation);
+    setImportReport(result.report);
+    setImportModification(null);
+    setImportModificationApproval(null);
+    setDockTab('validation');
+    await generatePreview();
+    await refreshWorkspace();
+  });
+  const chooseNativeImport = () => run('native-choose', async () => {
+    const proposal = await desktop.chooseNativeImport();
+    if (!proposal) return;
+    setNativeProposal(proposal);
+    setNativeApproval(null);
+    setNativeDecision(null);
+    setNativeDecisionApproval(null);
+    setNativeImports(await desktop.listNativeImports());
+  });
+  const stageNativeImport = () => run('native-stage', async () => {
+    if (!nativeProposal) return;
+    if (!nativeApproval) {
+      setNativeApproval(await desktop.approveAction({
+        planHash: nativeProposal.planHash,
+        toolId: nativeProposal.toolId,
+        args: nativeProposal.args,
+      }));
+      return;
+    }
+    const result = await desktop.executeNativeImport(nativeProposal, nativeApproval);
+    setState(result.state);
+    setValidation(result.validation);
+    setNativeImports(await desktop.listNativeImports());
+    setNativeProposal(null);
+    setNativeApproval(null);
+    setDockTab('validation');
+    await generatePreview();
+  });
+  const decideNativeImport = (accept: boolean) => run(accept ? 'native-accept' : 'native-reject', async () => {
+    const staged = nativeImports.find((entry) => entry.status === 'STAGED');
+    if (!staged) return;
+    if (!nativeDecision || nativeDecision.toolId !== (accept ? 'import.accept_native' : 'import.reject_native')) {
+      setNativeDecision(await desktop.getNativeImportDecisionProposal(staged.importId, accept));
+      setNativeDecisionApproval(null);
+      return;
+    }
+    if (!nativeDecisionApproval) {
+      setNativeDecisionApproval(await desktop.approveAction({
+        planHash: nativeDecision.planHash,
+        toolId: nativeDecision.toolId,
+        args: nativeDecision.args,
+      }));
+      return;
+    }
+    const result = await desktop.executeNativeImportDecision(nativeDecision, nativeDecisionApproval);
+    setState(result.state);
+    setValidation(result.validation);
+    setNativeImports(await desktop.listNativeImports());
+    setNativeDecision(null);
+    setNativeDecisionApproval(null);
+    setDockTab('validation');
+    await generatePreview();
   });
   const renderReview = () => run('review', async () => {
     const manifest = await desktop.renderPrimitiveRobotReview(`Review at scene r${state.sceneRevision ?? 0}`);
@@ -422,6 +553,31 @@ function App() {
             })} />}
             {state.mode === 'goal' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
             {state.mode === 'build' && <BuildCard proposal={robotProposal} approved={Boolean(robotApproval)} validation={validation} onBuild={buildRobot} onValidate={runValidation} onPreview={generatePreview} busy={busy} />}
+            {['build', 'goal'].includes(state.mode) && <ImportCard
+              report={importReport}
+              proposal={importProposal}
+              proposalApproved={Boolean(importApproval)}
+              modification={importModification}
+              modificationApproved={Boolean(importModificationApproval)}
+              busy={busy}
+              onStage={stageImport}
+              onBuild={buildImportedRobot}
+              onModify={modifyImportedRobot}
+              onValidate={runValidation}
+              onPreview={generatePreview}
+            />}
+            {['build', 'goal'].includes(state.mode) && <NativeImportCard
+              reports={nativeImports}
+              proposal={nativeProposal}
+              proposalApproved={Boolean(nativeApproval)}
+              decision={nativeDecision}
+              decisionApproved={Boolean(nativeDecisionApproval)}
+              busy={busy}
+              onChoose={chooseNativeImport}
+              onStage={stageNativeImport}
+              onDecision={decideNativeImport}
+              onPreview={generatePreview}
+            />}
           </div>
 
           <div className="composer-dock">
@@ -529,6 +685,68 @@ function GoalCard({ job, onNext, onCommand }: { job: GoalJobView | null; onNext:
 function BuildCard({ proposal, approved, validation, onBuild, onValidate, onPreview, busy }: { proposal: WarehouseProposal | null; approved: boolean; validation: ValidationRun | null; onBuild: () => void; onValidate: () => void; onPreview: () => void; busy: string }) {
   const verified = validation?.channels.includes('deterministic-robotics') && validation.channels.includes('deterministic-environment');
   return <section className="workflow-card"><header><span><Robot size={20} weight="duotone" /></span><div><small>STRUCTURED ASSEMBLY · CHECKPOINTED</small><h3>Warehouse mobile manipulator</h3></div>{verified && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> built</span>}</header><p>{proposal?.summary ?? 'Loading deterministic robot and environment graphs…'}</p><div className="card-actions"><button className="primary-action" onClick={onBuild} disabled={!proposal || busy === 'robot'}>{approved ? <><Robot size={15} /> Build checkpointed scene</> : <><Check size={15} /> Review & approve build</>}</button><button onClick={onValidate}><ListChecks size={15} /> Validate</button><button onClick={onPreview}><CubeFocus size={15} /> Preview</button></div></section>;
+}
+
+function ImportCard({ report, proposal, proposalApproved, modification, modificationApproved, busy, onStage, onBuild, onModify, onValidate, onPreview }: {
+  report: ImportReport | null;
+  proposal: ImportedRobotProposal | null;
+  proposalApproved: boolean;
+  modification: ImportedRobotModificationProposal | null;
+  modificationApproved: boolean;
+  busy: string;
+  onStage: () => void;
+  onBuild: () => void;
+  onModify: () => void;
+  onValidate: () => void;
+  onPreview: () => void;
+}) {
+  const completed = report?.status === 'MODIFIED';
+  const primary = !report
+    ? { action: onStage, label: 'Stage verified BSD robot', icon: <FilePlus size={15} />, disabled: busy === 'import-stage' }
+    : report.status === 'STAGED'
+      ? { action: onBuild, label: proposalApproved ? 'Build checkpointed import' : 'Review & approve import', icon: proposalApproved ? <Robot size={15} /> : <Check size={15} />, disabled: !proposal || busy === 'import-build' }
+      : report.status === 'MATERIALIZED'
+        ? { action: onModify, label: modificationApproved ? 'Add inspection camera' : 'Review camera modification', icon: modificationApproved ? <CubeFocus size={15} /> : <Check size={15} />, disabled: !modification || busy === 'import-modify' }
+        : null;
+  return <section className="workflow-card import-card">
+    <header><span><FilePlus size={20} weight="duotone" /></span><div><small>LICENSED IMPORT · QUARANTINED</small><h3>Open Robotics R2-D2 tutorial robot</h3></div>{completed && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> modified</span>}</header>
+    <p>{modification?.summary ?? proposal?.summary ?? (completed ? report.modification?.summary : 'Hash-verify a pinned BSD-3-Clause URDF and contained mesh sources before Blender receives structured geometry.')}</p>
+    {report && <div className="import-facts"><span><strong>{report.robotGraph?.links.length ?? 0}</strong><small>links</small></span><span><strong>{report.robotGraph?.joints.length ?? 0}</strong><small>joints</small></span><span><strong>{report.losses.length}</strong><small>disclosed losses</small></span><span><strong>{report.source.license}</strong><small>license</small></span></div>}
+    {report && <p className="import-provenance">Pinned source {report.source.sourceCommit.slice(0, 10)} · SHA-256 {report.source.sourceSha256.slice(0, 12)}… · remote references rejected</p>}
+    <div className="card-actions">{primary && <button className="primary-action" onClick={primary.action} disabled={primary.disabled}>{primary.icon}{primary.label}</button>}{report && <button onClick={onValidate}><ListChecks size={15} /> Validate</button>}{report?.materializedSceneRevision !== null && <button onClick={onPreview}><CubeFocus size={15} /> Preview</button>}</div>
+  </section>;
+}
+
+function NativeImportCard({ reports, proposal, proposalApproved, decision, decisionApproved, busy, onChoose, onStage, onDecision, onPreview }: {
+  reports: NativeImportReport[];
+  proposal: NativeImportProposal | null;
+  proposalApproved: boolean;
+  decision: NativeImportDecisionProposal | null;
+  decisionApproved: boolean;
+  busy: string;
+  onChoose: () => void;
+  onStage: () => void;
+  onDecision: (accept: boolean) => void;
+  onPreview: () => void;
+}) {
+  const latest = reports[0] ?? null;
+  const staged = reports.find((entry) => entry.status === 'STAGED') ?? null;
+  const decisionLabel = !decision
+    ? 'Review acceptance'
+    : !decisionApproved
+      ? 'Approve exact staged objects'
+      : 'Accept into project';
+  return <section className="workflow-card native-import-card">
+    <header><span><Database size={20} weight="duotone" /></span><div><small>NATIVE FORMAT MATRIX · EXACT APPROVAL</small><h3>Stage a local engineering asset</h3></div>{latest?.status === 'ACCEPTED' && <span className="verified-pill"><CheckCircle size={14} weight="fill" /> accepted</span>}</header>
+    <p>{proposal?.summary ?? (staged ? `${staged.objectCount} ${staged.source.format} objects are isolated for inspection. Accept or reject the exact collection.` : 'Supports self-contained Blender, USD, GLB/GLTF, FBX, OBJ, and STL files. Files are copied, hashed, and checked before Blender access.')}</p>
+    {latest && <div className="native-import-status"><span>{latest.source.format}</span><strong>{latest.source.name}</strong><small>{latest.status.toLowerCase()} · {latest.objectCount} objects · {latest.source.sha256.slice(0, 12)}…</small></div>}
+    <div className="card-actions">
+      {!proposal && !staged && <button className="primary-action" onClick={onChoose} disabled={busy === 'native-choose'}><FilePlus size={15} /> Choose local 3D file</button>}
+      {proposal && <button className="primary-action" onClick={onStage} disabled={busy === 'native-stage'}>{proposalApproved ? <><Database size={15} /> Stage in Blender</> : <><Check size={15} /> Review & approve staging</>}</button>}
+      {staged && <><button className="primary-action" onClick={() => onDecision(true)} disabled={busy === 'native-accept'}><Check size={15} /> {decision?.toolId === 'import.accept_native' ? decisionLabel : 'Review acceptance'}</button><button onClick={() => onDecision(false)} disabled={busy === 'native-reject'}><Trash size={15} /> {decision?.toolId === 'import.reject_native' && decisionApproved ? 'Reject staged objects' : 'Review rejection'}</button><button onClick={onPreview}><CubeFocus size={15} /> Inspect preview</button></>}
+      {latest?.status === 'ACCEPTED' && <button onClick={onChoose}><Plus size={15} /> Import another</button>}
+    </div>
+  </section>;
 }
 
 function ThreeViewport({ dataUrl, manifest, selectedId, onSelect }: { dataUrl: string; manifest: ScenePreviewManifest; selectedId: string | null; onSelect: (id: string | null) => void }) {
@@ -836,6 +1054,9 @@ function createDemoApi(): SimForgeDesktopApi {
       getPrimitiveRobotProposal: async () => ({ planHash: 'demo', toolId: 'robot.materialize', args: { graph: {} }, graph: {}, summary: '6 links / 5 joints / 2 sensor frames' }),
       getWarehouseProposal: async () => ({ planHash: 'demo-warehouse', toolId: 'scene.materialize_assembly', args: { robotGraph: {}, environmentGraph: {} }, robotGraph: {}, environmentGraph: {}, summary: '12 links / 11 joints / 3 sensors / 15 warehouse objects' }),
       buildWarehouseScene: async () => ({ state: state(), validation: demoValidation }),
+      getLatestImportReport: async () => null,
+      listNativeImports: async () => [],
+      chooseNativeImport: async () => null,
       runEnvironmentDoctor: async () => [
         { id: 'blender', ok: true, summary: 'Detected and compatible', path: 'C:\\Program Files\\Blender Foundation\\Blender 4.5' },
         { id: 'python', ok: true, summary: 'Python 3.13 runtime is ready', path: null },

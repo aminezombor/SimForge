@@ -19,6 +19,7 @@ const config: ForgeConfig = {
     extraResource: [
       'sidecars',
       'blender-extension',
+      'sample-data',
       '.tools/usd-runtime',
       'THIRD_PARTY_NOTICES.md',
       'LICENSE',

@@ -1,0 +1,319 @@
+{
+  "appVersion": "0.1.0",
+  "assumptions": [
+    "URDF units are interpreted as meters, kilograms, and radians.",
+    "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+    "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+    "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane.",
+    "The added camera is user-approved SimForge metadata, not source URDF data."
+  ],
+  "conventions": {
+    "metersPerUnit": 1.0,
+    "robotForwardAxis": "X",
+    "upAxis": "Z"
+  },
+  "createdAt": "2026-07-19T13:43:07.362Z",
+  "entryPoint": "scene.usda",
+  "exportId": "67ddf176-8289-4286-a2e2-3879fc735d96",
+  "files": [
+    {
+      "bytes": 219,
+      "path": "environment/environment.usda",
+      "role": "usd-layer",
+      "sha256": "de80dfdcb920d894fb3235f353c7de56068608cf40445a67129251a831bbc9a7"
+    },
+    {
+      "bytes": 81366,
+      "path": "robot/geometry/robot_geometry.usdc",
+      "role": "usd-layer",
+      "sha256": "57a7912e630226c137aee9b37127357248f28ae5f115ca415a5f6d0f5c668d54"
+    },
+    {
+      "bytes": 109,
+      "path": "robot/geometry/textures/color_121212.hdr",
+      "role": "source-artifact",
+      "sha256": "c4c6bc7a125abb414d9336a2b03c698f9db650c7917b69068beaedb569cb2291"
+    },
+    {
+      "bytes": 4306,
+      "path": "robot/materials/robot_materials.usda",
+      "role": "usd-layer",
+      "sha256": "ca04b1d0a9cb5ba2777d892671ce46cfc9b489d47253ca69b5dd5b1b4338030a"
+    },
+    {
+      "bytes": 33930,
+      "path": "robot/physics/robot_physics.usda",
+      "role": "usd-layer",
+      "sha256": "1011eb8b13c744a4b93b468c713957678b92a6ffeb334351f92eaebbc41c05a0"
+    },
+    {
+      "bytes": 696,
+      "path": "robot/robot.usda",
+      "role": "usd-layer",
+      "sha256": "6fa96e28b4cb9e260ab2552f9b4ca62bdf5264116e328e61839f91c5c10f7adf"
+    },
+    {
+      "bytes": 640,
+      "path": "robot/sensors/robot_sensors.usda",
+      "role": "usd-layer",
+      "sha256": "b3efeb77d123eda56450cd5eda195b669c8a57257f7ee9b333f45c1f2d2cc75f"
+    },
+    {
+      "bytes": 480,
+      "path": "scene.usda",
+      "role": "usd-layer",
+      "sha256": "24e4466baf07e27aa52f0659fc8a34d2eea5e518ca7c79f1a63f3f91f1a87eeb"
+    },
+    {
+      "bytes": 10747,
+      "path": "source/actions.json",
+      "role": "machine-data",
+      "sha256": "9756b5e37d84dba766be4702ae9ef19eada1a194d6f10c3a439604e2cfba96a2"
+    },
+    {
+      "bytes": 10980,
+      "path": "source/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/07-physics.urdf",
+      "role": "source-artifact",
+      "sha256": "78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047"
+    },
+    {
+      "bytes": 1535,
+      "path": "source/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/LICENSE",
+      "role": "source-artifact",
+      "sha256": "c106b484e24ab0581699ca5105c59335703bc27561c3f43431ae01dc61be830d"
+    },
+    {
+      "bytes": 145734,
+      "path": "source/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger.dae",
+      "role": "source-artifact",
+      "sha256": "cfb66ef1ee6693a76f8da59833af40a31b185a4ebcd5bcdc8a5fa15b6378accd"
+    },
+    {
+      "bytes": 78077,
+      "path": "source/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger_tip.dae",
+      "role": "source-artifact",
+      "sha256": "d2c7576f922563e611424b6488a0cc34c1411c8c1abd20fc39859e46eba3d408"
+    },
+    {
+      "bytes": 1205,
+      "path": "source/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/SOURCE.json",
+      "role": "machine-data",
+      "sha256": "2a8928eb64f6cd9fbb3ea9b2463b3557b3da8f7409423bea0338120897c9bb5c"
+    },
+    {
+      "bytes": 910349,
+      "path": "source/project.blend",
+      "role": "blender-source",
+      "sha256": "79503fc7f97cce569b719a43e9ea3a68d0a51a3ad93b4633f46db0c23fe45b42"
+    },
+    {
+      "bytes": 241,
+      "path": "source/simforge.project.json",
+      "role": "machine-data",
+      "sha256": "6b56ccf8731016ad89f224f03471a8a3d990f2ee50876358d2290532724ef305"
+    },
+    {
+      "bytes": 2282,
+      "path": "THIRD_PARTY_NOTICES.md",
+      "role": "documentation",
+      "sha256": "74774281b809b117850324a26970aa1281c01ee07eb649cc8879a1e6ee8ba426"
+    },
+    {
+      "bytes": 36886,
+      "path": "validation/import-report.json",
+      "role": "machine-data",
+      "sha256": "a14358cea7b7fdda2446c4db78e18cf57d63e74cf4fc5ba28eee2d5e31c565d4"
+    },
+    {
+      "bytes": 259041,
+      "path": "validation/preview-images/close-up.png",
+      "role": "preview",
+      "sha256": "d1cd8591f49f7f002c0a144c5f4e89c2c8f5a545aad3a3572da5b6ad062ad2db"
+    },
+    {
+      "bytes": 231560,
+      "path": "validation/preview-images/front.png",
+      "role": "preview",
+      "sha256": "19415eeda03268426af17f359710adaf11e8dfcde2dd4c3b29d8440c9290c82c"
+    },
+    {
+      "bytes": 1575,
+      "path": "validation/preview-images/review-manifest.json",
+      "role": "machine-data",
+      "sha256": "a94fa118c900d791f4d2ebd0e8fa4f3810ec8aa29af3f7ee5456c16ab6a33343"
+    },
+    {
+      "bytes": 266528,
+      "path": "validation/preview-images/sensor.png",
+      "role": "preview",
+      "sha256": "2c7c46a42112926ecbb2ba78f89ce5064c47866cb067588e5aaa78bf607eae4c"
+    },
+    {
+      "bytes": 223389,
+      "path": "validation/preview-images/side.png",
+      "role": "preview",
+      "sha256": "a237cf651d16a98986f67ad7d8911da2a07a496142b9aea7a765549aabbbf0b4"
+    },
+    {
+      "bytes": 263454,
+      "path": "validation/preview-images/three-quarter.png",
+      "role": "preview",
+      "sha256": "55625659b2345d804314a502397ffeeba747ba7f730acea7c61bc57a5d8ba66a"
+    },
+    {
+      "bytes": 2112,
+      "path": "validation/readiness-report.md",
+      "role": "documentation",
+      "sha256": "31c5927fe9193b7ae9fcea5597274df3f558059962a28e083f29a54bd5ec6b1f"
+    },
+    {
+      "bytes": 75895,
+      "path": "validation/validation-results.json",
+      "role": "machine-data",
+      "sha256": "b41e2079e2f6fad394a36bec7a0b83fddb129f9ded0cd8904d0d038939f2957f"
+    }
+  ],
+  "kind": "canonical",
+  "limitations": [
+    "Physical values marked ASSUMED are not measured hardware data.",
+    "Primitive collision/contact checks are not simulator proof.",
+    "Isaac Sim execution evidence is recorded separately and is never inferred from package validation."
+  ],
+  "project": {
+    "id": "f121cd28-6b10-4571-b742-83aa1a196b45",
+    "name": "Licensed Robot Import"
+  },
+  "robotId": "imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee",
+  "sceneRevision": 2,
+  "schemaVersion": 1,
+  "sourceValidationRunId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+  "validation": {
+    "checks": [
+      {
+        "evidence": {
+          "missing": [],
+          "required": [
+            "scene.usda",
+            "robot/robot.usda",
+            "robot/geometry/robot_geometry.usdc",
+            "robot/materials/robot_materials.usda",
+            "robot/physics/robot_physics.usda",
+            "robot/sensors/robot_sensors.usda",
+            "environment/environment.usda"
+          ]
+        },
+        "id": "USD-LAYERS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1.0,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "invalid": [],
+          "references": [
+            {
+              "asset": "./environment/environment.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./robot/robot.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./geometry/robot_geometry.usdc",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            }
+          ]
+        },
+        "id": "USD-REFERENCES-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "joints": 15,
+          "links": 16,
+          "visualAndPhysicsLinkPrims": 32
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "collisions": 16,
+          "massSchemas": 16
+        },
+        "id": "USD-PHYSICS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "materials": 6
+        },
+        "id": "USD-MATERIAL-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "sensors": 1
+        },
+        "id": "USD-SENSOR-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "environmentId": null,
+          "expectedObjects": 0,
+          "objects": 0,
+          "placeholder": true
+        },
+        "id": "USD-ENVIRONMENT-001",
+        "status": "PASS"
+      }
+    ],
+    "summary": {
+      "blocker": 0,
+      "error": 0,
+      "info": 32,
+      "warning": 0
+    }
+  }
+}

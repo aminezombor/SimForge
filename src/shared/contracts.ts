@@ -244,6 +244,7 @@ export const RobotMaterialSchema = Type.Object({
   metallic: Type.Number({ minimum: 0, maximum: 1 }),
   roughness: Type.Number({ minimum: 0, maximum: 1 }),
 });
+export type RobotMaterial = Static<typeof RobotMaterialSchema>;
 
 export const RobotLinkSchema = Type.Object({
   id: Type.String({ minLength: 1 }),
@@ -352,6 +353,114 @@ export const RobotGraphSchema = Type.Object({
   assumptions: Type.Array(Type.String()),
 });
 export type RobotGraph = Static<typeof RobotGraphSchema>;
+
+export const ImportFormatSchema = Type.Union([
+  Type.Literal('BLEND'),
+  Type.Literal('USD'),
+  Type.Literal('GLTF'),
+  Type.Literal('FBX'),
+  Type.Literal('OBJ'),
+  Type.Literal('STL'),
+  Type.Literal('URDF'),
+  Type.Literal('MJCF'),
+]);
+export type ImportFormat = Static<typeof ImportFormatSchema>;
+
+export const ImportReportSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  importId: Type.String({ minLength: 1 }),
+  projectId: Type.String({ minLength: 1 }),
+  status: Type.Union([
+    Type.Literal('STAGED'),
+    Type.Literal('MATERIALIZED'),
+    Type.Literal('MODIFIED'),
+    Type.Literal('ACCEPTED'),
+    Type.Literal('REJECTED'),
+  ]),
+  source: Type.Object({
+    assetId: Type.String({ minLength: 1 }),
+    name: Type.String({ minLength: 1 }),
+    format: ImportFormatSchema,
+    sourceRepository: Type.String({ minLength: 1 }),
+    sourceCommit: Type.String({ minLength: 1 }),
+    sourcePath: Type.String({ minLength: 1 }),
+    sourceSha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    sourceBytes: Type.Integer({ minimum: 1 }),
+    stagedRelativePath: Type.String({ minLength: 1 }),
+    license: Type.String({ minLength: 1 }),
+    attribution: Type.String({ minLength: 1 }),
+  }),
+  assets: Type.Array(Type.Object({
+    originalReference: Type.String({ minLength: 1 }),
+    stagedRelativePath: Type.String({ minLength: 1 }),
+    sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    bytes: Type.Integer({ minimum: 1 }),
+    contained: Type.Literal(true),
+  })),
+  conversions: Type.Array(Type.Object({
+    code: Type.String({ minLength: 1 }),
+    entityPath: Type.String({ minLength: 1 }),
+    message: Type.String({ minLength: 1 }),
+  })),
+  losses: Type.Array(Type.Object({
+    code: Type.String({ minLength: 1 }),
+    severity: Type.Union([Type.Literal('warning'), Type.Literal('error')]),
+    entityPath: Type.String({ minLength: 1 }),
+    message: Type.String({ minLength: 1 }),
+  })),
+  assumptions: Type.Array(Type.String()),
+  warnings: Type.Array(Type.String()),
+  robotGraph: Type.Union([RobotGraphSchema, Type.Null()]),
+  stagedObjectCount: Type.Integer({ minimum: 0 }),
+  materializedSceneRevision: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
+  modification: Type.Union([
+    Type.Object({
+      kind: Type.String({ minLength: 1 }),
+      summary: Type.String({ minLength: 1 }),
+      sceneRevision: Type.Integer({ minimum: 0 }),
+    }),
+    Type.Null(),
+  ]),
+  createdAt: Type.String({ format: 'date-time' }),
+  updatedAt: Type.String({ format: 'date-time' }),
+});
+export type ImportReport = Static<typeof ImportReportSchema>;
+
+export const NativeImportReportSchema = Type.Object({
+  schemaVersion: Type.Literal(1),
+  importId: Type.String({ minLength: 1 }),
+  projectId: Type.String({ minLength: 1 }),
+  status: Type.Union([
+    Type.Literal('COPIED'),
+    Type.Literal('STAGED'),
+    Type.Literal('ACCEPTED'),
+    Type.Literal('REJECTED'),
+  ]),
+  source: Type.Object({
+    name: Type.String({ minLength: 1 }),
+    format: Type.Union([
+      Type.Literal('BLEND'),
+      Type.Literal('USD'),
+      Type.Literal('GLTF'),
+      Type.Literal('FBX'),
+      Type.Literal('OBJ'),
+      Type.Literal('STL'),
+    ]),
+    sha256: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    bytes: Type.Integer({ minimum: 1 }),
+    stagedRelativePath: Type.String({ minLength: 1 }),
+    licenseNote: Type.String({ minLength: 1 }),
+  }),
+  collectionName: Type.String({ minLength: 1 }),
+  objectCount: Type.Integer({ minimum: 0 }),
+  entityIds: Type.Array(Type.String({ minLength: 1 })),
+  conversions: Type.Array(Type.String()),
+  warnings: Type.Array(Type.String()),
+  sceneRevision: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
+  createdAt: Type.String({ format: 'date-time' }),
+  updatedAt: Type.String({ format: 'date-time' }),
+});
+export type NativeImportReport = Static<typeof NativeImportReportSchema>;
 
 export const ReviewManifestSchema = Type.Object({
   schemaVersion: Type.Literal(1),

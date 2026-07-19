@@ -14,6 +14,8 @@ import { CheckpointService } from '../../src/main/domain/checkpoint-service';
 import { ToolExecutor } from '../../src/main/domain/tool-executor';
 import { ExportService } from '../../src/main/export/export-service';
 import { locateUsdRuntime, runUsdWorker } from '../../src/main/export/usd-runtime';
+import { UrdfImportService } from '../../src/main/import/urdf-import-service';
+import { NativeImportService } from '../../src/main/import/native-import-service';
 import { MockProviderAdapter } from '../../src/main/providers/mock-provider';
 import { PreviewService } from '../../src/main/preview/preview-service';
 import { primitiveWheeledRobotGraph } from '../../src/main/robotics/primitive-wheeled-robot';
@@ -768,5 +770,370 @@ liveDescribe('real Blender 4.5 LTS acceptance', () => {
     const exit = once(blender, 'exit');
     await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
     await withTimeout(exit, 20_000, 'warehouse Blender exit');
+  }, 180_000);
+
+  it('imports, meaningfully modifies, validates, reviews, and exports the licensed URDF robot', async () => {
+    sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-real-import-'));
+    const localAppData = path.join(sandbox, 'localappdata');
+    const runtime = path.join(localAppData, 'SimForge', 'runtime');
+    const control = path.join(sandbox, 'control');
+    project = await new ProjectManager().create(path.join(sandbox, 'project'), 'Licensed Robot Import');
+    project.repository.setMode('build');
+    server = new BlenderBridgeServer();
+    await server.start(runtime, project.manifest.projectId, project.root);
+    const connected = once(server, 'connected');
+    const blender = startBlender(localAppData, control, undefined, ['--empty-metric']);
+    await withTimeout(connected, 20_000, 'import Blender connection');
+
+    const scene = new SceneStateService(project.manifest.projectId, server, project.repository);
+    const activities = new ActivityService(project.manifest.projectId, project.repository);
+    const approvals = new ApprovalService(project.repository);
+    const checkpoints = new CheckpointService(project, server);
+    const executor = new ToolExecutor(server, approvals, checkpoints, activities);
+    const validation = new ValidationService(project, scene, executor, approvals, checkpoints, activities);
+    const reviews = new ReviewService(project, scene, executor, activities);
+    const importer = new UrdfImportService(project, process.cwd());
+    const staged = await importer.stageBundledSample();
+    const graph = staged.robotGraph!;
+    expect(staged.source.license).toBe('BSD-3-Clause');
+    expect(staged.assets.every((asset) => asset.contained)).toBe(true);
+    expect(graph.links).toHaveLength(16);
+    expect(graph.joints).toHaveLength(15);
+
+    const initial = await scene.refresh();
+    const buildArgs = { graph };
+    const buildPlan = sha256({ toolId: 'robot.materialize', args: buildArgs });
+    const buildApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: buildPlan,
+      toolId: 'robot.materialize',
+      args: buildArgs,
+      sceneRevision: initial.snapshot.sceneRevision,
+      risk: 'structural',
+    });
+    const build = await executor.execute('robot.materialize', buildArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: buildPlan,
+      planApproved: true,
+      sceneRevision: initial.snapshot.sceneRevision,
+      approvalId: buildApproval,
+    });
+    const builtAt = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${graph.robotId}:${build.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: { type: 'robot-graph', graph, materialization: build.result },
+      createdAt: builtAt,
+      updatedAt: builtAt,
+    });
+    const materializedReport = importer.markMaterialized(staged, build.postRevision);
+    const builtValidation = await validation.run();
+    expect(builtValidation.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
+    expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'link')).toHaveLength(16);
+    expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'joint')).toHaveLength(15);
+    expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'collision')).toHaveLength(16);
+
+    const head = graph.links.find((link) => link.id === 'head')!;
+    const sensor = {
+      id: 'simforge-inspection-camera',
+      name: 'SimForge Forward Inspection Camera',
+      type: 'CAMERA' as const,
+      parentLinkId: head.id,
+      pose: {
+        position: [head.pose.position[0] + 0.18, head.pose.position[1], head.pose.position[2] + 0.03] as [number, number, number],
+        rotationEuler: [0, 0, 0] as [number, number, number],
+      },
+      fieldOfViewDegrees: 68,
+    };
+    const material = graph.materials.find((candidate) => candidate.id === 'sensor-amber')!;
+    const reason = 'Add a forward inspection camera to make the imported robot materially useful for visual inspection tasks.';
+    const sensorArgs = { robotId: graph.robotId, sensor, material, reason };
+    const sensorPlan = sha256({ toolId: 'robot.add_sensor', args: sensorArgs });
+    await expect(executor.execute('robot.add_sensor', sensorArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: sensorPlan,
+      planApproved: true,
+      sceneRevision: builtValidation.sceneRevision,
+      approvalId: null,
+    })).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED' });
+    const sensorApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: sensorPlan,
+      toolId: 'robot.add_sensor',
+      args: sensorArgs,
+      sceneRevision: builtValidation.sceneRevision,
+      risk: 'structural',
+    });
+    const added = await executor.execute('robot.add_sensor', sensorArgs, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: sensorPlan,
+      planApproved: true,
+      sceneRevision: builtValidation.sceneRevision,
+      approvalId: sensorApproval,
+    });
+    const modifiedGraph = {
+      ...graph,
+      sensors: [...graph.sensors, sensor],
+      assumptions: [...graph.assumptions, 'The added camera is user-approved SimForge metadata, not source URDF data.'],
+    };
+    const modifiedAt = new Date().toISOString();
+    project.repository.saveProjectRecord({
+      id: `robot-graph:${graph.robotId}:${added.postRevision}`,
+      projectId: project.manifest.projectId,
+      kind: 'asset',
+      body: { type: 'robot-graph', graph: modifiedGraph, materialization: added.result },
+      createdAt: modifiedAt,
+      updatedAt: modifiedAt,
+    });
+    const modifiedReport = importer.markModified(
+      materializedReport,
+      modifiedGraph,
+      added.postRevision,
+      'Added one exact-approved forward inspection camera to the imported head link.',
+    );
+    const modifiedValidation = await validation.run();
+    expect(modifiedValidation.findings.filter((finding) => ['blocker', 'error'].includes(finding.severity))).toEqual([]);
+    expect(scene.current!.objects.filter((object) => object.metadata['simforge.role'] === 'sensor')).toHaveLength(1);
+    expect(modifiedReport.status).toBe('MODIFIED');
+
+    const review = await reviews.render(graph.robotId, 'Licensed imported robot with approved camera');
+    expect(review.images.map((image) => image.view)).toEqual(expect.arrayContaining(['three-quarter', 'sensor']));
+    const canonicalDestination = path.join(sandbox, 'imported-canonical-package');
+    const exportService = new ExportService(project, scene, executor, activities, process.cwd());
+    const proposal = await exportService.propose('canonical', canonicalDestination, false);
+    const exportApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: proposal.planHash,
+      toolId: proposal.toolId,
+      args: proposal.args,
+      sceneRevision: proposal.sceneRevision,
+      risk: 'structural',
+    });
+    const exported = await exportService.execute(proposal, exportApproval);
+    expect(exported.verified).toBe(true);
+    expect(exported.checks.filter((check) => check.status === 'FAIL')).toEqual([]);
+    await expect(access(path.join(canonicalDestination, 'validation', 'import-report.json'))).resolves.toBeUndefined();
+    await expect(access(path.join(canonicalDestination, 'source', 'imports', staged.importId, 'LICENSE'))).resolves.toBeUndefined();
+    const movedDestination = path.join(sandbox, 'moved-imported-package');
+    await rename(canonicalDestination, movedDestination);
+    const usdRuntime = await locateUsdRuntime(process.cwd());
+    const movedVerification = await runUsdWorker(usdRuntime, ['verify', '--path', movedDestination]);
+    expect(movedVerification.ok).toBe(true);
+
+    const evidenceDirectory = process.env.SIMFORGE_MS8_EVIDENCE_DIR;
+    if (evidenceDirectory) {
+      await mkdir(evidenceDirectory, { recursive: true });
+      const threeQuarter = review.images.find((image) => image.view === 'three-quarter')!;
+      const sensorView = review.images.find((image) => image.view === 'sensor')!;
+      await Promise.all([
+        copyFile(path.join(project.root, ...threeQuarter.relativePath.split('/')), path.join(evidenceDirectory, 'imported-robot-three-quarter.png')),
+        copyFile(path.join(project.root, ...sensorView.relativePath.split('/')), path.join(evidenceDirectory, 'imported-robot-sensor.png')),
+        copyFile(path.join(movedDestination, 'manifest.json'), path.join(evidenceDirectory, 'manifest.json')),
+        copyFile(path.join(movedDestination, 'validation', 'validation-results.json'), path.join(evidenceDirectory, 'validation-results.json')),
+        copyFile(path.join(movedDestination, 'validation', 'import-report.json'), path.join(evidenceDirectory, 'import-report.json')),
+        copyFile(path.join(movedDestination, 'validation', 'readiness-report.md'), path.join(evidenceDirectory, 'readiness-report.md')),
+        writeFile(path.join(evidenceDirectory, 'acceptance.json'), `${JSON.stringify({
+          importId: staged.importId,
+          source: staged.source,
+          counts: { links: modifiedGraph.links.length, joints: modifiedGraph.joints.length, collisions: modifiedGraph.links.filter((link) => link.collision).length, sensors: modifiedGraph.sensors.length },
+          conversions: modifiedReport.conversions,
+          losses: modifiedReport.losses,
+          sceneRevision: modifiedValidation.sceneRevision,
+          review: { threeQuarter: threeQuarter.sha256, sensor: sensorView.sha256 },
+          export: { exportId: exported.exportId, checks: exported.checks, movedReopen: movedVerification.ok },
+        }, null, 2)}\n`, 'utf8'),
+      ]);
+    }
+
+    const exit = once(blender, 'exit');
+    await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
+    await withTimeout(exit, 20_000, 'import Blender exit');
+  }, 180_000);
+
+  it('stages and exact-decides the Blender, USD, GLB, FBX, OBJ, and STL matrix', async () => {
+    sandbox = await mkdtemp(path.join(os.tmpdir(), 'simforge-real-native-matrix-'));
+    const fixtureRoot = path.join(sandbox, 'fixtures');
+    await mkdir(fixtureRoot, { recursive: true });
+    if (!blenderPath) throw new Error('SIMFORGE_BLENDER_PATH is missing');
+    const fixtureProcess = spawn(blenderPath, [
+      '--background', '--factory-startup', '--python', path.resolve('tests/blender/create_native_import_fixtures.py'), '--', fixtureRoot,
+    ], { env: { ...process.env, PYTHONUTF8: '1' }, windowsHide: true });
+    children.push(fixtureProcess);
+    const fixtureCode = await withTimeout(new Promise<number | null>((resolve, reject) => {
+      fixtureProcess.once('error', reject);
+      fixtureProcess.once('exit', resolve);
+    }), 30_000, 'native fixture generation');
+    expect(fixtureCode).toBe(0);
+
+    const localAppData = path.join(sandbox, 'localappdata');
+    const runtime = path.join(localAppData, 'SimForge', 'runtime');
+    const control = path.join(sandbox, 'control');
+    project = await new ProjectManager().create(path.join(sandbox, 'project'), 'Native Format Matrix');
+    project.repository.setMode('build');
+    server = new BlenderBridgeServer();
+    await server.start(runtime, project.manifest.projectId, project.root);
+    const connected = once(server, 'connected');
+    const blender = startBlender(localAppData, control, undefined, ['--empty-metric']);
+    await withTimeout(connected, 20_000, 'native matrix Blender connection');
+    const scene = new SceneStateService(project.manifest.projectId, server, project.repository);
+    const activities = new ActivityService(project.manifest.projectId, project.repository);
+    const approvals = new ApprovalService(project.repository);
+    const checkpoints = new CheckpointService(project, server);
+    const executor = new ToolExecutor(server, approvals, checkpoints, activities);
+    const importer = new NativeImportService(project);
+    await scene.refresh();
+    await expect(server.request('import.stage_native', {
+      importId: 'outside-project-fixture',
+      format: 'OBJ',
+      sourcePath: path.join(fixtureRoot, 'fixture.obj'),
+      sourceSha256: '0'.repeat(64),
+      collectionName: 'SF Staging - outside',
+    }, scene.current!.sceneRevision)).rejects.toMatchObject({ code: 'PATH_OUTSIDE_PROJECT' });
+
+    const matrix: Array<{ file: string; expected: string }> = [
+      { file: 'fixture.blend', expected: 'BLEND' },
+      { file: 'fixture.usdc', expected: 'USD' },
+      { file: 'fixture.glb', expected: 'GLTF' },
+      { file: 'fixture.fbx', expected: 'FBX' },
+      { file: 'fixture.obj', expected: 'OBJ' },
+      { file: 'fixture.stl', expected: 'STL' },
+    ];
+    const evidence: Array<Record<string, unknown>> = [];
+    for (const entry of matrix) {
+      const proposal = await importer.prepare(path.join(fixtureRoot, entry.file));
+      expect(proposal.report.source.format).toBe(entry.expected);
+      const current = (await scene.refresh()).snapshot;
+      const approval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: proposal.planHash,
+        toolId: proposal.toolId,
+        args: proposal.args,
+        sceneRevision: current.sceneRevision,
+        risk: 'structural',
+      });
+      const execution = await executor.execute(proposal.toolId, proposal.args, {
+        projectId: project.manifest.projectId,
+        mode: 'build',
+        planHash: proposal.planHash,
+        planApproved: true,
+        sceneRevision: current.sceneRevision,
+        approvalId: approval,
+      });
+      const staged = importer.markStaged(proposal.report, execution.result, execution.postRevision);
+      expect(staged.objectCount).toBeGreaterThan(0);
+      const stagedSnapshot = (await scene.refresh()).snapshot;
+      expect(staged.entityIds.every((id) => stagedSnapshot.objects.some((object) => object.id === id && object.metadata['simforge.role'] === 'import-staged'))).toBe(true);
+      const decision = importer.decisionProposal(staged.importId, true);
+      const decisionApproval = approvals.approve({
+        projectId: project.manifest.projectId,
+        planHash: decision.planHash,
+        toolId: decision.toolId,
+        args: decision.args,
+        sceneRevision: stagedSnapshot.sceneRevision,
+        risk: 'structural',
+      });
+      const acceptedExecution = await executor.execute(decision.toolId, decision.args, {
+        projectId: project.manifest.projectId,
+        mode: 'build',
+        planHash: decision.planHash,
+        planApproved: true,
+        sceneRevision: stagedSnapshot.sceneRevision,
+        approvalId: decisionApproval,
+      });
+      const accepted = importer.markDecision(staged, true, acceptedExecution.postRevision);
+      expect(accepted.status).toBe('ACCEPTED');
+      evidence.push({
+        format: accepted.source.format,
+        sourceSha256: accepted.source.sha256,
+        bytes: accepted.source.bytes,
+        objectCount: accepted.objectCount,
+        stagedRevision: staged.sceneRevision,
+        acceptedRevision: accepted.sceneRevision,
+      });
+    }
+
+    const rejectionProposal = await importer.prepare(path.join(fixtureRoot, 'fixture.obj'));
+    const beforeReject = (await scene.refresh()).snapshot;
+    const rejectionStageApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: rejectionProposal.planHash,
+      toolId: rejectionProposal.toolId,
+      args: rejectionProposal.args,
+      sceneRevision: beforeReject.sceneRevision,
+      risk: 'structural',
+    });
+    const rejectionStage = await executor.execute(rejectionProposal.toolId, rejectionProposal.args, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: rejectionProposal.planHash,
+      planApproved: true,
+      sceneRevision: beforeReject.sceneRevision,
+      approvalId: rejectionStageApproval,
+    });
+    const stagedForRejection = importer.markStaged(rejectionProposal.report, rejectionStage.result, rejectionStage.postRevision);
+    const rejectProposal = importer.decisionProposal(stagedForRejection.importId, false);
+    const rejectApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: rejectProposal.planHash,
+      toolId: rejectProposal.toolId,
+      args: rejectProposal.args,
+      sceneRevision: stagedForRejection.sceneRevision!,
+      risk: 'destructive',
+    });
+    const rejectedExecution = await executor.execute(rejectProposal.toolId, rejectProposal.args, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: rejectProposal.planHash,
+      planApproved: true,
+      sceneRevision: stagedForRejection.sceneRevision!,
+      approvalId: rejectApproval,
+    });
+    const rejected = importer.markDecision(stagedForRejection, false, rejectedExecution.postRevision);
+    expect(rejected.status).toBe('REJECTED');
+    const afterReject = (await scene.refresh()).snapshot;
+    expect(afterReject.objects.some((object) => object.metadata['simforge.import.id'] === rejected.importId)).toBe(false);
+    expect(importer.list().filter((report) => report.status === 'ACCEPTED')).toHaveLength(6);
+
+    const tamperedProposal = await importer.prepare(path.join(fixtureRoot, 'fixture.obj'));
+    await writeFile(tamperedProposal.args.sourcePath, 'tampered after approval', 'utf8');
+    const beforeTamper = (await scene.refresh()).snapshot;
+    const tamperApproval = approvals.approve({
+      projectId: project.manifest.projectId,
+      planHash: tamperedProposal.planHash,
+      toolId: tamperedProposal.toolId,
+      args: tamperedProposal.args,
+      sceneRevision: beforeTamper.sceneRevision,
+      risk: 'structural',
+    });
+    await expect(executor.execute(tamperedProposal.toolId, tamperedProposal.args, {
+      projectId: project.manifest.projectId,
+      mode: 'build',
+      planHash: tamperedProposal.planHash,
+      planApproved: true,
+      sceneRevision: beforeTamper.sceneRevision,
+      approvalId: tamperApproval,
+    })).rejects.toMatchObject({ code: 'NATIVE_IMPORT_HASH_CHANGED' });
+    expect((await scene.refresh()).snapshot.sceneRevision).toBe(beforeTamper.sceneRevision);
+
+    const evidenceDirectory = process.env.SIMFORGE_MS8_EVIDENCE_DIR;
+    if (evidenceDirectory) {
+      await mkdir(evidenceDirectory, { recursive: true });
+      await writeFile(path.join(evidenceDirectory, 'native-format-matrix.json'), `${JSON.stringify({
+        blenderVersion: '4.5.11 LTS',
+        formats: evidence,
+        rejection: { importId: rejected.importId, status: rejected.status, removedFromScene: true },
+        checkpointCount: project.repository.listCheckpoints(project.manifest.projectId).length,
+        externalReferencesAccepted: false,
+        security: { pathEscapeRejected: true, postApprovalHashChangeRejected: true },
+      }, null, 2)}\n`, 'utf8');
+    }
+
+    const exit = once(blender, 'exit');
+    await writeFile(path.join(control, 'stop.request'), 'stop', 'utf8');
+    await withTimeout(exit, 20_000, 'native matrix Blender exit');
   }, 180_000);
 });

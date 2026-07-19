@@ -2,13 +2,15 @@
 
 ## Current State
 
-- Phase: MS0-MS7 complete; MS8 imported robot path is active
+- Phase: MS0-MS8 complete; MS11A Isaac runtime and evidence is active
 - Overall status: The first-cycle path, owner-approved embedded workspace, and generated
   warehouse mobile-manipulator demonstration now pass with
   persistent conversations/memory, capability routing, exact-revision Blender previews,
   responsive context docking, named history, and packaged privacy/security controls
 - Architecture: Approved; no architecture changes were required
-- Current gate: owner authorized continuation through MS9; proceed milestone-by-milestone
+- Current gate: owner promoted the full optional Isaac Sim loop into pre-submission work;
+  continue through MS11A/MS11B and MS9A, then stop for owner hands-on validation
+  before final documentation, demo video, and submission
 - Last updated: 2026-07-19
 
 ## Completed Work
@@ -30,13 +32,15 @@
 | 2026-07-19 | MS5 verified USD export | Added exact destination/overwrite proposals, project-contained Blender export staging, neutral modular USD composition, quick flattening, SHA-256 manifest, atomic promotion, deep relocated reopen, project report persistence, and a packaged Python/OpenUSD runtime. Fixed graceful bridge token revocation and stale-descriptor cleanup discovered during installed launch validation. | `docs/evidence/MS5_VERIFICATION.md`; AT-028/029/030; real Blender/OpenUSD acceptance; packaged embedded-runtime/security smoke |
 | 2026-07-19 | MS6 embedded workspace and UX | Delivered the owner-approved three-column workspace, persistent conversation/memory lifecycle, capability-aware routing/budgets, exact-revision Three.js inspector with Blender selection/staleness, stored comparisons, named versions/timeline, responsive drawers, and packaged export/diagnostics/Recycle Bin privacy controls. | `docs/evidence/MS6_VERIFICATION.md`; `design-qa.md`; 37 default tests; real Blender preview acceptance; packaged security/credential/privacy smoke |
 | 2026-07-19 | MS7 warehouse mobile manipulator | Added reusable `EnvironmentGraph`, atomic exact-approved robot/environment materialization, 15-object warehouse workcell, full 12-link manipulator, deterministic environment rules, visible gripper defect/correction, six-view review, and real environment USD composition/reopen. | `docs/evidence/MS7_VERIFICATION.md`; 40 default tests; third real Blender acceptance; 12 passing USD checks; packaged/fuse/security/privacy smoke |
+| 2026-07-19 | MS8 imported robot and native formats | Added pinned BSD-3-Clause URDF quarantine/conversion, exact-approved materialization and camera modification, provenance-aware validation/review/USD export, plus isolated BLEND/USD/GLB/FBX/OBJ/STL stage/accept/reject operations with reference and post-approval hash defenses. | `docs/evidence/MS8_VERIFICATION.md`; 44 default tests; 5 real Blender tests; packaged/fuse/security/privacy/design evidence |
+| 2026-07-19 | Local source-of-truth cleanup | Stopped the legacy Claude SimForge server and moved its exact project tree to the Windows Recycle Bin; preserved this Codex repository and its packaged app. | Local process/path verification; recoverable deletion |
 
 ## Verification Summary
 
 | Check | Result |
 | ----- | ------ |
-| TypeScript, ESLint, unit/contract/integration suite | 40 passing; 3 live Blender tests opt-in/skipped in default suite |
-| Real Blender 4.5.11 acceptance | MS7 targeted path passes atomic assembly, deterministic robot/environment validation, visible defect/correction, review, preview, and moved canonical export; full earlier suite retained |
+| TypeScript, ESLint, unit/contract/integration suite | 44 passing; 5 live Blender tests opt-in/skipped in default suite |
+| Real Blender 4.5.11 acceptance | All five paths pass: bridge/recovery, primitive robot, warehouse manipulator, licensed URDF import/modify/export, and six-format native stage/decision |
 | Packaged Windows app | `out/SimForge-win32-x64/SimForge.exe`, exit 0 smoke; nine fuses inspected |
 | Renderer security smoke | `require`/`process` undefined; exact narrow API; remote window/navigation denied; restrictive CSP |
 | Credential smoke | Protected store works in isolated profile; plaintext scan false before/after removal; primary database SHA-256 unchanged |
@@ -51,6 +55,7 @@
 | MS5 verified export | Exact plan/revision/destination/overwrite binding; quick `.usdc`; modular relative-reference package; source/previews/notices/reports; deep moved-package reopen |
 | MS6 workspace | Owner-directed three-column layout; conversations, scoped memory, model routing, exact-revision GLB inspector, timeline, responsive drawers, project/diagnostic export, and recoverable deletion pass |
 | MS7 generated demonstration | 12 links, 11 joints, 12 robot collisions, 3 sensors, 15 warehouse objects/collisions, `ENV-*` evidence, six review views, and real robot/environment USD pass |
+| MS8 imported demonstration | 16 links, 15 joints, 16 collisions, exact-approved camera, disclosed mesh approximations, imported source/license in USD, deep moved reopen, and six native formats with exact accept/reject/security evidence |
 
 See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
@@ -61,8 +66,8 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 - The desktop package is unsigned; installer/signing and clean-account acceptance are MS9.
 - The user-local installer is an owner testing convenience, not an MS9 release artifact;
   clean-account, uninstall, upgrade, signing, and redistributable packaging remain open.
-- The approved workspace is implemented and visually verified. MS7-MS8 will add richer
-  manipulator/import content inside the existing information architecture; MS9 still owns
+- The approved workspace and MS8 import cards pass a fresh 1280x720 packaged capture
+  against the owner reference without hierarchy, clipping, or control regressions. MS9 owns
   final accessibility, copy, release, and clean-account judge validation.
 - The packaged OpenUSD runtime passes its embedded doctor and export acceptance, but MS9
   must still audit release size, redistribution notices, clean-account behavior, upgrade,
@@ -80,7 +85,7 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Begin MS8 without pausing. Select a redistributable robot fixture, implement safe staged
-native/robot-description import into the general contracts, retain provenance and
-conversion losses, make a meaningful approved modification, then validate and export
-without regressing the generated P0 path.
+Execute MS11A without pausing: add honest Isaac 6.0.1 environment/hardware detection,
+contained canonical-package handoff, deterministic standalone execution, retained
+metrics/media/logs and reloadable experiment state. Then close MS11B's exact-approved
+correction/re-export/rerun comparison before MS9A and the owner test gate.

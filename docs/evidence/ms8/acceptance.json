@@ -1,0 +1,252 @@
+{
+  "importId": "7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef",
+  "source": {
+    "assetId": "ros-urdf-tutorial-r2d2-physics",
+    "name": "ROS URDF Tutorial Physics Robot",
+    "format": "URDF",
+    "sourceRepository": "https://github.com/ros/urdf_tutorial",
+    "sourceCommit": "050f1e47cfdb2c5f3eb0746bc15c57e6a870faef",
+    "sourcePath": "urdf/07-physics.urdf",
+    "sourceSha256": "78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047",
+    "sourceBytes": 10980,
+    "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/07-physics.urdf",
+    "license": "BSD-3-Clause",
+    "attribution": "Copyright Open Source Robotics Foundation, Inc. and contributors"
+  },
+  "counts": {
+    "links": 16,
+    "joints": 15,
+    "collisions": 16,
+    "sensors": 1
+  },
+  "conversions": [
+    {
+      "code": "URDF-COLLISION-ORIGIN-FLATTENED",
+      "entityPath": "/links/box/collision",
+      "message": "Collision origin was flattened to the visual pose because RobotGraph v1 has one link pose."
+    },
+    {
+      "code": "URDF-GROUND-NORMALIZATION",
+      "entityPath": "/robot",
+      "message": "Translated the imported robot +0.470002 m on Z so collision geometry contacts the project support plane."
+    },
+    {
+      "code": "URDF-TO-ROBOTGRAPH",
+      "entityPath": "/robot",
+      "message": "Converted 16 links and 15 joints into RobotGraph v1."
+    }
+  ],
+  "losses": [
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_gripper/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_gripper/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_tip/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_tip/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_gripper/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_gripper/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_tip/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_tip/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    }
+  ],
+  "sceneRevision": 2,
+  "review": {
+    "threeQuarter": "55625659b2345d804314a502397ffeeba747ba7f730acea7c61bc57a5d8ba66a",
+    "sensor": "2c7c46a42112926ecbb2ba78f89ce5064c47866cb067588e5aaa78bf607eae4c"
+  },
+  "export": {
+    "exportId": "67ddf176-8289-4286-a2e2-3879fc735d96",
+    "checks": [
+      {
+        "evidence": {
+          "missing": [],
+          "required": [
+            "scene.usda",
+            "robot/robot.usda",
+            "robot/geometry/robot_geometry.usdc",
+            "robot/materials/robot_materials.usda",
+            "robot/physics/robot_physics.usda",
+            "robot/sensors/robot_sensors.usda",
+            "environment/environment.usda"
+          ]
+        },
+        "id": "USD-LAYERS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda"
+        },
+        "id": "USD-STAGE-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "defaultPrim": "/World",
+          "metersPerUnit": 1,
+          "upAxis": "Z"
+        },
+        "id": "USD-CONVENTION-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "invalid": [],
+          "references": [
+            {
+              "asset": "./environment/environment.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./robot/robot.usda",
+              "layer": "scene.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./geometry/robot_geometry.usdc",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./materials/robot_materials.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./physics/robot_physics.usda",
+              "layer": "robot/robot.usda"
+            },
+            {
+              "asset": "./sensors/robot_sensors.usda",
+              "layer": "robot/robot.usda"
+            }
+          ]
+        },
+        "id": "USD-REFERENCES-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "joints": 15,
+          "links": 16,
+          "visualAndPhysicsLinkPrims": 32
+        },
+        "id": "USD-ROBOT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "collisions": 16,
+          "massSchemas": 16
+        },
+        "id": "USD-PHYSICS-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "materials": 6
+        },
+        "id": "USD-MATERIAL-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "sensors": 1
+        },
+        "id": "USD-SENSOR-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "environmentId": null,
+          "expectedObjects": 0,
+          "objects": 0,
+          "placeholder": true
+        },
+        "id": "USD-ENVIRONMENT-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "failures": [],
+          "fileCount": 26
+        },
+        "id": "USD-HASH-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "articulationRoot": true,
+          "collisions": 16,
+          "joints": 15,
+          "links": 16,
+          "materials": 6,
+          "metersPerUnit": 1,
+          "sensors": 1,
+          "traversedPrims": 131,
+          "upAxis": "Z",
+          "usedLayers": 8
+        },
+        "id": "USD-DEEP-REOPEN-001",
+        "status": "PASS"
+      },
+      {
+        "evidence": {
+          "entryPoint": "scene.usda",
+          "failures": [],
+          "reopenedAtCurrentLocation": true
+        },
+        "id": "USD-PORTABILITY-001",
+        "status": "PASS"
+      }
+    ],
+    "movedReopen": true
+  }
+}

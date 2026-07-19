@@ -71,4 +71,15 @@ capture and DOM rather than judged against invented wireframe detail.
 No blocking visual work remains. Later feature milestones may add real manipulator
 preview imagery and richer comparison controls without changing this approved layout.
 
+## MS8 Import Surface Regression
+
+The production-packaged renderer captured fresh 1280 x 720 Build-mode evidence at
+`docs/evidence/ms8/ui/workspace-1280x720.png` and
+`docs/evidence/ms8/ui/import-workflows-1280x720.png`. The reference, workspace, and
+scrolled import surface were inspected together at the same viewport. The three-column
+proportions, persistent composer, inspection/activity/export stack, mint action hierarchy,
+and compact engineering typography remain faithful. Licensed URDF and native-format cards
+fit the existing central work-card language, expose real actions, and show no clipping or
+horizontal overflow. No P0, P1, or P2 visual regression was found.
+
 final result: passed

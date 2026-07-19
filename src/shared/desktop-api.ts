@@ -3,10 +3,14 @@ import type {
   EnvironmentGraph,
   ExportKind,
   ExportResult,
+  ImportReport,
   Mode,
   ModelDescriptor,
+  NativeImportReport,
   ReviewManifest,
   RobotGraph,
+  RobotMaterial,
+  RobotSensor,
   ScenePreviewManifest,
   ValidationRun,
 } from './contracts';
@@ -17,7 +21,12 @@ import type {
   ProviderStatus,
 } from '../main/providers/provider-service';
 import type { ExportProposal } from '../main/export/export-service';
+import type {
+  NativeImportDecisionProposal,
+  NativeImportProposal,
+} from '../main/import/native-import-service';
 export type { ExportProposal };
+export type { NativeImportDecisionProposal, NativeImportProposal };
 
 export interface ToolExecutionInput {
   toolId: string;
@@ -171,6 +180,29 @@ export interface WarehouseProposal {
   summary: string;
 }
 
+export interface ImportedRobotProposal {
+  planHash: string;
+  toolId: 'robot.materialize';
+  args: { graph: RobotGraph };
+  graph: RobotGraph;
+  report: ImportReport;
+  summary: string;
+}
+
+export interface ImportedRobotModificationProposal {
+  planHash: string;
+  toolId: 'robot.add_sensor';
+  args: {
+    robotId: string;
+    sensor: RobotSensor;
+    material: RobotMaterial;
+    reason: string;
+  };
+  graph: RobotGraph;
+  report: ImportReport;
+  summary: string;
+}
+
 export interface SimForgeDesktopApi {
   getState(): Promise<AppState>;
   setMode(mode: Mode): Promise<AppState>;
@@ -195,6 +227,33 @@ export interface SimForgeDesktopApi {
   buildWarehouseScene(approvalId: string): Promise<{
     state: AppState;
     validation: ValidationRun;
+  }>;
+  getLatestImportReport(): Promise<ImportReport | null>;
+  stageBundledRobotImport(): Promise<ImportReport>;
+  getImportedRobotProposal(): Promise<ImportedRobotProposal>;
+  buildImportedRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: ImportReport;
+  }>;
+  getImportedRobotModificationProposal(): Promise<ImportedRobotModificationProposal>;
+  modifyImportedRobot(approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: ImportReport;
+  }>;
+  listNativeImports(): Promise<NativeImportReport[]>;
+  chooseNativeImport(): Promise<NativeImportProposal | null>;
+  executeNativeImport(proposal: NativeImportProposal, approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: NativeImportReport;
+  }>;
+  getNativeImportDecisionProposal(importId: string, accept: boolean): Promise<NativeImportDecisionProposal>;
+  executeNativeImportDecision(proposal: NativeImportDecisionProposal, approvalId: string): Promise<{
+    state: AppState;
+    validation: ValidationRun;
+    report: NativeImportReport;
   }>;
   renderPrimitiveRobotReview(label: string): Promise<ReviewManifest>;
   listReviews(): Promise<ReviewManifest[]>;

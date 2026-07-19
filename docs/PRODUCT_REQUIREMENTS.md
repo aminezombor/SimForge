@@ -205,6 +205,11 @@ Requirements describe outcomes and constraints, not implementation choices. Allo
 
 ## V2 Isaac Sim Feedback Loop
 
+Change-control note (2026-07-19, DEC-028): the owner promoted these requirements into
+active pre-submission implementation. Their stable IDs and `V2-ISAAC-SIM` priority labels
+remain unchanged; Isaac Sim remains optional for core authoring but installed-runtime
+acceptance is required before the release-candidate review gate.
+
 | ID | Confirmed requirement | Priority | Source |
 | -- | --------------------- | -------- | ------ |
 | REQ-V2-001 | Import the verified USD package into Isaac Sim and configure runnable simulation tasks. | V2-ISAAC-SIM | Brief 23 |

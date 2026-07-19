@@ -1,0 +1,1527 @@
+{
+  "schemaVersion": 1,
+  "importId": "7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef",
+  "projectId": "f121cd28-6b10-4571-b742-83aa1a196b45",
+  "status": "STAGED",
+  "source": {
+    "assetId": "ros-urdf-tutorial-r2d2-physics",
+    "name": "ROS URDF Tutorial Physics Robot",
+    "format": "URDF",
+    "sourceRepository": "https://github.com/ros/urdf_tutorial",
+    "sourceCommit": "050f1e47cfdb2c5f3eb0746bc15c57e6a870faef",
+    "sourcePath": "urdf/07-physics.urdf",
+    "sourceSha256": "78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047",
+    "sourceBytes": 10980,
+    "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/07-physics.urdf",
+    "license": "BSD-3-Clause",
+    "attribution": "Copyright Open Source Robotics Foundation, Inc. and contributors"
+  },
+  "robotGraph": {
+    "schemaVersion": 1,
+    "robotId": "imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee",
+    "name": "ROS URDF Tutorial Physics Robot (Imported)",
+    "units": "meters-kilograms-radians",
+    "coordinateConvention": "right-handed-z-up-x-forward",
+    "rootLinkId": "base_link",
+    "selfCollision": {
+      "policy": "ADJACENT_EXCLUDED",
+      "note": "Imported URDF has no complete self-collision matrix; adjacent exclusions require downstream review."
+    },
+    "materials": [
+      {
+        "id": "imported-blue",
+        "name": "Imported Blue",
+        "baseColor": [
+          0,
+          0,
+          0.8,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.55
+      },
+      {
+        "id": "imported-black",
+        "name": "Imported Black",
+        "baseColor": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.55
+      },
+      {
+        "id": "imported-white",
+        "name": "Imported White",
+        "baseColor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallic": 0,
+        "roughness": 0.55
+      },
+      {
+        "id": "imported-default",
+        "name": "Imported Default",
+        "baseColor": [
+          0.45,
+          0.52,
+          0.58,
+          1
+        ],
+        "metallic": 0.08,
+        "roughness": 0.5
+      },
+      {
+        "id": "sensor-amber",
+        "name": "Imported Sensor Amber",
+        "baseColor": [
+          0.95,
+          0.34,
+          0.045,
+          1
+        ],
+        "metallic": 0.08,
+        "roughness": 0.34
+      },
+      {
+        "id": "collision-guide",
+        "name": "Imported Collision Guide",
+        "baseColor": [
+          0.08,
+          0.75,
+          0.95,
+          0.18
+        ],
+        "metallic": 0,
+        "roughness": 0.55
+      }
+    ],
+    "links": [
+      {
+        "id": "base_link",
+        "name": "Base Link",
+        "pose": {
+          "position": [
+            0,
+            0,
+            0.470002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.2,
+          "depth": 0.6
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.2,
+          "depth": 0.6
+        },
+        "materialId": "imported-blue",
+        "physicsMaterialId": "imported-blue",
+        "massKg": {
+          "value": 10,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_leg",
+        "name": "Right Leg",
+        "pose": {
+          "position": [
+            0,
+            -0.22,
+            0.420002316302186
+          ],
+          "rotationEuler": [
+            0,
+            1.570750000000196,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.6,
+            0.1,
+            0.2
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.6,
+            0.1,
+            0.2
+          ]
+        },
+        "materialId": "imported-white",
+        "physicsMaterialId": "imported-white",
+        "massKg": {
+          "value": 10,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_base",
+        "name": "Right Base",
+        "pose": {
+          "position": [
+            0,
+            -0.22,
+            0.120002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.4,
+            0.1,
+            0.1
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.4,
+            0.1,
+            0.1
+          ]
+        },
+        "materialId": "imported-white",
+        "physicsMaterialId": "imported-white",
+        "massKg": {
+          "value": 10,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_front_wheel",
+        "name": "Right Front Wheel",
+        "pose": {
+          "position": [
+            0.133333333333,
+            -0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            1.57075,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "materialId": "imported-black",
+        "physicsMaterialId": "imported-black",
+        "massKg": {
+          "value": 1,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_back_wheel",
+        "name": "Right Back Wheel",
+        "pose": {
+          "position": [
+            -0.133333333333,
+            -0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            1.57075,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "materialId": "imported-black",
+        "physicsMaterialId": "imported-black",
+        "massKg": {
+          "value": 1,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_leg",
+        "name": "Left Leg",
+        "pose": {
+          "position": [
+            0,
+            0.22,
+            0.420002316302186
+          ],
+          "rotationEuler": [
+            0,
+            1.570750000000196,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.6,
+            0.1,
+            0.2
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.6,
+            0.1,
+            0.2
+          ]
+        },
+        "materialId": "imported-white",
+        "physicsMaterialId": "imported-white",
+        "massKg": {
+          "value": 10,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_base",
+        "name": "Left Base",
+        "pose": {
+          "position": [
+            0,
+            0.22,
+            0.120002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.4,
+            0.1,
+            0.1
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.4,
+            0.1,
+            0.1
+          ]
+        },
+        "materialId": "imported-white",
+        "physicsMaterialId": "imported-white",
+        "massKg": {
+          "value": 10,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_front_wheel",
+        "name": "Left Front Wheel",
+        "pose": {
+          "position": [
+            0.133333333333,
+            0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            1.57075,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "materialId": "imported-black",
+        "physicsMaterialId": "imported-black",
+        "massKg": {
+          "value": 1,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_back_wheel",
+        "name": "Left Back Wheel",
+        "pose": {
+          "position": [
+            -0.133333333333,
+            0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            1.57075,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.035,
+          "depth": 0.1
+        },
+        "materialId": "imported-black",
+        "physicsMaterialId": "imported-black",
+        "massKg": {
+          "value": 1,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "gripper_pole",
+        "name": "Gripper Pole",
+        "pose": {
+          "position": [
+            0.29000000000000004,
+            0,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            1.570750000000196,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "CYLINDER",
+          "radius": 0.01,
+          "depth": 0.2
+        },
+        "collision": {
+          "primitive": "CYLINDER",
+          "radius": 0.01,
+          "depth": 0.2
+        },
+        "materialId": "imported-default",
+        "physicsMaterialId": "imported-default",
+        "massKg": {
+          "value": 0.05,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_gripper",
+        "name": "Left Gripper",
+        "pose": {
+          "position": [
+            0.39,
+            0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.12,
+            0.04,
+            0.03
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.12,
+            0.04,
+            0.03
+          ]
+        },
+        "materialId": "imported-default",
+        "physicsMaterialId": "imported-default",
+        "massKg": {
+          "value": 0.05,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "left_tip",
+        "name": "Left Tip",
+        "pose": {
+          "position": [
+            0.48137,
+            0.014950000000000001,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.09,
+            0.035,
+            0.025
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.09,
+            0.035,
+            0.025
+          ]
+        },
+        "materialId": "imported-default",
+        "physicsMaterialId": "imported-default",
+        "massKg": {
+          "value": 0.05,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_gripper",
+        "name": "Right Gripper",
+        "pose": {
+          "position": [
+            0.39,
+            -0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            -3.1415,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.12,
+            0.04,
+            0.03
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.12,
+            0.04,
+            0.03
+          ]
+        },
+        "materialId": "imported-default",
+        "physicsMaterialId": "imported-default",
+        "massKg": {
+          "value": 0.05,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "right_tip",
+        "name": "Right Tip",
+        "pose": {
+          "position": [
+            0.48137,
+            -0.00505,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            -3.1415,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.09,
+            0.035,
+            0.025
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.09,
+            0.035,
+            0.025
+          ]
+        },
+        "materialId": "imported-default",
+        "physicsMaterialId": "imported-default",
+        "massKg": {
+          "value": 0.05,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "head",
+        "name": "Head",
+        "pose": {
+          "position": [
+            0,
+            0,
+            0.770002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "SPHERE",
+          "radius": 0.2
+        },
+        "collision": {
+          "primitive": "SPHERE",
+          "radius": 0.2
+        },
+        "materialId": "imported-white",
+        "physicsMaterialId": "imported-white",
+        "massKg": {
+          "value": 2,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      },
+      {
+        "id": "box",
+        "name": "Box",
+        "pose": {
+          "position": [
+            0.1414,
+            0,
+            0.911402316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "visual": {
+          "primitive": "BOX",
+          "size": [
+            0.08,
+            0.08,
+            0.08
+          ]
+        },
+        "collision": {
+          "primitive": "BOX",
+          "size": [
+            0.08,
+            0.08,
+            0.08
+          ]
+        },
+        "materialId": "imported-blue",
+        "physicsMaterialId": "imported-blue",
+        "massKg": {
+          "value": 1,
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial/mass."
+        },
+        "centerOfMassM": {
+          "value": [
+            0,
+            0,
+            0
+          ],
+          "source": "IMPORTED",
+          "note": "Imported from URDF inertial origin."
+        },
+        "inertiaDiagonalKgM2": {
+          "value": [
+            0.001,
+            0.001,
+            0.001
+          ],
+          "source": "IMPORTED",
+          "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately."
+        },
+        "dynamic": true
+      }
+    ],
+    "joints": [
+      {
+        "id": "base_to_right_leg",
+        "name": "Base To Right Leg",
+        "type": "FIXED",
+        "parentLinkId": "base_link",
+        "childLinkId": "right_leg",
+        "origin": {
+          "position": [
+            0,
+            -0.22,
+            0.720002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "right_base_joint",
+        "name": "Right Base Joint",
+        "type": "FIXED",
+        "parentLinkId": "right_leg",
+        "childLinkId": "right_base",
+        "origin": {
+          "position": [
+            0,
+            -0.22,
+            0.120002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "right_front_wheel_joint",
+        "name": "Right Front Wheel Joint",
+        "type": "CONTINUOUS",
+        "parentLinkId": "right_base",
+        "childLinkId": "right_front_wheel",
+        "origin": {
+          "position": [
+            0.133333333333,
+            -0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "limits": null,
+        "drive": {
+          "mode": "VELOCITY",
+          "maxForce": 1
+        }
+      },
+      {
+        "id": "right_back_wheel_joint",
+        "name": "Right Back Wheel Joint",
+        "type": "CONTINUOUS",
+        "parentLinkId": "right_base",
+        "childLinkId": "right_back_wheel",
+        "origin": {
+          "position": [
+            -0.133333333333,
+            -0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "limits": null,
+        "drive": {
+          "mode": "VELOCITY",
+          "maxForce": 1
+        }
+      },
+      {
+        "id": "base_to_left_leg",
+        "name": "Base To Left Leg",
+        "type": "FIXED",
+        "parentLinkId": "base_link",
+        "childLinkId": "left_leg",
+        "origin": {
+          "position": [
+            0,
+            0.22,
+            0.720002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "left_base_joint",
+        "name": "Left Base Joint",
+        "type": "FIXED",
+        "parentLinkId": "left_leg",
+        "childLinkId": "left_base",
+        "origin": {
+          "position": [
+            0,
+            0.22,
+            0.120002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "left_front_wheel_joint",
+        "name": "Left Front Wheel Joint",
+        "type": "CONTINUOUS",
+        "parentLinkId": "left_base",
+        "childLinkId": "left_front_wheel",
+        "origin": {
+          "position": [
+            0.133333333333,
+            0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "limits": null,
+        "drive": {
+          "mode": "VELOCITY",
+          "maxForce": 1
+        }
+      },
+      {
+        "id": "left_back_wheel_joint",
+        "name": "Left Back Wheel Joint",
+        "type": "CONTINUOUS",
+        "parentLinkId": "left_base",
+        "childLinkId": "left_back_wheel",
+        "origin": {
+          "position": [
+            -0.133333333333,
+            0.22,
+            0.035002316302185976
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "limits": null,
+        "drive": {
+          "mode": "VELOCITY",
+          "maxForce": 1
+        }
+      },
+      {
+        "id": "gripper_extension",
+        "name": "Gripper Extension",
+        "type": "PRISMATIC",
+        "parentLinkId": "base_link",
+        "childLinkId": "gripper_pole",
+        "origin": {
+          "position": [
+            0.19,
+            0,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "limits": {
+          "lower": -0.38,
+          "upper": 0,
+          "effort": 1000
+        },
+        "drive": {
+          "mode": "POSITION",
+          "maxForce": 1000
+        }
+      },
+      {
+        "id": "left_gripper_joint",
+        "name": "Left Gripper Joint",
+        "type": "REVOLUTE",
+        "parentLinkId": "gripper_pole",
+        "childLinkId": "left_gripper",
+        "origin": {
+          "position": [
+            0.39,
+            0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "limits": {
+          "lower": 0,
+          "upper": 0.548,
+          "effort": 1000
+        },
+        "drive": {
+          "mode": "POSITION",
+          "maxForce": 1000
+        }
+      },
+      {
+        "id": "left_tip_joint",
+        "name": "Left Tip Joint",
+        "type": "FIXED",
+        "parentLinkId": "left_gripper",
+        "childLinkId": "left_tip",
+        "origin": {
+          "position": [
+            0.39,
+            0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "right_gripper_joint",
+        "name": "Right Gripper Joint",
+        "type": "REVOLUTE",
+        "parentLinkId": "gripper_pole",
+        "childLinkId": "right_gripper",
+        "origin": {
+          "position": [
+            0.39,
+            -0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          -1
+        ],
+        "limits": {
+          "lower": 0,
+          "upper": 0.548,
+          "effort": 1000
+        },
+        "drive": {
+          "mode": "POSITION",
+          "maxForce": 1000
+        }
+      },
+      {
+        "id": "right_tip_joint",
+        "name": "Right Tip Joint",
+        "type": "FIXED",
+        "parentLinkId": "right_gripper",
+        "childLinkId": "right_tip",
+        "origin": {
+          "position": [
+            0.39,
+            -0.01,
+            0.670002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      },
+      {
+        "id": "head_swivel",
+        "name": "Head Swivel",
+        "type": "CONTINUOUS",
+        "parentLinkId": "base_link",
+        "childLinkId": "head",
+        "origin": {
+          "position": [
+            0,
+            0,
+            0.770002316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "limits": null,
+        "drive": {
+          "mode": "VELOCITY",
+          "maxForce": 1
+        }
+      },
+      {
+        "id": "tobox",
+        "name": "Tobox",
+        "type": "FIXED",
+        "parentLinkId": "head",
+        "childLinkId": "box",
+        "origin": {
+          "position": [
+            0.1814,
+            0,
+            0.911402316302186
+          ],
+          "rotationEuler": [
+            0,
+            0,
+            0
+          ]
+        },
+        "axis": [
+          0,
+          0,
+          0
+        ],
+        "limits": null,
+        "drive": null
+      }
+    ],
+    "sensors": [],
+    "assumptions": [
+      "URDF units are interpreted as meters, kilograms, and radians.",
+      "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+      "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+      "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane."
+    ]
+  },
+  "assets": [
+    {
+      "originalReference": "package://urdf_tutorial/meshes/l_finger_tip.dae",
+      "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger_tip.dae",
+      "sha256": "d2c7576f922563e611424b6488a0cc34c1411c8c1abd20fc39859e46eba3d408",
+      "bytes": 78077,
+      "contained": true
+    },
+    {
+      "originalReference": "package://urdf_tutorial/meshes/l_finger.dae",
+      "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger.dae",
+      "sha256": "cfb66ef1ee6693a76f8da59833af40a31b185a4ebcd5bcdc8a5fa15b6378accd",
+      "bytes": 145734,
+      "contained": true
+    }
+  ],
+  "conversions": [
+    {
+      "code": "URDF-COLLISION-ORIGIN-FLATTENED",
+      "entityPath": "/links/box/collision",
+      "message": "Collision origin was flattened to the visual pose because RobotGraph v1 has one link pose."
+    },
+    {
+      "code": "URDF-GROUND-NORMALIZATION",
+      "entityPath": "/robot",
+      "message": "Translated the imported robot +0.470002 m on Z so collision geometry contacts the project support plane."
+    },
+    {
+      "code": "URDF-TO-ROBOTGRAPH",
+      "entityPath": "/robot",
+      "message": "Converted 16 links and 15 joints into RobotGraph v1."
+    }
+  ],
+  "losses": [
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_gripper/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_gripper/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_tip/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/left_tip/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_gripper/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_gripper/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_tip/visual",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    },
+    {
+      "code": "URDF-MESH-APPROXIMATION",
+      "severity": "warning",
+      "entityPath": "/links/right_tip/collision",
+      "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1."
+    }
+  ],
+  "assumptions": [
+    "URDF units are interpreted as meters, kilograms, and radians.",
+    "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+    "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+    "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane."
+  ],
+  "warnings": [
+    "Link gripper_pole uses the imported-default material.",
+    "Link left_gripper uses the imported-default material.",
+    "Link left_tip uses the imported-default material.",
+    "Link right_gripper uses the imported-default material.",
+    "Link right_tip uses the imported-default material."
+  ],
+  "stagedObjectCount": 16,
+  "materializedSceneRevision": null,
+  "modification": null,
+  "createdAt": "2026-07-19T13:43:04.415Z",
+  "updatedAt": "2026-07-19T13:43:04.415Z"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "assetId": "ros-urdf-tutorial-r2d2-physics",
+  "name": "ROS URDF Tutorial Physics Robot",
+  "sourceRepository": "https://github.com/ros/urdf_tutorial",
+  "sourceCommit": "050f1e47cfdb2c5f3eb0746bc15c57e6a870faef",
+  "sourcePath": "urdf/07-physics.urdf",
+  "license": "BSD-3-Clause",
+  "attribution": "Copyright Open Source Robotics Foundation, Inc. and contributors",
+  "retrievedAt": "2026-07-19",
+  "modifications": "Source files are unmodified. SimForge converts primitive geometry and records COLLADA finger meshes as explicit box approximations.",
+  "files": [
+    {
+      "path": "07-physics.urdf",
+      "bytes": 10980,
+      "sha256": "78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1535,
+      "sha256": "c106b484e24ab0581699ca5105c59335703bc27561c3f43431ae01dc61be830d"
+    },
+    {
+      "path": "meshes/l_finger.dae",
+      "bytes": 145734,
+      "sha256": "cfb66ef1ee6693a76f8da59833af40a31b185a4ebcd5bcdc8a5fa15b6378accd"
+    },
+    {
+      "path": "meshes/l_finger_tip.dae",
+      "bytes": 78077,
+      "sha256": "d2c7576f922563e611424b6488a0cc34c1411c8c1abd20fc39859e46eba3d408"
+    }
+  ]
+}

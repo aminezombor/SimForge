@@ -1,0 +1,64 @@
+{
+  "blenderVersion": "4.5.11 LTS",
+  "formats": [
+    {
+      "format": "BLEND",
+      "sourceSha256": "9e64f1678b27e0dd63536a2673c5ac784242f21d8941aae209f83c1cbc3c4b60",
+      "bytes": 377787,
+      "objectCount": 1,
+      "stagedRevision": 1,
+      "acceptedRevision": 2
+    },
+    {
+      "format": "USD",
+      "sourceSha256": "2b2c6860f94e6eb6a53c00a1a523d776f02a42961889473bf097323094b509fb",
+      "bytes": 2860,
+      "objectCount": 2,
+      "stagedRevision": 3,
+      "acceptedRevision": 4
+    },
+    {
+      "format": "GLTF",
+      "sourceSha256": "8837f7d94cbcaac44a2db312c0fbe86ac9ae3d0696938d7958970150936eea77",
+      "bytes": 2000,
+      "objectCount": 1,
+      "stagedRevision": 5,
+      "acceptedRevision": 6
+    },
+    {
+      "format": "FBX",
+      "sourceSha256": "68270eb9a937e416f42227f6ce28d8ccbdab971058a19e1b0dcdb4df7c5dabc6",
+      "bytes": 15244,
+      "objectCount": 1,
+      "stagedRevision": 7,
+      "acceptedRevision": 8
+    },
+    {
+      "format": "OBJ",
+      "sourceSha256": "9c2034a29d57a3de225a3a61651d2a4fc700a51d2123ca74e1eaf9d581786b28",
+      "bytes": 923,
+      "objectCount": 1,
+      "stagedRevision": 9,
+      "acceptedRevision": 10
+    },
+    {
+      "format": "STL",
+      "sourceSha256": "7f373de0e5a820d7d582693b4b7db301392d58a32698948f7c4fe0ad2b9a97ec",
+      "bytes": 684,
+      "objectCount": 1,
+      "stagedRevision": 11,
+      "acceptedRevision": 12
+    }
+  ],
+  "rejection": {
+    "importId": "b2d24b2b-d27d-4fc0-a6b8-544e3799b041",
+    "status": "REJECTED",
+    "removedFromScene": true
+  },
+  "checkpointCount": 15,
+  "externalReferencesAccepted": false,
+  "security": {
+    "pathEscapeRejected": true,
+    "postApprovalHashChangeRejected": true
+  }
+}

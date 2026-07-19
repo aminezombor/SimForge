@@ -6,6 +6,7 @@ dist/
 .venv/
 .venv-usd/
 .tools/
+.tmp/
 __pycache__/
 *.py[cod]
 *.log

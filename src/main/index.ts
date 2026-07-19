@@ -33,6 +33,7 @@ const smokeArguments = [
   '--credential-smoke-test',
   '--privacy-smoke-test',
   '--provider-acceptance-test',
+  '--design-capture-test',
 ] as const;
 const smokeMode = smokeArguments.some((argument) => process.argv.includes(argument));
 const isolatedUserDataArgument = process.argv.find((argument) => argument.startsWith('--user-data-dir='));
@@ -116,6 +117,42 @@ async function runSmokeTest(): Promise<void> {
   let credentialSecurity: Record<string, unknown> | null = null;
   let privacySecurity: Record<string, unknown> | null = null;
   let providerAcceptance: Record<string, unknown> | null = null;
+  let designCapture: Record<string, unknown> | null = null;
+  if (process.argv.includes('--design-capture-test')) {
+    const captureDirectory = process.env.SIMFORGE_DESIGN_CAPTURE_DIR;
+    if (!captureDirectory) throw new Error('Design capture directory is unavailable');
+    await mkdir(captureDirectory, { recursive: true });
+    await createWindow(false);
+    mainWindow!.setContentSize(1280, 720);
+    await mainWindow!.webContents.executeJavaScript(`(async () => {
+      const deadline = Date.now() + 5000;
+      while (Date.now() < deadline && !document.querySelector('.workspace-grid')) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      const build = [...document.querySelectorAll('.mode-switcher button')]
+        .find((button) => button.textContent?.trim() === 'Build');
+      if (!(build instanceof HTMLButtonElement)) throw new Error('Build mode control is unavailable');
+      build.click();
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const canvas = document.querySelector('.conversation-canvas');
+      if (!(canvas instanceof HTMLElement)) throw new Error('Conversation canvas is unavailable');
+      canvas.scrollTop = 0;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    })()`);
+    const workspacePath = path.join(captureDirectory, 'workspace-1280x720.png');
+    await writeFile(workspacePath, (await mainWindow!.webContents.capturePage()).toPNG());
+    await mainWindow!.webContents.executeJavaScript(`(async () => {
+      const canvas = document.querySelector('.conversation-canvas');
+      if (!(canvas instanceof HTMLElement)) throw new Error('Conversation canvas is unavailable');
+      canvas.scrollTop = canvas.scrollHeight;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    })()`);
+    const importPath = path.join(captureDirectory, 'import-workflows-1280x720.png');
+    await writeFile(importPath, (await mainWindow!.webContents.capturePage()).toPNG());
+    designCapture = { workspacePath, importPath, width: 1280, height: 720 };
+    mainWindow!.destroy();
+    mainWindow = null;
+  }
   if (process.argv.includes('--security-smoke-test')) {
     await createWindow(false);
     rendererSecurity = await mainWindow?.webContents.executeJavaScript(`(async () => {
@@ -238,6 +275,7 @@ async function runSmokeTest(): Promise<void> {
         credentialSecurity,
         privacySecurity,
         providerAcceptance,
+        designCapture,
       },
       null,
       2,

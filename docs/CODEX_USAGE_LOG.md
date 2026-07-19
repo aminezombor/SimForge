@@ -247,6 +247,28 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   for the Windows GUI process; the harness was rerun with a hidden waited process. No app
   failure or product-data change occurred. Imported-asset integrity remains MS8.
 
+### 2026-07-19 - MS8 imported robot and native-format closure
+
+- Phase/milestone: MS8 complete; licensed imported path stable
+- Requirement/test IDs: `REQ-PROD-004`, `REQ-IMPORT-003` through `REQ-IMPORT-005`,
+  `REQ-VALIDATION-009`; `AT-019`, `AT-020`, `AT-031`, `AT-036`, `AT-039`
+- What Codex/GPT-5.6 contributed: selected and pinned a redistributable ROS fixture,
+  designed a contained URDF-to-`RobotGraph` converter, implemented exact-approved native
+  staging/decision operations, and reused the existing validation/review/USD pipeline.
+- Important decisions: original bytes and disclosed losses stay distinct from project
+  modifications; all imported content is copied and hashed before Blender; remote,
+  executable, escaping, unresolved, or post-approval-changed content fails closed.
+- Time/risk saved: the real Blender matrix exposed and corrected a misplaced sensor
+  validation block and proved six native operators, accept/reject cleanup, checkpoints,
+  path defense, and hash binding in one repeatable run.
+- Human review and verification: 44 default tests, all five real Blender acceptance tests,
+  canonical moved reopen, package/extension build, production audit, nine-fuse inspection,
+  isolated renderer/credential/privacy smoke, and owner-reference visual comparison pass.
+- Evidence: `docs/evidence/MS8_VERIFICATION.md`, `docs/evidence/ms8/`, and `design-qa.md`.
+- Limitations or correction made: COLLADA finger meshes are retained but approximated as
+  boxes in RobotGraph v1; this is reported, not hidden. General package mappings, MJCF,
+  Xacro, and multi-file native dependency workflows remain post-hackathon V1.
+
 ## Future Entry Template
 
 ### YYYY-MM-DD - Outcome

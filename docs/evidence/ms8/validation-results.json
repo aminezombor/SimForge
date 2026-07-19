@@ -1,0 +1,2519 @@
+{
+  "assumptions": [
+    "URDF units are interpreted as meters, kilograms, and radians.",
+    "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+    "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+    "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane.",
+    "The added camera is user-approved SimForge metadata, not source URDF data."
+  ],
+  "exportId": "67ddf176-8289-4286-a2e2-3879fc735d96",
+  "importReport": {
+    "assets": [
+      {
+        "bytes": 78077,
+        "contained": true,
+        "originalReference": "package://urdf_tutorial/meshes/l_finger_tip.dae",
+        "sha256": "d2c7576f922563e611424b6488a0cc34c1411c8c1abd20fc39859e46eba3d408",
+        "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger_tip.dae"
+      },
+      {
+        "bytes": 145734,
+        "contained": true,
+        "originalReference": "package://urdf_tutorial/meshes/l_finger.dae",
+        "sha256": "cfb66ef1ee6693a76f8da59833af40a31b185a4ebcd5bcdc8a5fa15b6378accd",
+        "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/meshes/l_finger.dae"
+      }
+    ],
+    "assumptions": [
+      "URDF units are interpreted as meters, kilograms, and radians.",
+      "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+      "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+      "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane."
+    ],
+    "conversions": [
+      {
+        "code": "URDF-COLLISION-ORIGIN-FLATTENED",
+        "entityPath": "/links/box/collision",
+        "message": "Collision origin was flattened to the visual pose because RobotGraph v1 has one link pose."
+      },
+      {
+        "code": "URDF-GROUND-NORMALIZATION",
+        "entityPath": "/robot",
+        "message": "Translated the imported robot +0.470002 m on Z so collision geometry contacts the project support plane."
+      },
+      {
+        "code": "URDF-TO-ROBOTGRAPH",
+        "entityPath": "/robot",
+        "message": "Converted 16 links and 15 joints into RobotGraph v1."
+      }
+    ],
+    "createdAt": "2026-07-19T13:43:04.415Z",
+    "importId": "7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef",
+    "losses": [
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/left_gripper/visual",
+        "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/left_gripper/collision",
+        "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/left_tip/visual",
+        "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/left_tip/collision",
+        "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/right_gripper/visual",
+        "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/right_gripper/collision",
+        "message": "package://urdf_tutorial/meshes/l_finger.dae is retained and hash-verified but represented by a finger box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/right_tip/visual",
+        "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1.",
+        "severity": "warning"
+      },
+      {
+        "code": "URDF-MESH-APPROXIMATION",
+        "entityPath": "/links/right_tip/collision",
+        "message": "package://urdf_tutorial/meshes/l_finger_tip.dae is retained and hash-verified but represented by a finger-tip box primitive in RobotGraph v1.",
+        "severity": "warning"
+      }
+    ],
+    "materializedSceneRevision": null,
+    "modification": null,
+    "projectId": "f121cd28-6b10-4571-b742-83aa1a196b45",
+    "robotGraph": {
+      "assumptions": [
+        "URDF units are interpreted as meters, kilograms, and radians.",
+        "COLLADA finger meshes are retained as contained source assets but approximated by explicit box primitives.",
+        "RobotGraph v1 flattens visual/collision origins and full inertia tensors with every loss reported.",
+        "The import is translated only on Z so its collision representation contacts the selected Z=0 support plane."
+      ],
+      "coordinateConvention": "right-handed-z-up-x-forward",
+      "joints": [
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "right_leg",
+          "drive": null,
+          "id": "base_to_right_leg",
+          "limits": null,
+          "name": "Base To Right Leg",
+          "origin": {
+            "position": [
+              0,
+              -0.22,
+              0.720002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "base_link",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "right_base",
+          "drive": null,
+          "id": "right_base_joint",
+          "limits": null,
+          "name": "Right Base Joint",
+          "origin": {
+            "position": [
+              0,
+              -0.22,
+              0.120002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "right_leg",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "childLinkId": "right_front_wheel",
+          "drive": {
+            "maxForce": 1,
+            "mode": "VELOCITY"
+          },
+          "id": "right_front_wheel_joint",
+          "limits": null,
+          "name": "Right Front Wheel Joint",
+          "origin": {
+            "position": [
+              0.133333333333,
+              -0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "right_base",
+          "type": "CONTINUOUS"
+        },
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "childLinkId": "right_back_wheel",
+          "drive": {
+            "maxForce": 1,
+            "mode": "VELOCITY"
+          },
+          "id": "right_back_wheel_joint",
+          "limits": null,
+          "name": "Right Back Wheel Joint",
+          "origin": {
+            "position": [
+              -0.133333333333,
+              -0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "right_base",
+          "type": "CONTINUOUS"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "left_leg",
+          "drive": null,
+          "id": "base_to_left_leg",
+          "limits": null,
+          "name": "Base To Left Leg",
+          "origin": {
+            "position": [
+              0,
+              0.22,
+              0.720002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "base_link",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "left_base",
+          "drive": null,
+          "id": "left_base_joint",
+          "limits": null,
+          "name": "Left Base Joint",
+          "origin": {
+            "position": [
+              0,
+              0.22,
+              0.120002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "left_leg",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "childLinkId": "left_front_wheel",
+          "drive": {
+            "maxForce": 1,
+            "mode": "VELOCITY"
+          },
+          "id": "left_front_wheel_joint",
+          "limits": null,
+          "name": "Left Front Wheel Joint",
+          "origin": {
+            "position": [
+              0.133333333333,
+              0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "left_base",
+          "type": "CONTINUOUS"
+        },
+        {
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "childLinkId": "left_back_wheel",
+          "drive": {
+            "maxForce": 1,
+            "mode": "VELOCITY"
+          },
+          "id": "left_back_wheel_joint",
+          "limits": null,
+          "name": "Left Back Wheel Joint",
+          "origin": {
+            "position": [
+              -0.133333333333,
+              0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "left_base",
+          "type": "CONTINUOUS"
+        },
+        {
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "childLinkId": "gripper_pole",
+          "drive": {
+            "maxForce": 1000,
+            "mode": "POSITION"
+          },
+          "id": "gripper_extension",
+          "limits": {
+            "effort": 1000,
+            "lower": -0.38,
+            "upper": 0
+          },
+          "name": "Gripper Extension",
+          "origin": {
+            "position": [
+              0.19,
+              0,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "base_link",
+          "type": "PRISMATIC"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "childLinkId": "left_gripper",
+          "drive": {
+            "maxForce": 1000,
+            "mode": "POSITION"
+          },
+          "id": "left_gripper_joint",
+          "limits": {
+            "effort": 1000,
+            "lower": 0,
+            "upper": 0.548
+          },
+          "name": "Left Gripper Joint",
+          "origin": {
+            "position": [
+              0.39,
+              0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "gripper_pole",
+          "type": "REVOLUTE"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "left_tip",
+          "drive": null,
+          "id": "left_tip_joint",
+          "limits": null,
+          "name": "Left Tip Joint",
+          "origin": {
+            "position": [
+              0.39,
+              0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "left_gripper",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "childLinkId": "right_gripper",
+          "drive": {
+            "maxForce": 1000,
+            "mode": "POSITION"
+          },
+          "id": "right_gripper_joint",
+          "limits": {
+            "effort": 1000,
+            "lower": 0,
+            "upper": 0.548
+          },
+          "name": "Right Gripper Joint",
+          "origin": {
+            "position": [
+              0.39,
+              -0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "gripper_pole",
+          "type": "REVOLUTE"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "right_tip",
+          "drive": null,
+          "id": "right_tip_joint",
+          "limits": null,
+          "name": "Right Tip Joint",
+          "origin": {
+            "position": [
+              0.39,
+              -0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "right_gripper",
+          "type": "FIXED"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "childLinkId": "head",
+          "drive": {
+            "maxForce": 1,
+            "mode": "VELOCITY"
+          },
+          "id": "head_swivel",
+          "limits": null,
+          "name": "Head Swivel",
+          "origin": {
+            "position": [
+              0,
+              0,
+              0.770002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "base_link",
+          "type": "CONTINUOUS"
+        },
+        {
+          "axis": [
+            0,
+            0,
+            0
+          ],
+          "childLinkId": "box",
+          "drive": null,
+          "id": "tobox",
+          "limits": null,
+          "name": "Tobox",
+          "origin": {
+            "position": [
+              0.1814,
+              0,
+              0.911402316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "parentLinkId": "head",
+          "type": "FIXED"
+        }
+      ],
+      "links": [
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.6,
+            "primitive": "CYLINDER",
+            "radius": 0.2
+          },
+          "dynamic": true,
+          "id": "base_link",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 10
+          },
+          "materialId": "imported-blue",
+          "name": "Base Link",
+          "physicsMaterialId": "imported-blue",
+          "pose": {
+            "position": [
+              0,
+              0,
+              0.470002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.6,
+            "primitive": "CYLINDER",
+            "radius": 0.2
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.6,
+              0.1,
+              0.2
+            ]
+          },
+          "dynamic": true,
+          "id": "right_leg",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 10
+          },
+          "materialId": "imported-white",
+          "name": "Right Leg",
+          "physicsMaterialId": "imported-white",
+          "pose": {
+            "position": [
+              0,
+              -0.22,
+              0.420002316302186
+            ],
+            "rotationEuler": [
+              0,
+              1.570750000000196,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.6,
+              0.1,
+              0.2
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.4,
+              0.1,
+              0.1
+            ]
+          },
+          "dynamic": true,
+          "id": "right_base",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 10
+          },
+          "materialId": "imported-white",
+          "name": "Right Base",
+          "physicsMaterialId": "imported-white",
+          "pose": {
+            "position": [
+              0,
+              -0.22,
+              0.120002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.4,
+              0.1,
+              0.1
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          },
+          "dynamic": true,
+          "id": "right_front_wheel",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 1
+          },
+          "materialId": "imported-black",
+          "name": "Right Front Wheel",
+          "physicsMaterialId": "imported-black",
+          "pose": {
+            "position": [
+              0.133333333333,
+              -0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              1.57075,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          },
+          "dynamic": true,
+          "id": "right_back_wheel",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 1
+          },
+          "materialId": "imported-black",
+          "name": "Right Back Wheel",
+          "physicsMaterialId": "imported-black",
+          "pose": {
+            "position": [
+              -0.133333333333,
+              -0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              1.57075,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.6,
+              0.1,
+              0.2
+            ]
+          },
+          "dynamic": true,
+          "id": "left_leg",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 10
+          },
+          "materialId": "imported-white",
+          "name": "Left Leg",
+          "physicsMaterialId": "imported-white",
+          "pose": {
+            "position": [
+              0,
+              0.22,
+              0.420002316302186
+            ],
+            "rotationEuler": [
+              0,
+              1.570750000000196,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.6,
+              0.1,
+              0.2
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.4,
+              0.1,
+              0.1
+            ]
+          },
+          "dynamic": true,
+          "id": "left_base",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 10
+          },
+          "materialId": "imported-white",
+          "name": "Left Base",
+          "physicsMaterialId": "imported-white",
+          "pose": {
+            "position": [
+              0,
+              0.22,
+              0.120002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.4,
+              0.1,
+              0.1
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          },
+          "dynamic": true,
+          "id": "left_front_wheel",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 1
+          },
+          "materialId": "imported-black",
+          "name": "Left Front Wheel",
+          "physicsMaterialId": "imported-black",
+          "pose": {
+            "position": [
+              0.133333333333,
+              0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              1.57075,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          },
+          "dynamic": true,
+          "id": "left_back_wheel",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 1
+          },
+          "materialId": "imported-black",
+          "name": "Left Back Wheel",
+          "physicsMaterialId": "imported-black",
+          "pose": {
+            "position": [
+              -0.133333333333,
+              0.22,
+              0.035002316302185976
+            ],
+            "rotationEuler": [
+              1.57075,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.1,
+            "primitive": "CYLINDER",
+            "radius": 0.035
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "depth": 0.2,
+            "primitive": "CYLINDER",
+            "radius": 0.01
+          },
+          "dynamic": true,
+          "id": "gripper_pole",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 0.05
+          },
+          "materialId": "imported-default",
+          "name": "Gripper Pole",
+          "physicsMaterialId": "imported-default",
+          "pose": {
+            "position": [
+              0.29000000000000004,
+              0,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              1.570750000000196,
+              0
+            ]
+          },
+          "visual": {
+            "depth": 0.2,
+            "primitive": "CYLINDER",
+            "radius": 0.01
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.12,
+              0.04,
+              0.03
+            ]
+          },
+          "dynamic": true,
+          "id": "left_gripper",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 0.05
+          },
+          "materialId": "imported-default",
+          "name": "Left Gripper",
+          "physicsMaterialId": "imported-default",
+          "pose": {
+            "position": [
+              0.39,
+              0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.12,
+              0.04,
+              0.03
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.09,
+              0.035,
+              0.025
+            ]
+          },
+          "dynamic": true,
+          "id": "left_tip",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 0.05
+          },
+          "materialId": "imported-default",
+          "name": "Left Tip",
+          "physicsMaterialId": "imported-default",
+          "pose": {
+            "position": [
+              0.48137,
+              0.014950000000000001,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.09,
+              0.035,
+              0.025
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.12,
+              0.04,
+              0.03
+            ]
+          },
+          "dynamic": true,
+          "id": "right_gripper",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 0.05
+          },
+          "materialId": "imported-default",
+          "name": "Right Gripper",
+          "physicsMaterialId": "imported-default",
+          "pose": {
+            "position": [
+              0.39,
+              -0.01,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              -3.1415,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.12,
+              0.04,
+              0.03
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.09,
+              0.035,
+              0.025
+            ]
+          },
+          "dynamic": true,
+          "id": "right_tip",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 0.05
+          },
+          "materialId": "imported-default",
+          "name": "Right Tip",
+          "physicsMaterialId": "imported-default",
+          "pose": {
+            "position": [
+              0.48137,
+              -0.00505,
+              0.670002316302186
+            ],
+            "rotationEuler": [
+              -3.1415,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.09,
+              0.035,
+              0.025
+            ]
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "SPHERE",
+            "radius": 0.2
+          },
+          "dynamic": true,
+          "id": "head",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 2
+          },
+          "materialId": "imported-white",
+          "name": "Head",
+          "physicsMaterialId": "imported-white",
+          "pose": {
+            "position": [
+              0,
+              0,
+              0.770002316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "SPHERE",
+            "radius": 0.2
+          }
+        },
+        {
+          "centerOfMassM": {
+            "note": "Imported from URDF inertial origin.",
+            "source": "IMPORTED",
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "collision": {
+            "primitive": "BOX",
+            "size": [
+              0.08,
+              0.08,
+              0.08
+            ]
+          },
+          "dynamic": true,
+          "id": "box",
+          "inertiaDiagonalKgM2": {
+            "note": "Imported URDF inertia diagonal; off-diagonal terms are reported separately.",
+            "source": "IMPORTED",
+            "value": [
+              0.001,
+              0.001,
+              0.001
+            ]
+          },
+          "massKg": {
+            "note": "Imported from URDF inertial/mass.",
+            "source": "IMPORTED",
+            "value": 1
+          },
+          "materialId": "imported-blue",
+          "name": "Box",
+          "physicsMaterialId": "imported-blue",
+          "pose": {
+            "position": [
+              0.1414,
+              0,
+              0.911402316302186
+            ],
+            "rotationEuler": [
+              0,
+              0,
+              0
+            ]
+          },
+          "visual": {
+            "primitive": "BOX",
+            "size": [
+              0.08,
+              0.08,
+              0.08
+            ]
+          }
+        }
+      ],
+      "materials": [
+        {
+          "baseColor": [
+            0,
+            0,
+            0.8,
+            1
+          ],
+          "id": "imported-blue",
+          "metallic": 0,
+          "name": "Imported Blue",
+          "roughness": 0.55
+        },
+        {
+          "baseColor": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "id": "imported-black",
+          "metallic": 0,
+          "name": "Imported Black",
+          "roughness": 0.55
+        },
+        {
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": "imported-white",
+          "metallic": 0,
+          "name": "Imported White",
+          "roughness": 0.55
+        },
+        {
+          "baseColor": [
+            0.45,
+            0.52,
+            0.58,
+            1
+          ],
+          "id": "imported-default",
+          "metallic": 0.08,
+          "name": "Imported Default",
+          "roughness": 0.5
+        },
+        {
+          "baseColor": [
+            0.95,
+            0.34,
+            0.045,
+            1
+          ],
+          "id": "sensor-amber",
+          "metallic": 0.08,
+          "name": "Imported Sensor Amber",
+          "roughness": 0.34
+        },
+        {
+          "baseColor": [
+            0.08,
+            0.75,
+            0.95,
+            0.18
+          ],
+          "id": "collision-guide",
+          "metallic": 0,
+          "name": "Imported Collision Guide",
+          "roughness": 0.55
+        }
+      ],
+      "name": "ROS URDF Tutorial Physics Robot (Imported)",
+      "robotId": "imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee",
+      "rootLinkId": "base_link",
+      "schemaVersion": 1,
+      "selfCollision": {
+        "note": "Imported URDF has no complete self-collision matrix; adjacent exclusions require downstream review.",
+        "policy": "ADJACENT_EXCLUDED"
+      },
+      "sensors": [],
+      "units": "meters-kilograms-radians"
+    },
+    "schemaVersion": 1,
+    "source": {
+      "assetId": "ros-urdf-tutorial-r2d2-physics",
+      "attribution": "Copyright Open Source Robotics Foundation, Inc. and contributors",
+      "format": "URDF",
+      "license": "BSD-3-Clause",
+      "name": "ROS URDF Tutorial Physics Robot",
+      "sourceBytes": 10980,
+      "sourceCommit": "050f1e47cfdb2c5f3eb0746bc15c57e6a870faef",
+      "sourcePath": "urdf/07-physics.urdf",
+      "sourceRepository": "https://github.com/ros/urdf_tutorial",
+      "sourceSha256": "78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047",
+      "stagedRelativePath": "references/imports/7ca20fc5-26c6-46a8-ab4a-c7190ad9a6ef/07-physics.urdf"
+    },
+    "stagedObjectCount": 16,
+    "status": "STAGED",
+    "updatedAt": "2026-07-19T13:43:04.415Z",
+    "warnings": [
+      "Link gripper_pole uses the imported-default material.",
+      "Link left_gripper uses the imported-default material.",
+      "Link left_tip uses the imported-default material.",
+      "Link right_gripper uses the imported-default material.",
+      "Link right_tip uses the imported-default material."
+    ]
+  },
+  "limitations": [
+    "Physical values marked ASSUMED are not measured hardware data.",
+    "Primitive collision/contact checks are not simulator proof.",
+    "Isaac Sim execution evidence is recorded separately and is never inferred from package validation."
+  ],
+  "modelAssertionUsedAsEvidence": false,
+  "sceneRevision": 2,
+  "schemaVersion": 1,
+  "sourceValidation": {
+    "channels": [
+      "fresh-blender-snapshot",
+      "deterministic-geometry-metadata",
+      "deterministic-robotics"
+    ],
+    "completedAt": "2026-07-19T13:43:05.332Z",
+    "findings": [
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.20000000298023224,
+              0.20000000298023224,
+              0.7700023651123047
+            ],
+            "min": [
+              -0.20000000298023224,
+              -0.20000000298023224,
+              0.1700023114681244
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:base_link",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:30ba3e3b9e4f",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.18140000104904175,
+              0.03999999910593033,
+              0.9514023661613464
+            ],
+            "min": [
+              0.1013999953866005,
+              -0.03999999910593033,
+              0.8714023232460022
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:box",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:5f0f63bbd633",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            2.4278051569126546e-08,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.39000046253204346,
+              0.009999999776482582,
+              0.6800069808959961
+            ],
+            "min": [
+              0.189999520778656,
+              -0.009999999776482582,
+              0.6599977016448975
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:gripper_pole",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:789075ec0d06",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.19999991357326508,
+              0.20000000298023224,
+              0.970002293586731
+            ],
+            "min": [
+              -0.19999980926513672,
+              -0.1999998539686203,
+              0.5700023174285889
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:head",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:26e9acf2c969",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            -8.003553375601768e-11,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              -0.09833329916000366,
+              0.270001620054245,
+              0.07000464200973511
+            ],
+            "min": [
+              -0.1683332920074463,
+              0.1699983775615692,
+              -5.2650648285634816e-09
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_back_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:857fb337efed",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.20000004768371582,
+              0.27000001072883606,
+              0.1700023114681244
+            ],
+            "min": [
+              -0.19999995827674866,
+              0.17000000178813934,
+              0.07000231742858887
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_base",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:01862e9f93e5",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            -8.003553375601768e-11,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.16833338141441345,
+              0.270001620054245,
+              0.07000464200973511
+            ],
+            "min": [
+              0.09833338856697083,
+              0.1699983775615692,
+              -5.2650648285634816e-09
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_front_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:9d68f2c758e1",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.4500000476837158,
+              0.029999999329447746,
+              0.6850022673606873
+            ],
+            "min": [
+              0.33000004291534424,
+              -0.009999999776482582,
+              0.6550022959709167
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_gripper",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:58c9bbc609dd",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.10001393407583237,
+              0.27000001072883606,
+              0.7200069427490234
+            ],
+            "min": [
+              -0.10001393407583237,
+              0.17000000178813934,
+              0.11999765783548355
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_leg",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:596f08672cbe",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.5263700485229492,
+              0.03244999796152115,
+              0.682502269744873
+            ],
+            "min": [
+              0.4363700747489929,
+              -0.002550000324845314,
+              0.657502293586731
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_tip",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:dcd4c9138c97",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            8.003553375601768e-11,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              -0.09833329916000366,
+              -0.1699983775615692,
+              0.07000464200973511
+            ],
+            "min": [
+              -0.1683332920074463,
+              -0.270001620054245,
+              -5.2650648285634816e-09
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_back_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:249faf1af8df",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.20000004768371582,
+              -0.17000000178813934,
+              0.1700023114681244
+            ],
+            "min": [
+              -0.19999995827674866,
+              -0.27000001072883606,
+              0.07000231742858887
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_base",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:5897c2293e65",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            8.003553375601768e-11,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.16833338141441345,
+              -0.1699983775615692,
+              0.07000464200973511
+            ],
+            "min": [
+              0.09833338856697083,
+              -0.270001620054245,
+              -5.2650648285634816e-09
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_front_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:b2627fc97594",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            2.7100270472146804e-08
+          ],
+          "worldBounds": {
+            "max": [
+              0.4500000476837158,
+              0.010001389309763908,
+              0.6850041151046753
+            ],
+            "min": [
+              0.33000004291534424,
+              -0.030001388862729073,
+              0.6550004482269287
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_gripper",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:d84f42b24c6e",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "worldBounds": {
+            "max": [
+              0.10001393407583237,
+              -0.17000000178813934,
+              0.7200069427490234
+            ],
+            "min": [
+              -0.10001393407583237,
+              -0.27000001072883606,
+              0.11999765783548355
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_leg",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:02944844e896",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "An external origin can be intentional and requires human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "origin": [
+            0,
+            0,
+            8.917282912079827e-09
+          ],
+          "worldBounds": {
+            "max": [
+              0.5263700485229492,
+              0.012451158836483955,
+              0.6825038194656372
+            ],
+            "min": [
+              0.4363700747489929,
+              -0.0225511584430933,
+              0.6575006246566772
+            ]
+          }
+        },
+        "domain": "geometry",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_tip",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-ORIGIN-001:d30278d4eaa8",
+        "message": "Object origin lies outside its world-space bounds.",
+        "proposedFix": null,
+        "ruleId": "GEO-ORIGIN-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:base_link",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:30ba3e3b9e4f",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:box",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:5f0f63bbd633",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:gripper_pole",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:789075ec0d06",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:head",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:26e9acf2c969",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_back_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:857fb337efed",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_base",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:01862e9f93e5",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_front_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:9d68f2c758e1",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_gripper",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:58c9bbc609dd",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_leg",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:596f08672cbe",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:left_tip",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:dcd4c9138c97",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_back_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:249faf1af8df",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_base",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:5897c2293e65",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_front_wheel",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:b2627fc97594",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_gripper",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:d84f42b24c6e",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_leg",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:02944844e896",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      },
+      {
+        "assumptions": [
+          "Hidden objects may be intentional and require human review."
+        ],
+        "createdAt": "2026-07-19T13:43:05.332Z",
+        "deterministicEvidence": {
+          "visible": false
+        },
+        "domain": "scene",
+        "entityPath": "/objects/imported-ros-urdf-tutorial-r2d2-physics-78e6744b67ee:collision:right_tip",
+        "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d:GEO-VISIBILITY-001:d30278d4eaa8",
+        "message": "Object is hidden from the active view layer or render.",
+        "proposedFix": null,
+        "ruleId": "GEO-VISIBILITY-001",
+        "runId": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+        "severity": "info",
+        "status": "OPEN"
+      }
+    ],
+    "id": "889dcb57-ecdf-478f-a59a-fd0d330b6d9d",
+    "projectId": "f121cd28-6b10-4571-b742-83aa1a196b45",
+    "sceneRevision": 2,
+    "startedAt": "2026-07-19T13:43:05.332Z",
+    "status": "COMPLETED",
+    "summary": {
+      "blocker": 0,
+      "error": 0,
+      "info": 32,
+      "warning": 0
+    }
+  },
+  "usdChecks": [
+    {
+      "evidence": {
+        "missing": [],
+        "required": [
+          "scene.usda",
+          "robot/robot.usda",
+          "robot/geometry/robot_geometry.usdc",
+          "robot/materials/robot_materials.usda",
+          "robot/physics/robot_physics.usda",
+          "robot/sensors/robot_sensors.usda",
+          "environment/environment.usda"
+        ]
+      },
+      "id": "USD-LAYERS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "entryPoint": "scene.usda"
+      },
+      "id": "USD-STAGE-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "defaultPrim": "/World",
+        "metersPerUnit": 1.0,
+        "upAxis": "Z"
+      },
+      "id": "USD-CONVENTION-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "invalid": [],
+        "references": [
+          {
+            "asset": "./environment/environment.usda",
+            "layer": "scene.usda"
+          },
+          {
+            "asset": "./robot/robot.usda",
+            "layer": "scene.usda"
+          },
+          {
+            "asset": "./materials/robot_materials.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./physics/robot_physics.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./sensors/robot_sensors.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./geometry/robot_geometry.usdc",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./materials/robot_materials.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./physics/robot_physics.usda",
+            "layer": "robot/robot.usda"
+          },
+          {
+            "asset": "./sensors/robot_sensors.usda",
+            "layer": "robot/robot.usda"
+          }
+        ]
+      },
+      "id": "USD-REFERENCES-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "articulationRoot": true,
+        "joints": 15,
+        "links": 16,
+        "visualAndPhysicsLinkPrims": 32
+      },
+      "id": "USD-ROBOT-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "collisions": 16,
+        "massSchemas": 16
+      },
+      "id": "USD-PHYSICS-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "materials": 6
+      },
+      "id": "USD-MATERIAL-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "sensors": 1
+      },
+      "id": "USD-SENSOR-001",
+      "status": "PASS"
+    },
+    {
+      "evidence": {
+        "environmentId": null,
+        "expectedObjects": 0,
+        "objects": 0,
+        "placeholder": true
+      },
+      "id": "USD-ENVIRONMENT-001",
+      "status": "PASS"
+    }
+  ]
+}

@@ -44,7 +44,8 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 | Three.js | Revision-stamped GLB inspection | 0.184.0 | MIT | Active releases | Adopted; direct renderer keeps Blender authoritative and avoids an extra runtime wrapper |
 | `@phosphor-icons/react` | Workspace iconography | 2.1.10 | MIT | Active upstream | Adopted; no custom/fake icon assets |
 | `@types/three` | TypeScript declarations | 0.183.1 | MIT | DefinitelyTyped/upstream maintained | Adopted as development-only dependency |
-| Urchin | URDF parser candidate | 0.0.30 baseline | MIT | Release 2025-10-21 | P1 candidate; Python 3.13/asset proof required |
+| `fast-xml-parser` | Contained URDF XML parsing | 5.10.0 | MIT | Active upstream; exact lock | Adopted; entities disabled and SimForge enforces declaration, URL, path, size, and Xacro limits before conversion |
+| Urchin | URDF parser candidate | 0.0.30 baseline | MIT | Release 2025-10-21 | Not adopted for MS8; direct typed conversion avoided another Python runtime boundary |
 | `yourdfpy` | URDF fallback candidate | 0.0.57 baseline | MIT | 2025 release | Not adopted; evaluate only if Urchin fails contract |
 | MuJoCo Python | MJCF parser/compiler candidate | Pin in MS10 | Apache-2.0 | Google DeepMind active monthly releases | Post-V1 candidate; native size/plugins/includes risks |
 | Direct OpenAI Responses HTTP adapter | Optional provider | Versioned app contract | OpenAI API terms | Official endpoint/docs | Adopted; avoids provider SDK coupling |
@@ -62,7 +63,7 @@ Versions below reflect the MS1 lock and verification on 2026-07-18.
 
 | Asset ID | Name | Source URL | Version/hash | License | Redistribution | Modifications/conversion | Project use |
 | -------- | ---- | ---------- | ------------ | ------- | -------------- | ------------------------ | ----------- |
-| _Pending MS8_ | External robot | - | - | - | Must be confirmed | - | Imported robot demo |
+| `ros-urdf-tutorial-r2d2-physics` | ROS URDF Tutorial Physics Robot | https://github.com/ros/urdf_tutorial | commit `050f1e47cfdb2c5f3eb0746bc15c57e6a870faef`; URDF SHA-256 `78e6744b67ee07138d370aeea24a6d43d7f7d77025853a995e9685ab41fef047` | BSD-3-Clause | Permitted with retained copyright/license | Source unmodified; DAE fingers retained and disclosed as box approximations; exact-approved camera added as SimForge project data | Imported robot demo and package fixture |
 | _Pending MS9_ | Sample textures/environment | - | - | Prefer CC0 or compatible | Must be confirmed | - | Sample project/demo |
 
 ## Release Compliance Gate
@@ -116,3 +117,15 @@ existing CPython/OpenUSD runtime writes the environment layer. Package, extensio
 secret scan, isolated renderer/credential/privacy smoke, and nine-fuse audit pass at the
 pinned versions. The first external asset enters only through the MS8 license/provenance
 gate.
+
+## MS8 Audit Result
+
+MS8 pins `fast-xml-parser` 5.10.0 under MIT; `pnpm audit --prod` reports no known
+vulnerabilities. The Open Robotics fixture is pinned to one commit with upstream
+BSD-3-Clause license, attribution, exact byte counts, and SHA-256 hashes in `SOURCE.json`.
+Source files are unmodified. Conversion losses and the user-approved camera addition are
+reported separately. The package retains the source, license, manifest, import report,
+and third-party notice. Real Blender proves the licensed URDF plus the six native formats;
+external dependencies, remote references, Xacro, entities, traversal, symlinks, and
+post-approval source changes fail closed. AT-036 remains open only for the release-wide
+inventory and final redistributable audit in MS9A.
