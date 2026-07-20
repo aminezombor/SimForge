@@ -426,6 +426,18 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
   `docs/assets/simforge-evolve-mark-black.png`, and
   `docs/assets/simforge-evolve-mark-color.png`.
 
+### 2026-07-20 - Workflow communication graphic
+
+- Phase/milestone: MS9 submission delivery
+- Contribution: Codex translated the working product sequence into a deterministic,
+  editable diagram and rendered a high-resolution PNG using the implemented SimForge
+  interface palette.
+- Important decision: return the dotted feedback arrow to the explicit revision point
+  between Blender authoring and physics/USD export, matching the product's real approval
+  and correction loop.
+- Evidence: `docs/assets/simforge-workflow-feedback-loop.svg` and
+  `docs/assets/simforge-workflow-feedback-loop.png`.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:
