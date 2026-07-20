@@ -402,6 +402,16 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Limitations or correction made: no live GPT-5.6 call is represented as part of the
   NVIDIA-recorded workflow; autonomous topology optimization is explicitly future scope.
 
+### 2026-07-20 - Devpost story and identity refinement
+
+- Phase/milestone: MS9 submission delivery
+- Contribution: Codex incorporated owner-authored Challenges and SimForge Evolve roadmap
+  language into the public story and generated a new square thumbnail concept for Devpost.
+- Important decision: retain the user-controlled evidence loop as the present-tense product;
+  position topology/task optimization as a future direction informed by simulation evidence.
+- Evidence: `docs/DEVPOST_DRAFT.md` and
+  `docs/assets/simforge-evolve-devpost-thumbnail-v2.png`.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:

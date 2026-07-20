@@ -72,6 +72,22 @@ when an owner configures OpenAI credentials. The recorded product workflow uses 
 configured NVIDIA/Nemotron route, discovered and capability-probed at runtime. We state
 that distinction deliberately so the demo remains accurate.
 
+### Challenges we ran into
+
+The hard part was not generating geometry—it was making AI-assisted robotics work
+trustworthy. We built explicit approvals, scene-revision checks, checkpoints, stale-scene
+rejection, deterministic findings, scoped credentials, and retained simulation evidence.
+Codex and GPT-5.6 accelerated the architecture, implementation, testing, packaging,
+debugging, and documentation workflow. We used deterministic tests and real
+Blender/OpenUSD/Isaac runs as evidence rather than treating model output as proof.
+
+### What's next for SimForge Evolve
+
+Our long-term direction is robotics topology and task optimization: use simulation
+evidence to compare human-approved design candidates for a specific task. Future work
+includes broader robot imports, richer optimization objectives, more simulation metrics,
+and expanded platform support.
+
 ## Technical Implementation
 
 The sandboxed Electron renderer communicates through narrow validated IPC to a TypeScript
