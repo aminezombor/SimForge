@@ -8,6 +8,17 @@
     <marker id="blue-arrow" viewBox="0 0 20 20" markerWidth="20" markerHeight="20" refX="18" refY="10" orient="auto" markerUnits="userSpaceOnUse">
       <path d="M0 0L20 10L0 20Z" fill="#72b5d5"/>
     </marker>
+    <filter id="invert-logo" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues="1 0"/>
+        <feFuncG type="table" tableValues="1 0"/>
+        <feFuncB type="table" tableValues="1 0"/>
+      </feComponentTransfer>
+    </filter>
+    <mask id="robot-emblem-mask" maskUnits="userSpaceOnUse" x="1640" y="295" width="270" height="245">
+      <rect x="1640" y="295" width="270" height="245" fill="black"/>
+      <image href="simforge-evolve-devpost-thumbnail.png" x="1490" y="215" width="553" height="553" filter="url(#invert-logo)"/>
+    </mask>
   </defs>
 
   <rect width="2000" height="1000" fill="#071019"/>
@@ -42,13 +53,14 @@
     <path d="M1025 355H1090"/>
   </g>
 
-  <ellipse cx="890" cy="565" rx="190" ry="72" fill="#071019" stroke="#68ead0" stroke-width="3" stroke-dasharray="9 8"/>
+  <path d="M700 565A190 72 0 0 1 1070 540"
+        fill="none" stroke="#68ead0" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 9" marker-end="url(#mint-arrow)"/>
+  <path d="M1080 565A190 72 0 0 1 710 590"
+        fill="none" stroke="#68ead0" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 9" marker-end="url(#mint-arrow)"/>
   <g font-family="Segoe UI, Arial, sans-serif" fill="#dbe9ed" font-size="21" font-weight="600" text-anchor="middle">
     <text x="890" y="548">ROBOTICS TOPOLOGY</text>
     <text x="890" y="579">OPTIMIZATION</text>
   </g>
-  <path d="M730 526H770" fill="none" stroke="#68ead0" stroke-width="4" marker-end="url(#mint-arrow)"/>
-  <path d="M1050 604H1010" fill="none" stroke="#68ead0" stroke-width="4" marker-end="url(#mint-arrow)"/>
 
   <rect x="425" y="690" width="600" height="125" rx="22" fill="#103c39" stroke="#68ead0" stroke-width="3"/>
   <g font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">
@@ -68,17 +80,7 @@
   <g id="result">
     <rect x="1600" y="285" width="350" height="500" rx="34" fill="#0a1720" stroke="#68ead0" stroke-width="4"/>
 
-    <g transform="translate(1684 338)" fill="none" stroke="#68ead0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M34 165L34 111Q34 96 49 96Q64 96 64 111V137"/>
-      <path d="M64 134V70Q64 55 79 55Q94 55 94 70V130"/>
-      <path d="M94 126V44Q94 29 109 29Q124 29 124 44V128"/>
-      <path d="M124 124V67Q124 52 139 52Q154 52 154 67V145"/>
-      <path d="M154 139L175 117Q186 105 197 114Q207 123 198 136L169 180Q154 201 130 205H80Q49 205 34 181Z"/>
-      <rect x="69" y="205" width="92" height="36" rx="9" stroke="#72b5d5"/>
-      <circle cx="79" cy="55" r="7" fill="#071019"/>
-      <circle cx="109" cy="29" r="7" fill="#071019"/>
-      <circle cx="139" cy="52" r="7" fill="#071019"/>
-    </g>
+    <rect x="1640" y="295" width="270" height="245" fill="#68ead0" mask="url(#robot-emblem-mask)"/>
 
     <g font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">
       <text x="1775" y="640" fill="#dbe9ed" font-size="30" font-weight="650">BEST ROBOT</text>
