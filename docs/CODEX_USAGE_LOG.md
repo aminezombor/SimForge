@@ -412,6 +412,20 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Evidence: `docs/DEVPOST_DRAFT.md` and
   `docs/assets/simforge-evolve-devpost-thumbnail-v2.png`.
 
+### 2026-07-20 - Final identity asset set
+
+- Phase/milestone: MS9 submission delivery
+- Contribution: Codex extracted the application palette from the implemented interface and
+  created black/white and dark SimForge-palette thumbnail/standalone-mark variants with a
+  bolder evolution-arrow motif.
+- Important decision: keep the human/robot fingertips and circular evolution loop as the
+  visual metaphor for human-approved robotics evolution; do not use unaudited third-party
+  artwork or generic stock imagery.
+- Evidence: `docs/assets/simforge-evolve-thumbnail-bw.png`,
+  `docs/assets/simforge-evolve-thumbnail-color.png`,
+  `docs/assets/simforge-evolve-mark-black.png`, and
+  `docs/assets/simforge-evolve-mark-color.png`.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:

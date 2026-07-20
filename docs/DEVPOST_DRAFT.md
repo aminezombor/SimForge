@@ -81,6 +81,27 @@ Codex and GPT-5.6 accelerated the architecture, implementation, testing, packagi
 debugging, and documentation workflow. We used deterministic tests and real
 Blender/OpenUSD/Isaac runs as evidence rather than treating model output as proof.
 
+### Accomplishments that we're proud of
+
+- A working packaged Windows application—not a mockup—that creates a wheeled warehouse
+  manipulator visibly in Blender from an approved chat plan.
+- An evidence-first workflow: fresh scene snapshots, checkpoints, deterministic findings,
+  approval-bound correction, modular USD export, and 12 passing OpenUSD reopen checks.
+- A real optional Isaac Sim feedback loop that retained a failure, rejected an unapproved
+  correction, and then linked an approved Blender correction to a passing waypoint rerun.
+- A clear submission path: installer, portable fallback, Blender extension, sample project,
+  public repository/release, test procedure, dependency notices, and 57 passing default
+  automated tests.
+
+### What we learned
+
+We learned that the difficult part of AI-assisted robotics is not asking a model to create
+objects—it is defining what the model is allowed to change, how the scene stays truthful,
+and what evidence proves an outcome. Separating recommendation from authority, binding
+approvals to revisions, and reopening exported USD made the product more reliable and the
+experience easier to explain. We also learned that a focused conversational journey is a
+better demo than exposing every advanced engineering control at once.
+
 ### What's next for SimForge Evolve
 
 Our long-term direction is robotics topology and task optimization: use simulation
