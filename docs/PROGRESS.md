@@ -9,7 +9,7 @@
 - Architecture: Approved; no architecture changes were required
 - Current gate: freeze 0.1.2 artifacts, edit the captured footage below three minutes,
   publish the refreshed release, finish Devpost fields, and obtain final submit confirmation
-- Last updated: 2026-07-19
+- Last updated: 2026-07-20
 
 ## Completed Work
 
@@ -38,6 +38,7 @@
 | 2026-07-19 | MS9C conversational submission shell | Preserved the full 0.1.1 workspace branch; replaced visible mode/sample cards with an uncluttered chat, compact Plan/Build/Export/Simulate rail, bounded intent classifier, in-chat approvals, preferred Nemotron defaults, and direct reuse of tested Blender/USD/Isaac services. | 55 active tests; packaged 1280x720 captures; DEC-033; AT-041/AT-042 |
 | 2026-07-19 | Installed MS9C owner-demo acceptance | Added a blank metric starter scene, conservative Blender factory-object cleanup, export-intent disambiguation, and stale project-index recovery; rebuilt/reinstalled 0.1.2 and completed the owner-recorded conversational Blender/USD/Isaac failure-correction-pass loop. | 57 default tests; real Blender factory-scene regression; `docs/evidence/MS9C_INSTALLED_ACCEPTANCE.md`; AT-041/AT-042 |
 | 2026-07-19 | Public v0.1.2 conversational release | Pushed the exact tested checkpoint to judge-facing `main`, published installer/portable/extension/sample/hash assets, matched GitHub digests to local hashes, and verified anonymous repository, release, and every asset URL with HTTP 200. | Commit `d1a2cd4`; `https://github.com/aminezombor/SimForge/releases/tag/v0.1.2` |
+| 2026-07-20 | Judge-aligned submission package | Reframed the Devpost narrative, 2:40 demo script, spoken pitch, captions/edit checklist, and release messaging around the published Build Week judging criteria: working non-trivial implementation, coherent design, specific robotics impact, and differentiated evidence-first workflow. Added truthful wording for Codex/GPT-5.6 and the optional OpenAI provider versus the recorded NVIDIA route. | `docs/JUDGING_ALIGNMENT.md`; `docs/DEMO_SCRIPT.md`; `docs/DEVPOST_DRAFT.md` |
 
 ## Verification Summary
 
@@ -95,6 +96,6 @@ See `docs/evidence/MS1_MS2_VERIFICATION.md` for commands and limitations.
 
 ## Next Action
 
-Edit the successful owner-recorded run into the scripted under-three-minute video, build
-and publish the frozen 0.1.2 artifacts, update the Devpost draft, resolve private owner
-fields, run the final cross-link audit, and obtain action-time confirmation before submitting.
+Edit the successful owner-recorded run into the 2:40 judge-aligned video, upload it to
+YouTube, resolve the private owner fields, run the final cross-link audit, and obtain
+action-time confirmation before submitting.

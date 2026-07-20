@@ -382,6 +382,26 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Limitations or correction made: publishing is complete; video edit/upload, private
   submission fields, and final owner-confirmed Devpost submission remain.
 
+### 2026-07-20 - Judge-oriented narrative and proof alignment
+
+- Phase/milestone: MS9 submission delivery
+- Requirement/test IDs: `REQ-SUBMISSION-001` through `REQ-SUBMISSION-007`; `AT-035`
+- What Codex/GPT-5.6 contributed: converted the published Build Week requirement and
+  judging criteria into an evidence-first Devpost narrative, a 2:40 capture script,
+  concise elevator/spoken pitches, slide titles, and a final video checklist.
+- Important decisions: present the live product as a human-controlled Blender-to-USD-to-
+  Isaac authoring loop; describe GPT-5.6 accurately as both build acceleration and an
+  optional runtime OpenAI Responses route; identify NVIDIA/Nemotron as the recorded route;
+  reserve topology optimization for the future roadmap.
+- Time/risk saved: made the working evidence—not generic AI claims—the structure of every
+  submission asset, reducing the chance of an impressive-sounding but inaccurate pitch.
+- Human review and verification: owner must personalize the story, record/upload the video,
+  and complete private Devpost fields before submitting.
+- Evidence: `docs/JUDGING_ALIGNMENT.md`, `docs/DEMO_SCRIPT.md`,
+  `docs/DEVPOST_DRAFT.md`, `docs/HACKATHON_SUBMISSION_CHECKLIST.md`.
+- Limitations or correction made: no live GPT-5.6 call is represented as part of the
+  NVIDIA-recorded workflow; autonomous topology optimization is explicitly future scope.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:

@@ -1,101 +1,120 @@
 # Devpost Draft — SimForge
 
-Owner review is required before this copy is published. Rewrite at least the opening and
-impact paragraphs in the owner’s own voice; do not submit AI-generated description text
-unchanged. Keep private form values and the `/feedback` Session ID out of this repository.
+Owner review is required before publication. Personalize the first paragraph in your own voice.
+Keep legal identity, country, video URL until ready, and the private `/feedback` Session ID
+out of this repository.
 
 ## Form Fields
 
-- Project name: **SimForge**
-- Category: **Developer Tools**
-- Tagline: **Turn robotics goals into verified Blender and USD assets with human-controlled AI.**
-- Repository: `https://github.com/aminezombor/SimForge`
-- Video: `[OWNER: public YouTube URL under three minutes]`
-- Submitter type: `[OWNER: private form selection]`
-- Country: `[OWNER: private form selection]`
-- Codex Session ID: `[OWNER: run /feedback and enter only in the required private field]`
-- Built with: Codex, GPT‑5.6, NVIDIA NIM/Nemotron, Electron, TypeScript, React,
-  Blender 4.5 LTS, OpenUSD, Python, SQLite, Three.js, NVIDIA Isaac Sim
+- **Project name:** SimForge
+- **Category:** Developer Tools
+- **Elevator pitch:** Turn a robotics goal into approved Blender work, verified USD, and Isaac feedback—with deterministic checks and human control.
+- **Repository:** https://github.com/aminezombor/SimForge
+- **Release / judge download:** https://github.com/aminezombor/SimForge/releases/tag/v0.1.2
+- **Video:** [OWNER: public or unlisted YouTube URL under three minutes]
+- **Submitter type and country:** [OWNER: select your actual legal details]
+- **Codex Session ID:** [OWNER: run `/feedback` and enter the result only in Devpost]
+- **Built with:** Codex, GPT-5.6, OpenAI Responses API, NVIDIA NIM, NVIDIA Nemotron,
+  Electron, TypeScript, React, SQLite, Blender 4.5 LTS, Python, OpenUSD, USD,
+  NVIDIA Isaac Sim, Three.js, Windows
 
-## Description
+## About the Project
 
-Preparing a simulation-ready robot is still a fragmented engineering workflow. A creator
-moves between modeling, scripts, hierarchy and collision checks, physics metadata, USD
-packaging, and simulation—often without a reliable record of what changed or why.
+### The problem
 
-SimForge is a Windows desktop application that makes this workflow conversational without
-hiding it. A user describes a robotics goal, reviews a testable plan, watches structured
-work happen in the real Blender scene, inspects deterministic findings, approves material
-corrections, and exports a modular USD package that SimForge reopens before reporting
-success. Blender is the visual authority; deterministic rules and retained evidence are
-the engineering authority.
+Preparing a simulation-ready robot is still a fragmented workflow. A robotics creator moves
+between modeling, scripts, hierarchy and collision checks, physics metadata, USD packaging,
+and simulation—often without a reliable record of what changed or why. That makes iteration
+slow for technical artists, robotics developers, and physical-AI teams, especially when an
+AI assistant is allowed to act without clear limits.
 
-The working demonstration builds a warehouse mobile manipulator with a wheeled base, arm,
-gripper, sensors, collision geometry, materials, and physics metadata. SimForge catches a
-real gripper defect, checkpoints and corrects it under approval, revalidates, exports and
-relocates the USD package, then closes an optional Isaac Sim loop from failed stability
-evidence to an approved Blender correction and passing parent-linked rerun.
+### What we built
 
-Users choose Guided, Balanced, or Autonomous action authority. Plan Mode is technically
-unable to mutate Blender, and export/overwrite, destructive, privacy-sensitive, and
-privileged fallback actions always keep a human gate. NVIDIA is the primary AI provider;
-models are discovered and capability-probed at runtime, and text-only models cannot
-receive visual-review work. Projects remain local and portable, credentials use Windows
-protection, and there is no SimForge telemetry service.
+SimForge is a Windows desktop application that makes robotics authoring conversational
+without hiding the engineering process. A user describes a goal, reviews an exact plan,
+watches structured work happen in the real Blender scene, inspects deterministic findings,
+approves material corrections, and exports a modular USD package that SimForge reopens
+before reporting readiness.
 
-## Key Features
+The working demonstration starts from a blank Blender scene and creates a warehouse mobile
+manipulator: wheeled base, arm, gripper, sensor representations, collision geometry,
+materials, physics metadata, and warehouse objects. A deterministic stability check catches
+a real issue. The user approves a bounded correction, SimForge checkpoints and revalidates
+the scene, then exports a portable USD package with relative references and 12 passing
+reopen checks. Optional Isaac Sim runs the same package, retains the initial failure, and
+links an approved correction to a passing waypoint rerun.
 
-- Conversation, planning, persistent goals, checkpoints, revisions, branches, and activity history
-- Real Blender scene snapshots, manual-edit detection, stale-action rejection, and structured tools
-- Deterministic geometry, robotics, environment, OpenUSD, and Isaac checks
-- Generated warehouse robot plus licensed URDF and native-format staging demonstrations
-- Capability-aware NVIDIA/OpenAI routing with explicit cloud disclosure and local fallback
-- Quick and modular USD export with hashes, relative references, reports, and deep reopen
-- Optional reproducible Isaac failure → approved correction → passing rerun history
-- Installer, portable build, sample project, Environment Doctor, and judge procedure
+### Why it is different
 
-## How It Was Built
+SimForge is not a text-to-3D black box. Blender is the visual source of truth, while
+deterministic geometry, robotics, OpenUSD, and simulation checks provide the engineering
+evidence. AI can propose and explain actions, but it cannot silently perform consequential
+work or declare its own result correct.
 
-The sandboxed Electron renderer talks through narrow validated IPC to a TypeScript main
-process that owns policy, SQLite, providers, paths, jobs, Blender connectivity, and export.
-A thin GPL Blender extension makes authenticated outbound loopback connections and runs
-all `bpy` work on Blender’s main thread. Versioned schemas define scene, robot, environment,
-provider, validation, and export contracts. Blender writes visual layers; a bundled fixed
-Python 3.13 / usd-core 26.5 sidecar authors neutral physics/composition layers and reopens
-the result. Optional Isaac Sim runs a fixed local task against a copied, hash-bound package.
+A clean chat guides the primary experience through **Plan → Build → Export → Simulate**.
+Guided, Balanced, and Autonomous authority are explicit; Guided is the default. Plan Mode
+is technically unable to mutate Blender, and export/overwrite, destructive, privacy-sensitive,
+and privileged fallback actions always retain human approval. Checkpoints, revisions,
+activity history, fresh snapshots, and stale-action rejection make changes recoverable.
 
-Codex with GPT‑5.6 translated the master brief and owner refinements into 133 atomic requirements and 42
-acceptance scenarios, evaluated the architecture and licenses, implemented the vertical
-slices, operated real Blender/OpenUSD/Isaac acceptance, diagnosed packaging and security
-defects, and maintained decisions, traceability, tests, and submission evidence. Model
-self-evaluation was never used as completion evidence.
+### How we built it with Codex and GPT-5.6
 
-## Testing Instructions
+Codex with GPT-5.6 accelerated the engineering work end to end: it transformed the master
+brief and owner feedback into **133 traceable requirements** and **42 acceptance scenarios**,
+compared architecture and license trade-offs, implemented the Electron desktop app, Blender
+bridge, OpenUSD sidecar, and Isaac feedback seam, and helped drive real Blender/OpenUSD/Isaac
+acceptance, security hardening, packaging, and release documentation. We used retained
+deterministic test evidence rather than model self-evaluation as proof of completion.
 
-1. Download v0.1.2 installer or portable ZIP and verify `SHA256SUMS.txt`.
-2. Install Blender 4.5 LTS and the release Blender extension ZIP.
-3. Launch SimForge and run Settings → Environment → Recheck.
-4. Optional: enter an NVIDIA key directly in protected Settings and discover models.
-5. In chat, request `prepare for me in blender a wheeled robot with a gripper hand`,
-   review the plan, and approve the checkpointed Blender build.
-6. Request USD export, choose/approve an empty destination, and confirm 12 reopen checks.
-7. With Isaac configured, request simulation, inspect the real retained stability failure,
-   approve its bounded Blender correction, re-export, and rerun the passing waypoint task.
+SimForge also contains an optional provider-neutral **OpenAI Responses API** adapter with
+runtime model discovery and normalized events; a compatible GPT-5.6 model can be selected
+when an owner configures OpenAI credentials. The recorded product workflow uses the
+configured NVIDIA/Nemotron route, discovered and capability-probed at runtime. We state
+that distinction deliberately so the demo remains accurate.
 
-Detailed expected states and fallback evidence: `docs/OWNER_JUDGE_TEST.md`.
+## Technical Implementation
 
-## Supported Platform and Limitations
+The sandboxed Electron renderer communicates through narrow validated IPC to a TypeScript
+main process that owns policy, SQLite storage, providers, filesystem access, jobs, Blender
+connectivity, and export. A thin GPL-3.0-or-later Blender extension uses an authenticated
+outbound loopback connection and executes Blender work on Blender's main thread. Versioned
+contracts cover scenes, robots, validation, providers, and exports.
 
-Supported release baseline: Windows 11 x64 and Blender 4.5 LTS. The installer is unsigned;
-the portable ZIP is supplied as a SmartScreen fallback. Blender and Isaac Sim are separate
-installs. Isaac 6.0.1 is optional; local bounded evidence was produced on hardware below
-NVIDIA’s published 32 GB RAM / 16 GB VRAM minimum. Broader CAD fidelity, Linux, larger
-asset libraries, and full post-hackathon format guarantees are roadmap work.
+Blender creates visual geometry/material layers. A bundled Python 3.13 / `usd-core 26.5`
+sidecar writes neutral physics and composition layers, then reopens the USD package to
+validate composition, schemas, relative references, portability, and hashes. Optional
+Isaac Sim runs a fixed local experiment against a copied, hash-bound package and retains
+before/after evidence with parent/child lineage.
 
-## Judge Notes
+## Judge Test
 
-Use the generated warehouse path first; it is the stable critical path. A provider outage
-does not block deterministic build/validation/export: the app discloses and uses its local
-fixture. Retained screenshots, reports, USD manifests, and Isaac before/after evidence are
-sanitized and included in the repository. Expected first-run test time is 5–10 minutes
-after Blender is installed.
+1. Download the v0.1.2 installer or portable ZIP from the release and verify
+   `SHA256SUMS.txt`.
+2. Install Blender 4.5 LTS and the release Blender extension ZIP. Launch Blender once.
+3. Launch SimForge, open **Settings → Environment**, and choose **Recheck**.
+4. Optional: enter an NVIDIA key directly in protected Settings and discover models. Never
+   paste keys into chat. The deterministic local path remains available without a key.
+5. In a new chat, enter: `prepare for me in blender a wheeled robot with a gripper hand`.
+   Review and approve the plan and build. Blender visibly creates the robot/workcell.
+6. Enter: `export this robot to USD for simulation`. Choose an empty destination, approve
+   export, and confirm the 12 USD reopen checks.
+7. If Isaac Sim is configured, enter: `send it to simulation in Isaac Sim`. Approve the
+   run, inspect the failure, approve the correction, re-export, and rerun the waypoint task.
+
+Exact expected states, timings, fallback evidence, and troubleshooting:
+`docs/OWNER_JUDGE_TEST.md`.
+
+## Platform and Limitations
+
+Supported release baseline: **Windows 11 x64** and **Blender 4.5 LTS**. Blender is a
+separate install. The installer is unsigned; the portable ZIP is the SmartScreen fallback.
+Isaac Sim 6.0.1 is optional and not required for authoring or USD export. Broader CAD
+fidelity, Linux, larger asset libraries, and full format coverage remain post-hackathon
+work. The current Isaac evidence uses a bounded sample and was produced on hardware below
+NVIDIA's published recommended RAM/VRAM minimum.
+
+## Media Plan
+
+Use the 2:40 narration and capture sequence in `docs/DEMO_SCRIPT.md`. It shows the
+problem, clean conversational flow, real Blender creation, deterministic failure and
+approved correction, verified USD, Isaac rerun, and the concrete Codex/GPT-5.6 contribution.

@@ -2,68 +2,79 @@
 
 ## Recording Target
 
-Target a 2:45 final cut; 2:55 is the absolute scripted ceiling. Record 1920×1080 at
-30 fps with cursor emphasis, 125–150% UI zoom where needed, and clean narration. Never
-show an API key, private path, notification, browser account, or `/feedback` ID.
+Target **2:40**; 2:50 is the hard editing ceiling. Record at 1920x1080, 30 fps, with
+clear narration and no music required. Keep text large enough to read. Never show keys,
+private paths, notifications, browser accounts, or a `/feedback` Session ID.
 
-## Shot-by-Shot Video
+## Final 2:40 Video Script
 
-| Time | Picture and exact action | Narration | On-screen label / fallback |
-| ---- | ------------------------ | --------- | -------------------------- |
-| 0:00–0:15 | Fast cuts: Blender scene, scripts, physics metadata, USD layers. | “Preparing a robot for simulation means stitching together modeling, scripting, physics checks, and USD packaging—then wondering whether the result is actually trustworthy.” | **Robotics authoring is disconnected.** Use stills if live apps lag. |
-| 0:15–0:30 | Open the polished three-column SimForge workspace; pan from chats to authoring to viewport/evidence. | “SimForge makes that workflow conversational while Blender stays the source of visual truth and deterministic checks stay the source of engineering evidence.” | **Goal → evidence → verified asset** |
-| 0:30–0:50 | Show NVIDIA/Nemotron route, Plan Mode, 12/11/3/15 scope, Guided authority, then approve. | “The planning model is discovered and capability-probed at runtime. Plan Mode cannot mutate Blender. Guided authority shows me the exact scope, so I approve before any build tool becomes available.” | **NVIDIA-routed · Plan is read-only · Guided**. Fallback: sanitized discovery evidence plus local fixture, clearly labeled. |
-| 0:50–1:20 | Side-by-side SimForge and Blender during warehouse build; point to revision, changed entities, checkpoint, and preview. | “Structured operations build the mobile base, arm, gripper, sensors, and warehouse directly in Blender. SimForge refreshes scene truth, creates a recoverable checkpoint, and records every action.” | **Blender live · scene revision · checkpoint retained**. Speed up only dead time. |
-| 1:20–1:45 | Show displaced gripper, `ROB-LINK-POSE-001`, exact evidence, approval, corrected render, passing rerun. | “Here is a real injected defect. A deterministic rule identifies the wrong link pose. Visual review supports the finding, but does not replace it. The structural correction waits for approval, checkpoints, and revalidates.” | **Detected → approved → corrected → rechecked**. Fallback: retained before/after PNGs and JSON. |
-| 1:45–2:05 | Export panel, destination/overwrite gate, package tree, manifest, OpenUSD reopen/pass. | “Export is never silent. SimForge creates a modular, portable USD package, reopens it with OpenUSD, resolves relative references, verifies robotics metadata, and writes machine and human reports.” | **12 deterministic USD checks · relocated reopen passed** |
-| 2:05–2:25 | Simulation tab: failed Isaac frame/metrics, advisory analysis, approved Blender correction, passing child rerun. | “The same package runs in Isaac Sim. A stability check fails, AI explains the retained numbers, and I approve a bounded Blender correction. The child rerun passes and stays linked to the failed experiment.” | **Isaac FAILED → approved correction → PASSED**. Fallback: `docs/evidence/ms11b/` frames and lineage JSON. |
-| 2:25–2:55 | Montage: Codex task, tests, architecture, release artifacts, final product frame. | Use the 30-second segment below. | **Built with Codex + GPT‑5.6 · 125 requirements · 49+ tests · real Blender/OpenUSD/Isaac evidence** |
+| Time | Picture | Narration | Judge signal |
+| --- | --- | --- | --- |
+| 0:00-0:12 | Fast Blender, USD, and Isaac cuts; then the clean SimForge chat. | “Getting a robot from an idea to a simulation-ready asset still means stitching together modeling, scripts, physics metadata, USD, and simulation.” | Specific real problem and audience. |
+| 0:12-0:24 | SimForge rail: Plan, Build, Export, Simulate. | “SimForge is a Windows desktop tool for robotics creators. It makes that journey conversational, but keeps Blender as visual truth and deterministic checks as engineering evidence.” | Clear product promise. |
+| 0:24-0:42 | New chat. Enter: `prepare for me in blender a wheeled robot with a gripper hand`. Show the plan and Guided approval. | “I start with a goal. SimForge proposes a bounded plan. Guided authority shows the scope and waits for me; planning alone cannot mutate Blender.” | Coherent safety-centered design. |
+| 0:42-1:04 | Approved build creates the collection, wheeled base, arm, gripper, sensors, and warehouse in a previously blank Blender scene. Show checkpoint/revision. | “After approval, structured operations create the robot and workcell in the real Blender scene. The application records a checkpoint and a scene revision, so this work is visible and recoverable.” | Real non-trivial implementation. |
+| 1:04-1:24 | Validation/failure card, retained evidence, approval, corrected Blender scene. | “A deterministic stability check finds a real problem. AI can explain the evidence, but it cannot declare success. I approve a bounded correction, then SimForge rechecks it.” | Differentiated trust loop. |
+| 1:24-1:43 | Chat export request, explicit export approval, USD package tree, 12 passing reopen checks. | “When I request export, SimForge writes physics and composition layers into a portable USD package, reopens it with OpenUSD, resolves references, and produces a report.” | Evidence beyond a generated mesh. |
+| 1:43-2:05 | Isaac failed result, proposal, approval, corrected export, passed parent/child rerun and native Isaac view. | “The same package runs in optional Isaac Sim. The first experiment fails, I approve the Blender correction, and the linked rerun passes the waypoint task.” | Measurable before/after outcome. |
+| 2:05-2:30 | Short montage: architecture diagram/code, test output, release page, final app/Blender/Isaac frame. | Use the exact Codex and GPT-5.6 narration below. | Explicit Build Week contribution. |
+| 2:30-2:40 | Final product frame plus repository/release URL overlay. | “SimForge makes physical-AI authoring faster without making the engineering process invisible. Next, we will expand the same human-controlled evidence loop toward broader formats and optimization workflows.” | Impact plus credible roadmap. |
 
-## 30-Second Codex/GPT-5.6 Segment
+## Codex and GPT-5.6 Narration (25 seconds)
 
-“Codex with GPT‑5.6 was my engineering partner across the whole build. It converted my
-master brief into 125 traceable requirements, compared architectures, implemented the
-Electron, Blender, OpenUSD, and Isaac seams, and drove real acceptance tests—not just
-model self-review. It also caught security, packaging, reconnect, and UX problems, then
-kept decisions, evidence, and release documentation synchronized. That let one builder
-deliver a trustworthy robotics-authoring loop in hackathon time.”
+“Codex with GPT-5.6 was our engineering partner, not a substitute for evidence. It turned
+the brief into 133 traceable requirements, helped evaluate the architecture and licenses,
+implemented and tested the desktop, Blender, OpenUSD, and Isaac boundaries, and kept the
+release documentation synchronized. SimForge also includes an optional OpenAI Responses
+provider with runtime model discovery; this recorded workflow uses the configured
+NVIDIA/Nemotron route.”
 
-To compress the owner’s existing one-minute clip: keep one sentence each for requirements,
-implementation, real-tool testing, and impact. Remove tool-by-tool narration, repeated
-“Codex helped” phrases, terminal footage, and any claim that GPT judgment itself proves
-correctness. Use four 6–7 second visuals with hard cuts.
+## Capture and Editing Notes
 
-## Capture Order
+1. Use the already-recorded blank-Blender run as the main source. Tighten waiting periods;
+   never speed up a state change so far that approval or evidence becomes unreadable.
+2. If a live tool is slow, use sanitized retained screenshots for the validator, USD reopen,
+   and Isaac before/after. Label them as recorded evidence, not live interaction.
+3. Include one tight 4-6 second Blender shot with the SimForge collection appearing. This
+   proves authoring occurred in Blender before export.
+4. Use audio narration throughout. Add accurate captions, then watch once logged out and
+   once on a phone-sized player to check readability.
+5. The public YouTube cut must stay below three minutes and use no copyrighted music or
+   unlicensed footage.
 
-1. Record the clean workspace and model/authority settings.
-2. Record the build once; capture a separate tight Blender angle for the checkpoint moment.
-3. Record deterministic defect and corrected state as separate clips.
-4. Record export/reopen and report scrolling.
-5. Record Isaac before/after; retain the fixed evidence images as fallback.
-6. Record voice-over last, then tighten pauses to reach 2:45–2:55.
+## Pitch Material
 
-## Pitch-Slide Ideas (Text Only)
+### 12-Second Elevator Pitch
 
-1. **The disconnected problem** — Robot preparation crosses Blender, scripts, physics,
-   format conversion, USD, and simulation. Each handoff loses context and trust.
-2. **The SimForge loop** — Conversational goal → inspected plan → visible Blender work →
-   deterministic validation → approved correction → verified USD → simulation feedback.
-3. **Trust by construction** — Blender truth, withheld Plan tools, revision-bound approvals,
-   permanent human gates, checkpoints, machine evidence, and no model-only pass claims.
-4. **Working proof** — 12-link warehouse manipulator, deliberate defect caught/corrected,
-   relocated USD reopen, and Isaac failed-to-passing parent/child rerun.
-5. **Why it matters** — Faster access to physical-AI authoring for experts and newcomers;
-   provider-neutral/local-first differentiation; Codex/GPT‑5.6 acceleration; next: broader
-   import fidelity, Linux, richer validation, and larger Isaac experiments.
+“SimForge turns a robotics idea into visible Blender work, verified USD, and optional Isaac
+feedback—while deterministic checks, checkpoints, and human approvals keep the creator in
+control.”
 
-## Edit and Release Checklist
+### 45-Second Spoken Pitch
 
-- Final duration is under 3:00; target 2:45 and never exceed 2:55.
-- Audio is clear, normalized, and present throughout; no copyrighted music is required.
-- UI, Blender object, validation rule, USD pass, and Isaac before/after are legible.
-- NVIDIA live inference versus deterministic fallback is labeled truthfully.
-- No keys, tokens, private feedback ID, private path, email, notification, or unrelated app appears.
-- Captions spell **SimForge**, **Blender 4.5 LTS**, **OpenUSD**, **NVIDIA Nemotron**,
-  **Isaac Sim**, **Codex**, and **GPT‑5.6** consistently.
-- Public YouTube playback works logged out at 1080p; duration and audio are rechecked.
-- Save the final URL and recording commit in the private submission workflow, not in evidence containing secrets.
+“Robotics creators lose time moving between Blender, scripts, physics configuration, USD,
+and simulation, and they often cannot prove what changed between those tools. SimForge is a
+desktop authoring loop that turns a short goal into a reviewable plan, real Blender work,
+deterministic validation, an approved correction, and a USD package that is reopened before
+reporting readiness. In our working demo, a wheeled warehouse manipulator is built in
+Blender, a stability issue is detected, a user approves the correction, and the corrected
+package passes a linked Isaac Sim rerun. The core idea is not autonomous text-to-3D; it is
+making physical-AI authoring faster while preserving evidence and human control.”
+
+### Five Slide Titles
+
+1. **The robotics-authoring handoff problem** — model, script, physics, USD, simulation.
+2. **One conversational evidence loop** — Plan → Build → Validate → Export → Simulate.
+3. **Trust by construction** — Blender truth, deterministic rules, approvals, checkpoints.
+4. **Working proof** — warehouse robot, failed check, approved repair, verified USD, Isaac pass.
+5. **Built with Codex + GPT-5.6** — traceability, implementation, tests, release; broader optimization is the roadmap.
+
+## Final Video Checklist
+
+- [ ] Duration under 3:00, preferably 2:35-2:45.
+- [ ] Clear voice-over and accurate English captions.
+- [ ] Prompt, plan, approval, live Blender build, finding, correction, USD checks, and Isaac pass are legible.
+- [ ] NVIDIA/Nemotron demo route and optional GPT-5.6/OpenAI integration are described truthfully.
+- [ ] Codex contribution is concrete: requirements, decisions, implementation, testing, packaging.
+- [ ] No secret, private path, browser account, notification, or `/feedback` ID appears.
+- [ ] Public/unlisted YouTube playback works while logged out.

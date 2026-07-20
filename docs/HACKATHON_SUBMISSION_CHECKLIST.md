@@ -65,6 +65,23 @@
 - [ ] Audio understandable and product activity legible at video resolution
 - [x] Codex/GPT-5.6 contribution and V2 roadmap fit final 10 seconds
 
+## Judge-Criteria Alignment
+
+- [x] **Technological implementation** - video and Devpost copy show the packaged app,
+  real Blender creation, deterministic validation, OpenUSD reopen, and Isaac rerun rather
+  than a mockup or model-only claim
+- [x] **Design** - video begins from a clean chat and makes Plan, Build, Export, Simulate,
+  approvals, checkpoints, and evidence legible
+- [x] **Potential impact** - copy names the fragmented robotics-authoring workflow and its
+  users: robotics creators, technical artists, developers, and physical-AI teams
+- [x] **Quality of idea** - copy explains the differentiator: visible scene truth plus
+  deterministic evidence and human approval, not autonomous text-to-3D alone
+- [x] **Codex/GPT-5.6 accuracy** - credits concrete build acceleration and the optional
+  OpenAI Responses/GPT-5.6 provider without falsely claiming the recorded NVIDIA demo was
+  a live GPT-5.6 request
+- [ ] Video has been checked logged out with narration, captions, readable UI, and a
+  duration under three minutes
+
 ## Final Owner Review
 
 - [ ] All P0 traceability rows are Tested or Accepted, or an explicit owner-approved deferral is recorded
