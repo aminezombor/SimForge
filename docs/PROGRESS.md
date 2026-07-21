@@ -9,7 +9,7 @@
 - Architecture: Approved; no architecture changes were required
 - Current gate: freeze 0.1.2 artifacts, edit the captured footage below three minutes,
   publish the refreshed release, finish Devpost fields, and obtain final submit confirmation
-- Last updated: 2026-07-20
+- Last updated: 2026-07-21
 
 ## Completed Work
 
@@ -42,6 +42,7 @@
 | 2026-07-20 | Devpost identity and project-story refinement | Added owner-requested Challenges and future SimForge Evolve sections to the Devpost draft, keeping robotics topology/task optimization explicitly future-facing. Created a square, sanitized Devpost thumbnail with a human/robot Creation-of-Adam-inspired gesture and evolution arrow. | `docs/DEVPOST_DRAFT.md`; `docs/assets/simforge-evolve-devpost-thumbnail-v2.png` |
 | 2026-07-20 | Final Devpost identity set and story completion | Produced four consistent PNG assets: black/white and SimForge-palette thumbnails plus black and SimForge-palette standalone marks, all with a heavier evolution arrow. Added Devpost accomplishments and lessons sections grounded in verified product evidence. | `docs/assets/simforge-evolve-thumbnail-*.png`; `docs/assets/simforge-evolve-mark-*.png`; `docs/DEVPOST_DRAFT.md` |
 | 2026-07-20 | Submission workflow graphic | Created an exact, editable SimForge-palette workflow diagram showing Text Prompt -> Blender 3D -> Physics + USD Export -> Isaac Sim Simulation, with simulation evidence returning to the design-revision point through a dotted improvement loop. | `docs/assets/simforge-workflow-feedback-loop.svg`; `docs/assets/simforge-workflow-feedback-loop.png` |
+| 2026-07-21 | Public human/AI collaboration record | Expanded the README with a verified account of the creator's product leadership, ChatGPT/GPT-5.6 product-definition work, Codex/GPT-5.6 implementation work, concrete acceleration examples, and consequential human decisions. | `README.md`; repository history; `docs/CODEX_USAGE_LOG.md`; `docs/DECISIONS.md` |
 
 ## Verification Summary
 

@@ -438,6 +438,22 @@ Record concrete ways Codex and GPT-5.6 accelerated research, product/architectur
 - Evidence: `docs/assets/simforge-workflow-feedback-loop.svg` and
   `docs/assets/simforge-workflow-feedback-loop.png`.
 
+### 2026-07-21 - Public collaboration and acceleration record
+
+- Phase/milestone: MS9 submission delivery
+- Requirement/test IDs: `REQ-SUBMISSION-003`, `REQ-SUBMISSION-006`; `AT-035`
+- What Codex/GPT-5.6 contributed: audited the Git history, decisions, progress ledger,
+  acceptance evidence, and prior usage log, then replaced the README's generic AI credit
+  with a role-separated, evidence-backed account of product definition and implementation.
+- Important decision: credit the creator as the source of the idea and product judgment;
+  distinguish ChatGPT/GPT-5.6 specification work from Codex/GPT-5.6 repository execution;
+  never describe the product as autonomously invented or delivered by AI.
+- Human review and verification: the owner supplied the collaboration provenance and
+  required the public explanation; repository facts and recorded acceptance results bound
+  every concrete implementation claim.
+- Evidence: `README.md`, commits `b0862cf`, `8a83325` through `7141635`, `d1a2cd4`,
+  `docs/DECISIONS.md`, `docs/PROGRESS.md`, and `docs/evidence/`.
+
 ### YYYY-MM-DD - Outcome
 
 - Phase/milestone:
