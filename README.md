@@ -123,8 +123,6 @@ See the [Codex usage log](docs/CODEX_USAGE_LOG.md), [decision record](docs/DECIS
 [progress ledger](docs/PROGRESS.md), and [acceptance tests](docs/ACCEPTANCE_TESTS.md) for
 the detailed, auditable history.
 
-**Primary `/feedback` Codex Session ID:** `019f7690-8240-7890-b70a-e1528e0c12e3`
-
 ### Important Human Decisions
 
 The project creator made or explicitly approved the decisions that shaped the product:
